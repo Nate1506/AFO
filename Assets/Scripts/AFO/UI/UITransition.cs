@@ -26,72 +26,91 @@ public sealed class UITransition : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
-    public void PlayTransition(string sceneName)
+    public bool PlayTransition(string sceneName)
     {
-        if (!busy) StartCoroutine(SceneTransition(sceneName));
+        if (busy || !overlayGroup || strips == null || strips.Length == 0) return false;
+        StartCoroutine(SceneTransition(sceneName));
+        return true;
     }
 
-    public void PlayQuick(Action midpoint)
+    public bool PlayQuick(Action midpoint)
     {
-        if (!busy) StartCoroutine(QuickTransition(midpoint));
+        if (busy || !overlayGroup || strips == null || strips.Length == 0) return false;
+        StartCoroutine(QuickTransition(midpoint));
+        return true;
     }
 
     IEnumerator SceneTransition(string sceneName)
     {
         busy = true;
-        yield return WipeIn();
+        yield return Wipe(true);
         SceneManager.LoadScene(sceneName);
     }
 
     IEnumerator QuickTransition(Action midpoint)
     {
         busy = true;
-        yield return WipeIn();
-        midpoint?.Invoke();
-        yield return new WaitForSecondsRealtime(0.035f);
-        yield return WipeOut();
+        yield return Wipe(true);
+        try { midpoint?.Invoke(); }
+        catch (Exception exception) { Debug.LogException(exception); }
+        if (!MenuButton.ReducedMotion) yield return new WaitForSecondsRealtime(0.035f);
+        yield return Wipe(false);
         busy = false;
-    }
-
-    IEnumerator WipeIn()
-    {
-        if (!overlayGroup || strips == null || strips.Length == 0) yield break;
-        float width = overlayGroup.transform is RectTransform root ? root.rect.width : Screen.width;
-        overlayGroup.alpha = 1f;
-        overlayGroup.blocksRaycasts = true;
-        overlayGroup.interactable = false;
-        for (int i = 0; i < strips.Length; i++) SetX(strips[i], width + strips[i].rect.width * 0.5f);
-        const float duration = 0.31f;
-        const float stagger = 0.045f;
-        for (int i = 0; i < strips.Length; i++) StartCoroutine(MoveStrip(strips[i], width + strips[i].rect.width * 0.5f, 0f, duration, i * stagger));
-        yield return new WaitForSecondsRealtime(duration + stagger * strips.Length + 0.025f);
-    }
-
-    IEnumerator WipeOut()
-    {
-        if (strips == null || strips.Length == 0) yield break;
-        float width = overlayGroup && overlayGroup.transform is RectTransform root ? root.rect.width : Screen.width;
-        const float duration = 0.27f;
-        const float stagger = 0.035f;
-        for (int i = 0; i < strips.Length; i++)
-            StartCoroutine(MoveStrip(strips[strips.Length - 1 - i], 0f, -width - strips[strips.Length - 1 - i].rect.width * 0.5f, duration, i * stagger));
-        yield return new WaitForSecondsRealtime(duration + stagger * strips.Length + 0.025f);
         Hide();
     }
 
-    IEnumerator MoveStrip(RectTransform strip, float from, float to, float duration, float delay)
+    IEnumerator Wipe(bool entering)
     {
-        if (delay > 0f) yield return new WaitForSecondsRealtime(delay);
-        float elapsed = 0f;
-        while (elapsed < duration)
+        float width = ((RectTransform)overlayGroup.transform).rect.width;
+        float height = ((RectTransform)overlayGroup.transform).rect.height;
+        float panelWidth = Mathf.Sqrt(width * width + height * height) + 180f;
+        float panelHeight = height + 60f;
+        overlayGroup.alpha = 1f;
+        overlayGroup.blocksRaycasts = true;
+        overlayGroup.interactable = false;
+
+        const float duration = 0.22f;
+        float stagger = entering ? 0.035f : 0.03f;
+        float total = duration + stagger * Mathf.Max(0, strips.Length - 1);
+        for (int i = 0; i < strips.Length; i++)
         {
+            var strip = strips[i];
+            if (!strip) continue;
+            strip.sizeDelta = new Vector2(panelWidth, panelHeight);
+            float halfWidth = strip.rect.width * 0.5f;
+            SetX(strip, MenuButton.ReducedMotion ? (entering ? 0f : -width - halfWidth) : entering ? width + halfWidth : -width - halfWidth);
+        }
+
+        if (MenuButton.ReducedMotion)
+        {
+            if (entering)
+                foreach (var strip in strips) if (strip) SetX(strip, 0f);
+            yield break;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < total)
+        {
+            for (int i = 0; i < strips.Length; i++)
+            {
+                var strip = strips[i];
+                if (!strip) continue;
+                float localTime = Mathf.Clamp01((elapsed - i * stagger) / duration);
+                float eased = localTime * localTime * (3f - 2f * localTime);
+                float halfWidth = strip.rect.width * 0.5f;
+                float from = entering ? width + halfWidth : 0f;
+                float to = entering ? 0f : -width - halfWidth;
+                float back = Mathf.Clamp01(localTime);
+                float x = Mathf.Lerp(from, to, eased);
+                // A tiny directional overshoot gives the panels a fast snap without exposing the edges.
+                x += (entering ? -1f : 1f) * Mathf.Sin(back * Mathf.PI) * 16f;
+                SetX(strip, x);
+            }
             elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(elapsed / duration);
-            t = t * t * (3f - 2f * t);
-            SetX(strip, Mathf.Lerp(from, to, t));
             yield return null;
         }
-        SetX(strip, to);
+
+        foreach (var strip in strips) if (strip) SetX(strip, entering ? 0f : -width - strip.rect.width * 0.5f);
     }
 
     void Hide()
@@ -102,9 +121,15 @@ public sealed class UITransition : MonoBehaviour
             overlayGroup.blocksRaycasts = false;
             overlayGroup.interactable = false;
         }
-        if (strips == null) return;
-        float width = overlayGroup && overlayGroup.transform is RectTransform root ? root.rect.width : Screen.width;
-        foreach (var strip in strips) if (strip) SetX(strip, -width - strip.rect.width);
+        if (strips == null || !overlayGroup) return;
+        float width = ((RectTransform)overlayGroup.transform).rect.width;
+        float height = ((RectTransform)overlayGroup.transform).rect.height;
+        float panelWidth = Mathf.Sqrt(width * width + height * height) + 180f;
+        foreach (var strip in strips) if (strip)
+        {
+            strip.sizeDelta = new Vector2(panelWidth, height + 60f);
+            SetX(strip, -width - strip.rect.width * 0.5f);
+        }
     }
 
     static void SetX(RectTransform rect, float x)

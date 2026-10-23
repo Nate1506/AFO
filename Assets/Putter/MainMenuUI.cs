@@ -17,10 +17,13 @@ public sealed class MainMenuUI : MonoBehaviour
     public string playSceneName = "Nate";
     public CanvasGroup mainCanvasGroup;
     public UITransition transition;
+    public AfoMenuMotion menuMotion;
 
     [Header("Screens")]
     public GameObject settingsPanel;
     public GameObject creditsPanel;
+    public GameObject settingsHeaderPanel;
+    public GameObject creditsHeaderPanel;
     public Button settingsBackButton;
     public Button creditsBackButton;
 
@@ -37,6 +40,7 @@ public sealed class MainMenuUI : MonoBehaviour
     int selectedMenuIndex;
     GameObject activePanel;
     bool transitioning;
+    bool entering;
     Resolution[] resolutions;
     int resolutionIndex;
 
@@ -53,11 +57,19 @@ public sealed class MainMenuUI : MonoBehaviour
         {
             int index = i;
             if (menuButtons[i]) menuButtons[i].onClick.AddListener(() => ActivateMenuItem(index));
-            if (i < styledButtons.Length && styledButtons[i]) styledButtons[i].OnHovered += () => SelectMenuItem(index);
+            if (i < styledButtons.Length && styledButtons[i]) styledButtons[i].OnInteracted += () => SelectMenuItem(index, false, false);
         }
 
-        if (settingsBackButton) settingsBackButton.onClick.AddListener(ShowMainMenu);
-        if (creditsBackButton) creditsBackButton.onClick.AddListener(ShowMainMenu);
+        if (settingsBackButton)
+        {
+            settingsBackButton.onClick.AddListener(() => settingsBackButton.GetComponent<MenuButton>()?.Pulse());
+            settingsBackButton.onClick.AddListener(ShowMainMenu);
+        }
+        if (creditsBackButton)
+        {
+            creditsBackButton.onClick.AddListener(() => creditsBackButton.GetComponent<MenuButton>()?.Pulse());
+            creditsBackButton.onClick.AddListener(ShowMainMenu);
+        }
         if (masterVolumeSlider)
         {
             masterVolumeSlider.value = PlayerPrefs.GetFloat("AFO_MasterVolume", AudioListener.volume);
@@ -66,29 +78,79 @@ public sealed class MainMenuUI : MonoBehaviour
         if (fullscreenToggle)
         {
             fullscreenToggle.isOn = Screen.fullScreen;
+            fullscreenToggle.onValueChanged.AddListener(_ => fullscreenToggle.GetComponent<MenuButton>()?.Pulse());
             fullscreenToggle.onValueChanged.AddListener(SetFullscreen);
         }
         if (reducedMotionToggle)
         {
             reducedMotionToggle.isOn = PlayerPrefs.GetInt("AFO_ReducedMotion", 0) != 0;
+            reducedMotionToggle.onValueChanged.AddListener(_ => reducedMotionToggle.GetComponent<MenuButton>()?.Pulse());
             reducedMotionToggle.onValueChanged.AddListener(SetReducedMotion);
         }
-        if (qualityButton) qualityButton.onClick.AddListener(CycleQuality);
-        resolutions = Screen.resolutions;
+        if (qualityButton)
+        {
+            qualityButton.onClick.AddListener(() => qualityButton.GetComponent<MenuButton>()?.Pulse());
+            qualityButton.onClick.AddListener(CycleQuality);
+            bool canChangeQuality = QualitySettings.names.Length > 1;
+            qualityButton.interactable = canChangeQuality;
+            if (!canChangeQuality && qualityButton.TryGetComponent(out MenuButton qualityStyle))
+            {
+                qualityStyle.enabled = false;
+                if (qualityStyle.background) qualityStyle.background.color = new Color32(11, 29, 54, 175);
+                if (qualityStyle.accent) qualityStyle.accent.color = new Color32(36, 107, 253, 90);
+                if (qualityStyle.label) qualityStyle.label.color = new Color32(244, 247, 255, 145);
+            }
+        }
+        var availableResolutions = Screen.resolutions;
+        resolutions = availableResolutions
+            .Where(resolution => resolution.width >= 800 && resolution.height >= 600)
+            .GroupBy(resolution => new Vector2Int(resolution.width, resolution.height))
+            .Select(group => group.First())
+            .OrderByDescending(resolution => (long)resolution.width * resolution.height)
+            .ThenByDescending(resolution => resolution.width)
+            .ToArray();
+        if (resolutions.Length == 0)
+            resolutions = availableResolutions
+                .GroupBy(resolution => new Vector2Int(resolution.width, resolution.height))
+                .Select(group => group.First())
+                .OrderByDescending(resolution => (long)resolution.width * resolution.height)
+                .ThenByDescending(resolution => resolution.width)
+                .ToArray();
         resolutionIndex = FindCurrentResolution();
-        if (resolutionButton) resolutionButton.onClick.AddListener(CycleResolution);
+        if (resolutionButton)
+        {
+            resolutionButton.onClick.AddListener(() => resolutionButton.GetComponent<MenuButton>()?.Pulse());
+            resolutionButton.onClick.AddListener(CycleResolution);
+        }
         RefreshSettingLabels();
 
         if (!transition) transition = GetComponent<UITransition>();
-        if (mainCanvasGroup) StartCoroutine(FadeCanvas(0f, 1f, 0.48f));
-        SelectMenuItem(0, true);
+        if (!menuMotion) menuMotion = GetComponent<AfoMenuMotion>();
         SetReducedMotion(reducedMotionToggle && reducedMotionToggle.isOn);
+        entering = true;
+        StartCoroutine(EnterMenu());
+    }
+
+    IEnumerator EnterMenu()
+    {
+        if (menuMotion)
+            yield return StartCoroutine(menuMotion.PlayEntrance(MenuButton.ReducedMotion));
+        else if (mainCanvasGroup)
+            yield return StartCoroutine(FadeCanvas(0f, 1f, 0.32f));
+
+        if (mainCanvasGroup)
+        {
+            mainCanvasGroup.interactable = true;
+            mainCanvasGroup.blocksRaycasts = true;
+        }
+        entering = false;
+        SelectMenuItem(0, true);
     }
 
     void Update()
     {
         if (transitioning && transition && !transition.IsBusy) transitioning = false;
-        if (transitioning || Keyboard.current == null) return;
+        if (transitioning || entering || Keyboard.current == null) return;
         var keyboard = Keyboard.current;
 
         if (activePanel != null)
@@ -98,7 +160,7 @@ public sealed class MainMenuUI : MonoBehaviour
             if (Pressed(keyboard.downArrowKey, keyboard.sKey)) { MovePanelSelection(1); return; }
             if (Pressed(keyboard.leftArrowKey, keyboard.aKey)) { AdjustFocused(-1); return; }
             if (Pressed(keyboard.rightArrowKey, keyboard.dKey)) { AdjustFocused(1); return; }
-            if (Pressed(keyboard.enterKey, keyboard.numpadEnterKey, keyboard.spaceKey)) ActivateFocused();
+            // Submit is handled once by InputSystemUIInputModule, avoiding duplicate setting changes.
             return;
         }
 
@@ -106,19 +168,20 @@ public sealed class MainMenuUI : MonoBehaviour
             SelectMenuItem(selectedMenuIndex - 1);
         else if (Pressed(keyboard.downArrowKey, keyboard.sKey, keyboard.rightArrowKey, keyboard.dKey))
             SelectMenuItem(selectedMenuIndex + 1);
-        else if (Pressed(keyboard.enterKey, keyboard.numpadEnterKey, keyboard.spaceKey))
-            ActivateMenuItem(selectedMenuIndex);
+        // Enter / Space is handled by InputSystemUIInputModule so each action fires once.
     }
 
     static bool Pressed(params KeyControl[] keys) => keys.Any(key => key != null && key.wasPressedThisFrame);
 
-    void SelectMenuItem(int index, bool instant = false)
+    void SelectMenuItem(int index, bool instant = false, bool updateEventSystem = true)
     {
         if (menuButtons == null || menuButtons.Length == 0) return;
         selectedMenuIndex = (index % menuButtons.Length + menuButtons.Length) % menuButtons.Length;
         for (int i = 0; i < styledButtons.Length; i++)
             if (styledButtons[i]) styledButtons[i].SetSelected(i == selectedMenuIndex, instant);
-        if (EventSystem.current && menuButtons[selectedMenuIndex])
+        if (menuMotion) menuMotion.SetSelection(selectedMenuIndex);
+        if (updateEventSystem && EventSystem.current && menuButtons[selectedMenuIndex] &&
+            EventSystem.current.currentSelectedGameObject != menuButtons[selectedMenuIndex].gameObject)
             EventSystem.current.SetSelectedGameObject(menuButtons[selectedMenuIndex].gameObject);
     }
 
@@ -143,9 +206,9 @@ public sealed class MainMenuUI : MonoBehaviour
             Debug.LogError($"[AFO] Play scene '{playSceneName}' is not in Build Settings.");
             return;
         }
+        if (menuMotion) menuMotion.PlayConfirm();
         transitioning = true;
-        if (transition) transition.PlayTransition(playSceneName);
-        else SceneManager.LoadScene(playSceneName);
+        if (!transition || !transition.PlayTransition(playSceneName)) SceneManager.LoadScene(playSceneName);
     }
 
     void Quit()
@@ -161,31 +224,78 @@ public sealed class MainMenuUI : MonoBehaviour
     {
         if (!panel || transitioning) return;
         transitioning = true;
-        if (transition) transition.PlayQuick(() => ShowPanel(panel));
-        else ShowPanel(panel);
-        if (!transition) transitioning = false;
+        if (!transition || !transition.PlayQuick(() => ShowPanel(panel)))
+        {
+            ShowPanel(panel);
+            transitioning = false;
+        }
     }
 
     void ShowPanel(GameObject panel)
     {
         if (settingsPanel) settingsPanel.SetActive(panel == settingsPanel);
         if (creditsPanel) creditsPanel.SetActive(panel == creditsPanel);
+        if (settingsHeaderPanel) settingsHeaderPanel.SetActive(panel == settingsPanel);
+        if (creditsHeaderPanel) creditsHeaderPanel.SetActive(panel == creditsPanel);
+        var header = panel == settingsPanel ? settingsHeaderPanel : creditsHeaderPanel;
+        if (header) header.transform.SetAsLastSibling();
+        if (transition) transition.transform.SetAsLastSibling();
         activePanel = panel;
-        var first = panel == settingsPanel ? panel.GetComponentInChildren<Selectable>() : creditsBackButton;
+        RefreshPanelGraphics(panel);
+        RefreshPanelGraphics(panel == settingsPanel ? settingsHeaderPanel : creditsHeaderPanel);
+        Selectable first = panel == settingsPanel ? settingsBackButton : creditsBackButton;
+        if (!first) first = panel.GetComponentInChildren<Selectable>();
         if (EventSystem.current) EventSystem.current.SetSelectedGameObject(first ? first.gameObject : null);
+    }
+
+    static void RefreshPanelGraphics(GameObject panel)
+    {
+        if (!panel) return;
+        // Re-activating an inactive full-screen uGUI panel can leave edge graphics culled
+        // until the Canvas rebuilds. Reorder the top rule to invalidate its draw list,
+        // then dirty the panel graphics before the transition reveals the screen.
+        var topBar = panel.transform.Find("PanelBar");
+        if (topBar)
+        {
+            topBar.SetAsLastSibling();
+            topBar.SetAsFirstSibling();
+        }
+        else
+        {
+            string[] headerChildren = { "PanelEyebrow", "PanelTitle", "PanelSubtitle", "BackButton" };
+            for (int i = headerChildren.Length - 1; i >= 0; i--)
+            {
+                var element = panel.transform.Find(headerChildren[i]);
+                if (element) element.SetAsFirstSibling();
+            }
+            for (int i = 0; i < headerChildren.Length; i++)
+            {
+                var element = panel.transform.Find(headerChildren[i]);
+                if (element) element.SetAsLastSibling();
+            }
+        }
+        foreach (var graphic in panel.GetComponentsInChildren<Graphic>(true))
+            if (graphic) graphic.SetAllDirty();
+        Canvas.ForceUpdateCanvases();
     }
 
     void ShowMainMenu()
     {
         if (transitioning) return;
-        if (transition) transition.PlayQuick(() => SetMainMenuActive());
-        else SetMainMenuActive();
+        transitioning = true;
+        if (!transition || !transition.PlayQuick(SetMainMenuActive))
+        {
+            SetMainMenuActive();
+            transitioning = false;
+        }
     }
 
     void SetMainMenuActive()
     {
         if (settingsPanel) settingsPanel.SetActive(false);
         if (creditsPanel) creditsPanel.SetActive(false);
+        if (settingsHeaderPanel) settingsHeaderPanel.SetActive(false);
+        if (creditsHeaderPanel) creditsHeaderPanel.SetActive(false);
         activePanel = null;
         SelectMenuItem(selectedMenuIndex, true);
     }
@@ -193,8 +303,12 @@ public sealed class MainMenuUI : MonoBehaviour
     void MovePanelSelection(int direction)
     {
         if (!activePanel) return;
+        var header = activePanel == settingsPanel ? settingsHeaderPanel : creditsHeaderPanel;
         var items = activePanel.GetComponentsInChildren<Selectable>()
-            .Where(item => item && item.IsActive() && item.IsInteractable()).ToArray();
+            .Concat(header ? header.GetComponentsInChildren<Selectable>() : System.Array.Empty<Selectable>())
+            .Where(item => item && item.IsActive() && item.IsInteractable())
+            .Distinct()
+            .ToArray();
         if (items.Length == 0) return;
         var current = EventSystem.current ? EventSystem.current.currentSelectedGameObject : null;
         int index = System.Array.FindIndex(items, item => item.gameObject == current);
@@ -208,16 +322,16 @@ public sealed class MainMenuUI : MonoBehaviour
         if (!current) return;
         if (current.TryGetComponent(out Slider slider))
             slider.value = Mathf.Clamp(slider.value + direction * (slider.maxValue - slider.minValue) * 0.05f, slider.minValue, slider.maxValue);
-        else if (current.TryGetComponent(out Toggle toggle)) toggle.isOn = !toggle.isOn;
-        else if (current.TryGetComponent(out Button button)) button.onClick.Invoke();
-    }
-
-    void ActivateFocused()
-    {
-        var current = EventSystem.current ? EventSystem.current.currentSelectedGameObject : null;
-        if (!current) return;
-        if (current.TryGetComponent(out Button button)) button.onClick.Invoke();
-        else if (current.TryGetComponent(out Toggle toggle)) toggle.isOn = !toggle.isOn;
+        else if (current.TryGetComponent(out Toggle toggle))
+        {
+            current.GetComponent<MenuButton>()?.Pulse();
+            toggle.isOn = !toggle.isOn;
+        }
+        else if (current.TryGetComponent(out Button button))
+        {
+            current.GetComponent<MenuButton>()?.Pulse();
+            button.onClick.Invoke();
+        }
     }
 
     void SetMasterVolume(float value)
