@@ -54,10 +54,10 @@ public static class BuildPutterMenuUI
         var styles = new MenuButton[4];
         string[] names = { "PLAY", "SETTINGS", "CREDITS", "QUIT" };
         string[] icons = { "01", "02", "03", "04" };
-        float[] x = { 102f, 118f, 480f, 870f };
-        float[] y = { -406f, -704f, -728f, -692f };
-        float[] widths = { 1010f, 340f, 365f, 260f };
-        float[] heights = { 238f, 80f, 80f, 80f };
+        float[] x = { 86f, 102f, 405f, 716f };
+        float[] y = { -418f, -712f, -726f, -706f };
+        float[] widths = { 850f, 300f, 300f, 208f };
+        float[] heights = { 220f, 70f, 70f, 70f };
         for (int i = 0; i < names.Length; i++)
             buttons[i] = BuildMenuButton(canvasObject.transform, names[i], icons[i], x[i], y[i], widths[i], heights[i], out styles[i]);
         var buttonRects = new RectTransform[buttons.Length];
@@ -125,92 +125,79 @@ public static class BuildPutterMenuUI
         var background = ImageRect(parent, "MidnightBackground", Midnight, new Vector2(0f, 0f), Vector2.one, Vector2.zero, Vector2.zero, Vector2.zero);
         SetRaycast(background, false);
 
-        // A quiet orbital motif balances the hard panels with round silhouettes.
-        var orbitOuter = ShapeRect(parent, "SignalOrbitOuter", AfoShapeImage.Shape.Circle, new Color32(36, 107, 253, 25),
-            new Vector2(0.79f, 0.54f), new Vector2(0.79f, 0.54f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(390f, 390f));
+        // One restrained slanted beam and a clear orbital mark carry the blue identity.
+        var orbitOuter = ShapeRect(parent, "SignalOrbitOuter", AfoShapeImage.Shape.Circle, new Color32(36, 107, 253, 92),
+            new Vector2(0.80f, 0.52f), new Vector2(0.80f, 0.52f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(356f, 356f));
         SetRaycast(orbitOuter, false);
-        var orbitInner = ShapeRect(parent, "SignalOrbitInner", AfoShapeImage.Shape.Circle, new Color32(5, 12, 25, 255),
-            new Vector2(0.79f, 0.54f), new Vector2(0.79f, 0.54f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(376f, 376f));
+        var orbitInner = ShapeRect(parent, "SignalOrbitInner", AfoShapeImage.Shape.Circle, Midnight,
+            new Vector2(0.80f, 0.52f), new Vector2(0.80f, 0.52f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(342f, 342f));
         SetRaycast(orbitInner, false);
-        var orbitCore = ShapeRect(parent, "SignalOrbitCore", AfoShapeImage.Shape.Circle, new Color32(36, 107, 253, 120),
-            new Vector2(0.79f, 0.54f), new Vector2(0.79f, 0.54f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(11f, 11f));
+        var orbitCore = ShapeRect(parent, "SignalOrbitCore", AfoShapeImage.Shape.Circle, Paper,
+            new Vector2(0.80f, 0.52f), new Vector2(0.80f, 0.52f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(8f, 8f));
         SetRaycast(orbitCore, false);
 
-        RectTransform[] motion = new RectTransform[9];
-        var slashA = ImageRect(parent, "BluePanelA", new Color32(36, 107, 253, 34), new Vector2(0.68f, 0.07f), new Vector2(0.80f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(24f, 150f));
+        RectTransform[] motion = new RectTransform[7];
+        var slashA = ImageRect(parent, "BluePanelA", new Color32(36, 107, 253, 20), new Vector2(0.72f, 0.04f), new Vector2(0.79f, 0.96f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(16f, 100f));
         slashA.localRotation = Quaternion.Euler(0f, 0f, 14f);
         motion[0] = slashA;
-        var slashB = ImageRect(parent, "BluePanelB", new Color32(36, 107, 253, 22), new Vector2(0.85f, 0.14f), new Vector2(0.96f, 0.90f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(14f, 90f));
-        slashB.localRotation = Quaternion.Euler(0f, 0f, 14f);
-        motion[1] = slashB;
-        var block = ImageRect(parent, "BlueSignal", new Color32(36, 107, 253, 100), new Vector2(0.73f, 0.38f), new Vector2(0.77f, 0.385f), Vector2.zero, Vector2.zero, new Vector2(90f, 5f));
-        motion[2] = block;
-        var block2 = ImageRect(parent, "BlueSignal2", new Color32(36, 107, 253, 55), new Vector2(0.78f, 0.30f), new Vector2(0.88f, 0.305f), Vector2.zero, Vector2.zero, new Vector2(180f, 4f));
-        motion[3] = block2;
-        motion[4] = orbitOuter;
-        motion[5] = orbitInner;
-        motion[6] = orbitCore;
-        motion[7] = null;
-        motion[8] = null;
         var mot = parent.gameObject.AddComponent<AfoBackdropMotion>();
 
-        // Sparse halftone dots add texture without competing with text.
-        for (int i = 0; i < 42; i++)
+        var orbitRule = ImageRect(parent, "OrbitRule", new Color32(36, 107, 253, 105),
+            new Vector2(0.72f, 0.325f), new Vector2(0.88f, 0.33f), Vector2.zero, Vector2.zero, new Vector2(0f, 3f));
+        SetRaycast(orbitRule, false);
+        motion[1] = orbitRule;
+        motion[2] = orbitOuter;
+        motion[3] = orbitInner;
+        motion[4] = orbitCore;
+
+        // A compact dot field aligns beneath the orbital rule.
+        for (int i = 0; i < 16; i++)
         {
-            int col = i % 7;
-            int row = i / 7;
-            var dot = ImageRect(parent, "Halftone" + i, new Color32(36, 107, 253, (byte)(18 + (i % 3) * 6)),
-                new Vector2(0.79f, 0.20f), new Vector2(0.79f, 0.20f), new Vector2(0.5f, 0.5f),
-                new Vector2(col * 18f, row * 18f), new Vector2(3.5f, 3.5f));
+            int col = i % 4;
+            int row = i / 4;
+            var dot = ImageRect(parent, "Halftone" + i, new Color32(36, 107, 253, (byte)(32 + (i % 2) * 16)),
+                new Vector2(0.765f, 0.275f), new Vector2(0.765f, 0.275f), new Vector2(0.5f, 0.5f),
+                new Vector2(col * 16f, row * 16f), new Vector2(3f, 3f));
             SetRaycast(dot, false);
         }
 
         MakeText(parent, "WorldIndex", "AFO    /    01", 16, Blue, FontStyle.Bold,
             new Vector2(0.88f, 0.91f), new Vector2(0.88f, 0.91f), new Vector2(0f, 1f), Vector2.zero, new Vector2(250f, 30f), TextAnchor.MiddleLeft);
-        var indexMark = MakeText(parent, "SignalIndex", "01", 150, new Color32(36, 107, 253, 28), FontStyle.Bold,
-            new Vector2(0.84f, 0.48f), new Vector2(0.84f, 0.48f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(280f, 200f), TextAnchor.MiddleCenter);
-        indexMark.transform.localRotation = Quaternion.Euler(0f, 0f, -7f);
-        motion[7] = indexMark.rectTransform;
-        var slash = ShapeRect(parent, "SignalHex", AfoShapeImage.Shape.Hexagon, new Color32(36, 107, 253, 20),
-            new Vector2(0.73f, 0.15f), new Vector2(0.73f, 0.15f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(240f, 210f));
-        slash.localRotation = Quaternion.Euler(0f, 0f, 18f);
-        SetRaycast(slash, false);
-        motion[8] = slash;
+        var indexMark = MakeText(parent, "SignalIndex", "01", 126, new Color32(36, 107, 253, 82), FontStyle.Bold,
+            new Vector2(0.80f, 0.52f), new Vector2(0.80f, 0.52f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(230f, 160f), TextAnchor.MiddleCenter);
+        indexMark.transform.localRotation = Quaternion.Euler(0f, 0f, -5f);
+        motion[5] = indexMark.rectTransform;
         mot.shapes = motion;
         return mot;
     }
 
     static RectTransform BuildLogo(Transform parent)
     {
-        var slash = ShapeRect(parent, "TitleSlash", AfoShapeImage.Shape.Parallelogram, new Color32(36, 107, 253, 72),
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(370f, -120f), new Vector2(930f, 132f));
-        slash.localRotation = Quaternion.Euler(0f, 0f, -4.5f);
+        var slash = ShapeRect(parent, "TitleUnderline", AfoShapeImage.Shape.Parallelogram, new Color32(36, 107, 253, 190),
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(110f, -382f), new Vector2(1120f, 18f));
+        slash.localRotation = Quaternion.Euler(0f, 0f, -1.4f);
         SetRaycast(slash, false);
         var mark = ImageRect(parent, "LogoMark", Blue, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(84f, -78f), new Vector2(8f, 38f));
         SetRaycast(mark, false);
-        var eyebrow = MakeText(parent, "LogoEyebrow", "AFO     /     A NEW CURRENT", 18, Blue, FontStyle.Bold,
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(108f, -69f), new Vector2(580f, 35f), TextAnchor.MiddleLeft);
+        var eyebrow = MakeText(parent, "LogoEyebrow", "AFO     /     A NEW CURRENT", 16, Paper, FontStyle.Bold,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(104f, -69f), new Vector2(520f, 32f), TextAnchor.MiddleLeft);
         eyebrow.font = DisplayFont ? DisplayFont : UiFont;
-        var against = MakeText(parent, "LogoAgainst", "AGAINST", 164, Paper, FontStyle.Bold,
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(82f, -88f), new Vector2(1010f, 207f), TextAnchor.MiddleLeft);
+        var against = MakeText(parent, "LogoAgainst", "AGAINST", 144, Paper, FontStyle.Bold,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(78f, -92f), new Vector2(900f, 184f), TextAnchor.MiddleLeft);
         against.font = DisplayFont ? DisplayFont : UiFont;
         against.verticalOverflow = VerticalWrapMode.Overflow;
         against.horizontalOverflow = HorizontalWrapMode.Overflow;
-        against.transform.localRotation = Quaternion.Euler(0f, 0f, -1.6f);
-        var smallThe = MakeText(parent, "LogoThe", "THE", 31, Blue, FontStyle.Bold,
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(116f, -290f), new Vector2(120f, 42f), TextAnchor.MiddleLeft);
+        against.transform.localRotation = Quaternion.Euler(0f, 0f, -1.1f);
+        var smallThe = MakeText(parent, "LogoThe", "THE", 28, Blue, FontStyle.Bold,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(94f, -260f), new Vector2(110f, 38f), TextAnchor.MiddleLeft);
         smallThe.font = DisplayFont ? DisplayFont : UiFont;
         smallThe.verticalOverflow = VerticalWrapMode.Overflow;
-        var current = MakeText(parent, "LogoTheCurrent", "CURRENT", 111, Paper, FontStyle.Bold,
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(204f, -250f), new Vector2(940f, 139f), TextAnchor.MiddleLeft);
+        var current = MakeText(parent, "LogoTheCurrent", "CURRENT", 94, Paper, FontStyle.Bold,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(176f, -252f), new Vector2(760f, 126f), TextAnchor.MiddleLeft);
         current.font = DisplayFont ? DisplayFont : UiFont;
         current.verticalOverflow = VerticalWrapMode.Overflow;
         current.horizontalOverflow = HorizontalWrapMode.Overflow;
-        current.transform.localRotation = Quaternion.Euler(0f, 0f, 1.1f);
-        var spark = ShapeRect(parent, "TitleSpark", AfoShapeImage.Shape.Parallelogram, Paper,
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(1090f, -222f), new Vector2(125f, 18f));
-        spark.localRotation = Quaternion.Euler(0f, 0f, -12f);
-        SetRaycast(spark, false);
+        current.transform.localRotation = Quaternion.Euler(0f, 0f, 0.8f);
         return mark;
     }
 
@@ -233,20 +220,16 @@ public static class BuildPutterMenuUI
         Image shadow = null;
         if (primary)
         {
-            var shadowRect = ShapeRect(root.transform, "PlayShadow", AfoShapeImage.Shape.Parallelogram, new Color32(0, 0, 0, 190),
-                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(15f, -13f), new Vector2(760f, 176f));
+            var shadowRect = ShapeRect(root.transform, "PlayShadow", AfoShapeImage.Shape.Parallelogram, new Color32(0, 0, 0, 225),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(8f, -8f), new Vector2(804f, 188f));
             shadowRect.SetAsFirstSibling();
             shadow = shadowRect.GetComponent<Image>();
             SetRaycast(shadowRect, false);
             var plateRect = ShapeRect(root.transform, "PlayPlate", AfoShapeImage.Shape.Parallelogram, Blue,
-                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760f, 176f));
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(790f, 174f));
             plateRect.SetAsFirstSibling();
             plate = plateRect.GetComponent<Image>();
             SetRaycast(plateRect, false);
-            var echo = MakeText(root.transform, "PlayEcho", "PLAY", 190, new Color32(36, 107, 253, 75), FontStyle.Bold,
-                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(140f, -13f), new Vector2(790f, 216f), TextAnchor.MiddleLeft);
-            echo.font = DisplayFont ? DisplayFont : UiFont;
-            echo.horizontalOverflow = HorizontalWrapMode.Overflow;
         }
         else
         {
@@ -256,19 +239,19 @@ public static class BuildPutterMenuUI
             SetRaycast(slash, false);
         }
         var flash = ShapeRect(root.transform, "ImpactFlash", AfoShapeImage.Shape.Parallelogram, new Color32(244, 247, 255, 0),
-            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(primary ? 760f : width, height * 0.65f));
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(primary ? 790f : width, height * 0.65f));
         SetRaycast(flash, false);
-        var index = MakeText(root.transform, "Index", iconText, primary ? 24 : 15, primary ? Paper : Blue, FontStyle.Bold,
-            new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(primary ? 76f : 0f, primary ? 1f : 0f), new Vector2(primary ? 55f : 44f, 36f), TextAnchor.MiddleLeft);
+        var index = MakeText(root.transform, "Index", iconText, primary ? 21 : 15, primary ? Paper : Blue, FontStyle.Bold,
+            new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(primary ? 38f : 0f, 0f), new Vector2(primary ? 48f : 44f, 36f), TextAnchor.MiddleLeft);
         index.font = DisplayFont ? DisplayFont : UiFont;
-        var labelText = MakeText(root.transform, "Label", label, primary ? 190 : 44, primary ? Ink : Paper, FontStyle.Bold,
-            new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(primary ? 140f : 50f, 0f), new Vector2(primary ? 790f : width - 54f, primary ? 216f : 72f), TextAnchor.MiddleLeft);
+        var labelText = MakeText(root.transform, "Label", label, primary ? 176 : 44, primary ? Paper : Paper, FontStyle.Bold,
+            new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(primary ? 112f : 50f, 0f), new Vector2(primary ? 680f : width - 54f, primary ? 198f : 64f), TextAnchor.MiddleLeft);
         labelText.font = DisplayFont ? DisplayFont : UiFont;
         labelText.horizontalOverflow = HorizontalWrapMode.Overflow;
         labelText.verticalOverflow = VerticalWrapMode.Overflow;
         if (!primary) labelText.transform.localRotation = Quaternion.Euler(0f, 0f, label == "SETTINGS" ? -1.4f : label == "CREDITS" ? 0.7f : -2f);
-        var tag = MakeText(root.transform, "ActionTag", primary ? "ENTER  →" : "", 15, primary ? Ink : Blue, FontStyle.Bold,
-            new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(primary ? -100f : -5f, 0f), new Vector2(140f, 34f), TextAnchor.MiddleRight);
+        var tag = MakeText(root.transform, "ActionTag", primary ? "ENTER  →" : "", 14, Paper, FontStyle.Bold,
+            new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(primary ? -36f : -5f, 0f), new Vector2(primary ? 110f : 60f, 30f), TextAnchor.MiddleRight);
         tag.font = DisplayFont ? DisplayFont : UiFont;
 
         style = root.GetComponent<MenuButton>();
@@ -285,6 +268,12 @@ public static class BuildPutterMenuUI
         style.initiallySelected = primary;
         style.hoverRotationDegrees = label == "PLAY" || label == "CREDITS" ? -1.2f : 1.2f;
         plate.color = primary ? Blue : new Color32(36, 107, 253, 0);
+        if (primary)
+        {
+            var outline = labelText.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color32(5, 7, 11, 210);
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
+        }
         return button;
     }
 
