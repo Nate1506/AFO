@@ -70,7 +70,7 @@ namespace SayItAgain
             fpc.speedMultiplier = PlayerInWater ? 0.3f : 1f;
 
             if (match.IsOver) return;
-            if (call.WasPressedThisFrame() && !fpc.InputBlocked) CallNearby(player);
+            if (call.WasPressedThisFrame() && !fpc.InputBlocked) CallVillagersNear(player);
             CountAndReport(match, player);
             PanicChatter(match);
         }
@@ -95,7 +95,7 @@ namespace SayItAgain
             }
         }
 
-        void CallNearby(Transform player)
+        public void CallVillagersNear(Transform player)
         {
             LastCallTime = Time.time;
             foreach (var v in villagers)

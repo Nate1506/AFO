@@ -352,6 +352,31 @@ namespace SayItAgain.EditorTools
                 Hazard(low, name, new Vector3(x, 0, 61), new Vector3(8, 4, 78.5f), HazardZone.Rule.UnlessSafeRoute, i, water, 0.45f);
                 Sign(low, new Vector3(x + 5, 0, 19), sign);
             }
+
+            // Villagers path only over crossings and causeways, so they drown because of wrong
+            // information (a collapsed crossing, a flooded route), not because they cut a corner.
+            foreach (var (x0, x1) in Gaps(50, 230, new[] { 100f, 120f, 142f }, 6f)) NoWalk(low, x0, x1, 5, 15);
+            foreach (var (x0, x1) in Gaps(50, 240, new[] { 74f, 140f, 209f }, 8f)) NoWalk(low, x0, x1, 22, 100);
+        }
+
+        /// <summary>Spans between [min,max] that are not covered by strips of the given width.</summary>
+        static IEnumerable<(float, float)> Gaps(float min, float max, float[] centers, float width)
+        {
+            float start = min;
+            foreach (var c in centers.OrderBy(c => c))
+            {
+                yield return (start, c - width * 0.5f);
+                start = c + width * 0.5f;
+            }
+            yield return (start, max);
+        }
+
+        static void NoWalk(Transform parent, float x0, float x1, float z0, float z1)
+        {
+            var vol = Group("NoWalk", parent, new Vector3((x0 + x1) * 0.5f, 0, (z0 + z1) * 0.5f)).gameObject.AddComponent<NavMeshModifierVolume>();
+            vol.size = new Vector3(x1 - x0, 4f, z1 - z0);
+            vol.center = new Vector3(0, 1f, 0);
+            vol.area = NavMesh.GetAreaFromName("Not Walkable");
         }
 
         static void BuildHill(Transform world)
