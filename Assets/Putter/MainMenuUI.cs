@@ -18,6 +18,7 @@ public sealed class MainMenuUI : MonoBehaviour
     public CanvasGroup mainCanvasGroup;
     public UITransition transition;
     public AfoMenuMotion menuMotion;
+    public AfoMenuLineTurn lineTurn;
 
     [Header("Screens")]
     public GameObject settingsPanel;
@@ -47,6 +48,7 @@ public sealed class MainMenuUI : MonoBehaviour
     void Start()
     {
         if (menuButtons == null || menuButtons.Length == 0) return;
+        if (!lineTurn) lineTurn = GetComponent<AfoMenuLineTurn>();
         if (styledButtons == null) styledButtons = new MenuButton[menuButtons.Length];
         int savedQuality = PlayerPrefs.GetInt("AFO_QualityLevel", -1);
         if (savedQuality >= 0 && savedQuality < QualitySettings.names.Length) QualitySettings.SetQualityLevel(savedQuality, true);
@@ -179,6 +181,8 @@ public sealed class MainMenuUI : MonoBehaviour
         selectedMenuIndex = (index % menuButtons.Length + menuButtons.Length) % menuButtons.Length;
         for (int i = 0; i < styledButtons.Length; i++)
             if (styledButtons[i]) styledButtons[i].SetSelected(i == selectedMenuIndex, instant);
+        if (lineTurn && selectedMenuIndex < menuButtons.Length && menuButtons[selectedMenuIndex])
+            lineTurn.SetSelected(menuButtons[selectedMenuIndex].GetComponent<RectTransform>(), instant);
         if (menuMotion) menuMotion.SetSelection(selectedMenuIndex);
         if (updateEventSystem && EventSystem.current && menuButtons[selectedMenuIndex] &&
             EventSystem.current.currentSelectedGameObject != menuButtons[selectedMenuIndex].gameObject)

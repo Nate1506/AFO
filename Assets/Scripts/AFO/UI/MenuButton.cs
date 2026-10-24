@@ -26,6 +26,8 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public bool initiallySelected;
     public bool textLed;
     public bool spotlight;
+    [Tooltip("Use a menu-owned line-turn indicator instead of the shared punch and slide feedback.")]
+    public bool lineTurnMode;
     public float selectionOffset = 14f;
     [Range(-4f, 4f)] public float hoverRotationDegrees = 1.2f;
     public Action OnInteracted;
@@ -77,6 +79,7 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void Pulse()
     {
+        if (lineTurnMode) return;
         if (!rect) rect = GetComponent<RectTransform>();
         if (ReducedMotion) return;
         if (pulseRoutine != null) StopCoroutine(pulseRoutine);
@@ -143,6 +146,14 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
     void Move(Vector2 target, float rotationOffset)
     {
         if (!rect) rect = GetComponent<RectTransform>();
+        if (lineTurnMode)
+        {
+            if (moveRoutine != null) StopCoroutine(moveRoutine);
+            rect.anchoredPosition = home;
+            rect.localRotation = Quaternion.Euler(0f, 0f, homeAngle);
+            moveRoutine = null;
+            return;
+        }
         if (ReducedMotion)
         {
             rect.anchoredPosition = target;
