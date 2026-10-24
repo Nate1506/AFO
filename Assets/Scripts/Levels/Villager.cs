@@ -83,6 +83,7 @@ namespace SayItAgain
         void Sweep()
         {
             Current = State.Swept;
+            Debug.Log($"[Villager] swept away at {transform.position}");
             agent.enabled = false;
             if (animator != null) animator.SetTrigger("Swept");
             // Carried off by the current: drift and sink out of sight.
