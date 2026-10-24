@@ -30,6 +30,7 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public bool lineTurnMode;
     public float selectionOffset = 14f;
     [Range(-4f, 4f)] public float hoverRotationDegrees = 1.2f;
+    public RectTransform pressSpinTarget;
     public Action OnInteracted;
 
     RectTransform rect;
@@ -52,8 +53,9 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
     Coroutine tintRoutine;
     Coroutine pulseRoutine;
     Coroutine flashRoutine;
+    Coroutine spinRoutine;
 
-    bool IsActive => selected || hovered || focused;
+    bool IsActive => lineTurnMode ? selected || hovered : selected || hovered || focused;
 
     void Awake()
     {
@@ -73,7 +75,7 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void SetSelected(bool value, bool instant = false)
     {
         selected = value;
-        Paint(instant || IsActive);
+        Paint(lineTurnMode ? instant : instant || IsActive);
         Move(IsActive ? home + Vector2.right * selectionOffset : home, hovered ? hoverRotationDegrees : 0f);
     }
 
@@ -91,18 +93,48 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
     }
 
+    public void PlayPressSpin()
+    {
+        if (!lineTurnMode || !pressSpinTarget) return;
+        if (spinRoutine != null) StopCoroutine(spinRoutine);
+        spinRoutine = StartCoroutine(SpinPressGraphic());
+    }
+
+    IEnumerator SpinPressGraphic()
+    {
+        Quaternion homeRotation = pressSpinTarget.localRotation;
+        Color homeAccent = accent ? accent.color : Blue;
+        const float duration = 0.18f;
+        const float turnDegrees = 140f;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float angle = t < 0.58f
+                ? Mathf.Lerp(0f, turnDegrees, Smooth(t / 0.58f))
+                : Mathf.Lerp(turnDegrees, 0f, Smooth((t - 0.58f) / 0.42f));
+            pressSpinTarget.localRotation = homeRotation * Quaternion.Euler(0f, 0f, angle);
+            if (accent) accent.color = Color.Lerp(homeAccent, BlueHover, Mathf.Sin(Mathf.PI * t));
+            yield return null;
+        }
+        pressSpinTarget.localRotation = homeRotation;
+        if (accent) accent.color = homeAccent;
+        spinRoutine = null;
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         hovered = true;
         OnInteracted?.Invoke();
-        Paint(IsActive);
+        Paint(lineTurnMode ? false : IsActive);
         Move(home + Vector2.right * selectionOffset, hoverRotationDegrees);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         hovered = false;
-        Paint(IsActive);
+        Paint(lineTurnMode ? false : IsActive);
         Move(IsActive ? home + Vector2.right * selectionOffset : home, 0f);
     }
 
@@ -112,24 +144,30 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         focused = true;
         OnInteracted?.Invoke();
-        Paint(true);
+        Paint(lineTurnMode ? false : true);
         Move(home + Vector2.right * selectionOffset, 0f);
     }
 
     public void OnDeselect(BaseEventData eventData)
     {
         focused = false;
-        Paint(IsActive);
+        Paint(lineTurnMode ? false : IsActive);
         Move(IsActive ? home + Vector2.right * selectionOffset : home, hovered ? hoverRotationDegrees : 0f);
     }
 
     void Paint(bool instant)
     {
         bool active = IsActive;
-        Color fill = textLed ? (active ? Blue : new Color32(36, 107, 253, 0)) :
+        Color fill = lineTurnMode
+            ? (spotlight ? (active ? BlueHover : Blue) : (active ? NavyHover : Navy))
+            : textLed ? (active ? Blue : new Color32(36, 107, 253, 0)) :
             spotlight ? (active ? Blue : Navy) : selected || focused ? White : (hovered ? NavyHover : Navy);
-        Color ink = textLed ? (active ? White : new Color32(244, 247, 255, 190)) : spotlight ? White : selected || focused ? Ink : White;
-        Color edge = IsActive ? Blue : new Color32(36, 107, 253, 150);
+        Color ink = lineTurnMode ? White : textLed ? (active ? White : new Color32(244, 247, 255, 190)) : spotlight ? White : selected || focused ? Ink : White;
+        Color edge = lineTurnMode
+            ? (active ? BlueHover : new Color32(36, 107, 253, 145))
+            : IsActive ? Blue : new Color32(36, 107, 253, 150);
+        // The main-menu mode keeps text and geometry still, but uses the same
+        // short tint transition for its independent hover/selection feedback.
         if (instant || ReducedMotion)
         {
             if (background) background.color = fill;
@@ -207,6 +245,12 @@ public sealed class MenuButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
         const float overshoot = 1.2f;
         float x = t - 1f;
         return 1f + (overshoot + 1f) * x * x * x + overshoot * x * x;
+    }
+
+    static float Smooth(float t)
+    {
+        t = Mathf.Clamp01(t);
+        return t * t * (3f - 2f * t);
     }
 
     IEnumerator Tint(Color fill, Color ink, Color edge)

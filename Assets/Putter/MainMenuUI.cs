@@ -42,6 +42,7 @@ public sealed class MainMenuUI : MonoBehaviour
     GameObject activePanel;
     bool transitioning;
     bool entering;
+    bool activationPending;
     Resolution[] resolutions;
     int resolutionIndex;
 
@@ -152,7 +153,7 @@ public sealed class MainMenuUI : MonoBehaviour
     void Update()
     {
         if (transitioning && transition && !transition.IsBusy) transitioning = false;
-        if (transitioning || entering || Keyboard.current == null) return;
+        if (transitioning || entering || activationPending || Keyboard.current == null) return;
         var keyboard = Keyboard.current;
 
         if (activePanel != null)
@@ -182,7 +183,7 @@ public sealed class MainMenuUI : MonoBehaviour
         for (int i = 0; i < styledButtons.Length; i++)
             if (styledButtons[i]) styledButtons[i].SetSelected(i == selectedMenuIndex, instant);
         if (lineTurn && selectedMenuIndex < menuButtons.Length && menuButtons[selectedMenuIndex])
-            lineTurn.SetSelected(menuButtons[selectedMenuIndex].GetComponent<RectTransform>(), instant);
+            lineTurn.SetSelected(menuButtons[selectedMenuIndex].GetComponent<RectTransform>(), selectedMenuIndex, instant);
         if (menuMotion) menuMotion.SetSelection(selectedMenuIndex);
         if (updateEventSystem && EventSystem.current && menuButtons[selectedMenuIndex] &&
             EventSystem.current.currentSelectedGameObject != menuButtons[selectedMenuIndex].gameObject)
@@ -191,9 +192,29 @@ public sealed class MainMenuUI : MonoBehaviour
 
     void ActivateMenuItem(int index)
     {
-        if (transitioning || menuButtons == null || index < 0 || index >= menuButtons.Length) return;
+        if (transitioning || activationPending || menuButtons == null || index < 0 || index >= menuButtons.Length) return;
         SelectMenuItem(index);
-        if (index < styledButtons.Length && styledButtons[index]) styledButtons[index].Pulse();
+        MenuButton style = index < styledButtons.Length ? styledButtons[index] : null;
+        if (style && style.lineTurnMode)
+        {
+            activationPending = true;
+            style.PlayPressSpin();
+            StartCoroutine(ActivateAfterPress(index));
+            return;
+        }
+        if (style) style.Pulse();
+        DispatchMenuAction(index);
+    }
+
+    IEnumerator ActivateAfterPress(int index)
+    {
+        yield return new WaitForSecondsRealtime(0.18f);
+        activationPending = false;
+        DispatchMenuAction(index);
+    }
+
+    void DispatchMenuAction(int index)
+    {
         switch (index)
         {
             case 0: Play(); break;

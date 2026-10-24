@@ -41,22 +41,45 @@ public static class BuildPutterMenuUI
         Transform canvas = canvasObject.transform;
         Undo.RegisterFullObjectHierarchyUndo(canvasObject, "Rebuild AFO Main Menu UI");
 
-        // Carry the title's lower edge into a thin right-angle connection to the current ring.
+        // Keep the two title lines on the same subtle editorial tilt.
+        SetLocalAngle(canvas, "TitleComposition/LogoAgainst", 358.4f);
+        SetLocalAngle(canvas, "TitleComposition/LogoTheCurrent", 358.4f);
+        SetLocalAngle(canvas, "TitleComposition/LogoThe", 358.4f);
+        SetTextSize(canvas, "TitleComposition/LogoThe", 54);
+        ConfigureRect(canvas, "TitleComposition/LogoThe", new Vector2(116f, -290f), new Vector2(168f, 72f));
+        SetTextContent(canvas, "TitleComposition/LogoAgainst", "SAY");
+        SetTextContent(canvas, "TitleComposition/LogoThe", "IT");
+        SetTextContent(canvas, "TitleComposition/LogoTheCurrent", "AGAIN");
+        SetGameNameCopies("AGAINST THE CURRENT", "SAY IT AGAIN");
+
+        // Restore the original title-edge corner motif as a separate, static
+        // accent. The animated full-width guide below remains its own element.
         ConfigureRect(canvas, "TitleComposition/TitleSlash", new Vector2(82f, -421f), new Vector2(1240f, 3f));
         SetLocalAngle(canvas, "TitleComposition/TitleSlash", 0f);
         SetShape(canvas, "TitleComposition/TitleSlash", AfoShapeImage.Shape.Rectangle, new Color32(36, 107, 253, 215));
+        SetRaycastTarget(canvas, "TitleComposition/TitleSlash", false);
         ConfigureCorner(canvas, "TitleComposition/TitleSpark", new Vector2(1322f, -422f), 8f);
         SetShape(canvas, "TitleComposition/TitleSpark", AfoShapeImage.Shape.Rectangle, new Color32(244, 247, 255, 245));
+        SetRaycastTarget(canvas, "TitleComposition/TitleSpark", false);
         AfoShapeImage compositionDrop = EnsureShape(canvas, "CompositionDrop");
         ConfigureAnchoredLine(compositionDrop.rectTransform, new Vector2(1322f, -422f), new Vector2(3f, 76f), new Vector2(0.5f, 1f));
         compositionDrop.shape = AfoShapeImage.Shape.Rectangle;
         compositionDrop.color = new Color32(36, 107, 253, 190);
         compositionDrop.raycastTarget = false;
+        compositionDrop.SetAllDirty();
+        Transform titleCompositionRoot = canvas.Find("TitleComposition");
+        if (titleCompositionRoot)
+        {
+            Transform titleSlash = titleCompositionRoot.Find("TitleSlash");
+            if (titleSlash) titleSlash.SetAsFirstSibling();
+        }
 
         // Keep PLAY visually dominant while making its hit target track the art.
         Transform playRoot = canvas.Find("BtnPLAY");
         if (playRoot)
         {
+            RectTransform playRootRect = playRoot.GetComponent<RectTransform>();
+            if (playRootRect) playRootRect.anchoredPosition = new Vector2(587f, -525f);
             SetRectSize(playRoot, new Vector2(850f, 220f));
             AfoShapeImage[] plates = playRoot.GetComponentsInChildren<AfoShapeImage>(true);
             int plateIndex = 0;
@@ -80,16 +103,28 @@ public static class BuildPutterMenuUI
             MenuButton playStyle = playRoot.GetComponent<MenuButton>();
             if (playStyle)
             {
+                AfoShapeImage[] playPlates = playRoot.GetComponentsInChildren<AfoShapeImage>(true);
+                AfoShapeImage outline = null;
+                AfoShapeImage fill = null;
+                foreach (AfoShapeImage plate in playPlates)
+                {
+                    if (!plate || plate.gameObject.name != "PlayPlate") continue;
+                    if (outline == null) outline = plate;
+                    else if (fill == null) fill = plate;
+                }
                 playStyle.lineTurnMode = true;
                 playStyle.initiallySelected = true;
                 playStyle.spotlight = true;
                 playStyle.textLed = false;
                 playStyle.selectionOffset = 0f;
                 playStyle.hoverRotationDegrees = 0f;
+                playStyle.accent = outline;
+                playStyle.background = fill;
+                playStyle.pressSpinTarget = outline ? outline.rectTransform : null;
                 if (playStyle.label)
                 {
                     ConfigureText(playStyle.label, "PLAY", 132, new Color32(244, 247, 255, 255));
-                    ConfigureChildRect(playStyle.label.rectTransform, new Vector2(52f, 0f), new Vector2(660f, 158f));
+                    ConfigureChildRect(playStyle.label.rectTransform, new Vector2(92f, 0f), new Vector2(660f, 158f));
                 }
                 if (playStyle.actionHint)
                     playStyle.actionHint.text = string.Empty;
@@ -106,7 +141,7 @@ public static class BuildPutterMenuUI
             if (playEcho)
             {
                 ConfigureText(playEcho, "PLAY", 132, new Color32(36, 107, 253, 58));
-                ConfigureChildRect(playEcho.rectTransform, new Vector2(50f, -4f), new Vector2(660f, 158f));
+                ConfigureChildRect(playEcho.rectTransform, new Vector2(90f, -4f), new Vector2(660f, 158f));
             }
         }
         else
@@ -123,7 +158,7 @@ public static class BuildPutterMenuUI
         AfoShapeImage selectionHorizontal = EnsureShape(canvas, "MenuSelectionTurnHorizontal");
         ConfigureCenteredLine(selectionHorizontal.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 3f), new Vector2(0f, 0.5f));
         selectionHorizontal.shape = AfoShapeImage.Shape.Rectangle;
-        selectionHorizontal.color = new Color32(36, 107, 253, 0);
+        selectionHorizontal.color = new Color32(36, 107, 253, 92);
         selectionHorizontal.raycastTarget = false;
         AfoShapeImage selectionVertical = EnsureShape(canvas, "MenuSelectionTurnVertical");
         ConfigureCenteredLine(selectionVertical.rectTransform, new Vector2(0f, 0f), new Vector2(3f, 0f), new Vector2(0.5f, 1f));
@@ -133,7 +168,7 @@ public static class BuildPutterMenuUI
         AfoShapeImage selectionCorner = EnsureShape(canvas, "MenuSelectionTurnCorner");
         ConfigureCenteredLine(selectionCorner.rectTransform, new Vector2(0f, -1f), new Vector2(7f, 7f), new Vector2(0.5f, 0.5f));
         selectionCorner.shape = AfoShapeImage.Shape.Rectangle;
-        selectionCorner.color = new Color32(244, 247, 255, 0);
+        selectionCorner.color = new Color32(244, 247, 255, 230);
         selectionCorner.raycastTarget = false;
         AfoMenuLineTurn lineTurn = canvasObject.GetComponent<AfoMenuLineTurn>();
         if (!lineTurn) lineTurn = canvasObject.AddComponent<AfoMenuLineTurn>();
@@ -141,6 +176,15 @@ public static class BuildPutterMenuUI
         lineTurn.horizontal = selectionHorizontal.rectTransform;
         lineTurn.vertical = selectionVertical.rectTransform;
         lineTurn.corner = selectionCorner.rectTransform;
+        lineTurn.RefreshLayout();
+        Transform titleComposition = canvas.Find("TitleComposition");
+        if (titleComposition)
+        {
+            SetSiblingImmediatelyBefore(selectionHorizontal.transform, titleComposition);
+            SetSiblingImmediatelyBefore(selectionVertical.transform, titleComposition);
+            SetSiblingImmediatelyBefore(selectionCorner.transform, titleComposition);
+            SetSiblingImmediatelyBefore(compositionDrop.transform, titleComposition);
+        }
         MainMenuUI menuUI = canvasObject.GetComponent<MainMenuUI>();
         if (menuUI) menuUI.lineTurn = lineTurn;
 
@@ -189,12 +233,33 @@ public static class BuildPutterMenuUI
         MenuButton style = root.GetComponent<MenuButton>();
         if (style)
         {
+            AfoShapeImage outline = EnsureShape(root, "ButtonOutline");
+            ConfigureCenteredRect(outline.transform, Vector2.zero, new Vector2(width, 80f));
+            outline.shape = AfoShapeImage.Shape.Parallelogram;
+            outline.color = new Color32(36, 107, 253, 230);
+            outline.cornerCut = 0.035f;
+            outline.raycastTarget = false;
+            outline.transform.SetAsFirstSibling();
+
+            AfoShapeImage fill = EnsureShape(root, "ButtonFill");
+            ConfigureCenteredRect(fill.transform, Vector2.zero, new Vector2(width - 8f, 72f));
+            fill.shape = AfoShapeImage.Shape.Parallelogram;
+            fill.color = new Color32(11, 29, 54, 255);
+            fill.cornerCut = 0.035f;
+            fill.raycastTarget = true;
+            fill.transform.SetSiblingIndex(1);
+            outline.SetAllDirty();
+            fill.SetAllDirty();
+
             style.lineTurnMode = true;
-            style.textLed = true;
+            style.textLed = false;
             style.spotlight = false;
             style.initiallySelected = false;
             style.selectionOffset = 0f;
             style.hoverRotationDegrees = 0f;
+            style.background = fill;
+            style.accent = outline;
+            style.pressSpinTarget = outline.rectTransform;
             if (style.label)
             {
                 ConfigureText(style.label, label, 42, new Color32(244, 247, 255, 230));
@@ -354,6 +419,21 @@ public static class BuildPutterMenuUI
         image.color = color;
     }
 
+    static void SetRaycastTarget(Transform root, string path, bool value)
+    {
+        Transform target = root.Find(path);
+        AfoShapeImage image = target ? target.GetComponent<AfoShapeImage>() : null;
+        if (image) image.raycastTarget = value;
+    }
+
+    static void SetSiblingImmediatelyBefore(Transform item, Transform anchor)
+    {
+        if (!item || !anchor || item == anchor || item.parent != anchor.parent) return;
+        int anchorIndex = anchor.GetSiblingIndex();
+        int targetIndex = anchorIndex - (item.GetSiblingIndex() < anchorIndex ? 1 : 0);
+        item.SetSiblingIndex(targetIndex);
+    }
+
     static void SetImageOpacity(Transform root, string path, float opacity)
     {
         Transform target = root.Find(path);
@@ -379,5 +459,22 @@ public static class BuildPutterMenuUI
         Transform target = root.Find(path);
         Text text = target ? target.GetComponent<Text>() : null;
         if (text) text.fontSize = size;
+    }
+
+    static void SetTextContent(Transform root, string path, string value)
+    {
+        Transform target = root.Find(path);
+        Text text = target ? target.GetComponent<Text>() : null;
+        if (text) text.text = value;
+    }
+
+    static void SetGameNameCopies(string oldName, string newName)
+    {
+        Text[] labels = Resources.FindObjectsOfTypeAll<Text>();
+        foreach (Text label in labels)
+        {
+            if (label && label.gameObject.scene == SceneManager.GetActiveScene() && label.text == oldName)
+                label.text = newName;
+        }
     }
 }
