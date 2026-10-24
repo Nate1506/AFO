@@ -48,7 +48,9 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
-    "com.ivanmurzak.unity.mcp": "1.4.0"
+    "com.ivanmurzak.unity.mcp": "1.4.0",
+    "com.ivanmurzak.unity.mcp.animation": "2.0.1",
+    "com.ivanmurzak.unity.mcp.terrain": "2.0.1"
   },
   "scopedRegistries": [
     {

@@ -74,6 +74,7 @@ Scenes, prefabs, assets, Editor state:
 
 | Source | What |
 |---|---|
+| `animation` | animation: animators (every Animator in the loaded scenes), CreateClip(path, frameRate, loop), CreateController(path, motion) |
 | `componentTypes` | component types that can be added (name fullName namespace) |
 | `console` | captured Editor log entries, oldest first (last 1000): logType message timestamp stackTrace sequence |
 | `editor` | Editor state (isPlaying, isPaused, selection …) and operations: CreateGameObject, OpenScene, NewScene, SaveScenes, InstantiatePrefab, OpenPrefab / SavePrefab / ClosePrefab, CopyAsset / MoveAsset / DeleteAsset / CreateFolder, CreateMaterial, SaveAssets, RefreshAssets, ClearConsole, ExecuteMenuItem (rql-schema "editor" for signatures) |
@@ -85,16 +86,149 @@ Scenes, prefabs, assets, Editor state:
 | `scenes` | loaded scenes |
 | `selection` | objects selected in the Editor |
 | `shaders` | every shader the Editor knows (built-in and project): name supported hasErrors |
+| `terrain` | terrain operations without an owner: Create (Terrain GameObject + TerrainData asset), CreateLayer (TerrainLayer asset) |
 | `testResults` | results of the last tests-run: name status durationMs message stackTrace |
 | `tests` | test methods (fullName name fixture namespace assembly mode categories parameterized explicit ignored); run a selection with tests-run query, e.g. tests \| where fixture == "PlayerTests" |
+| `terrain.heightAt(…)` | terrain.heightAt(terrain, worldX, worldZ): world-space surface height (Y) at a world X / Z position |
+| `terrain.heightStats(…)` | terrain.heightStats(terrain, x?, y?, w?, h?): {min, max, average, cells} of a heightmap region (default: the whole heightmap) |
+| `terrain.heights(…)` | terrain.heights(terrain, x, y, w?, h?): normalized heights 0 … 1 of a heightmap region as rows (at most 20 × 20 cells) |
 | `unity.asset(…)` | unity.asset(path): the main asset at a path, e.g. "Assets/Mats/Red.mat" |
 | `unity.assets(…)` | unity.assets(filter, folder?): AssetDatabase search, e.g. "t:Material", "t:Prefab Enemy" (at most 200, loaded as needed) |
 | `unity.find(…)` | unity.find(name): the GameObject with that unique name or hierarchy path ("Level/Pillar_1"), e.g. set Follow = unity.find("Player") |
+
+## Animation
+
+Clips and controllers are assets: `unity.assets("t:AnimationClip")`, `unity.asset("Assets/…/Walk.anim")`,
+`unity.asset("Assets/…/Player.controller")`. An AnimationClip has `curves` (path type property keyCount timeRange keys, keys with
+writable time value inTangent outTangent …), `objectCurves` (sprite swaps), `events` and `settings` (loopTime loopBlend mirror …), all
+writable views, plus ordinary members (frameRate wrapMode legacy length isLooping). An AnimatorController has `layers` (name
+defaultWeight blendingMode defaultState `states` anyStateTransitions) and `parameters` (name type defaultFloat defaultInt defaultBool);
+states and transitions are assets whose members (speed motion tag … / hasExitTime exitTime duration conditions …) are set directly.
+Writes and calls are undoable; creating an asset is not. `rql-schema "AnimationClip"` / `"AnimatorController"` list the methods.
+
+Clips (curve `path` is the child path under the Animator, "" = its own GameObject; `type` the animated component):
+
+```
+animation | call CreateClip("Assets/Animations/Walk.anim")   empty clip, 60 fps
+animation | call CreateClip("Assets/Animations/Idle.anim", 30, true)   path, frameRate, loop
+unity.assets("t:AnimationClip") | select name length frameRate isLooping n=(curves.count()) e=(events.count())
+unity.asset("Assets/Animations/Walk.anim") | call SetCurve("", "Transform", "localPosition.y", [[0, 0], [0.5, 1], [1, 0]])   path, type, property, keys [time, value(, inTangent, outTangent)]
+unity.asset("Assets/Animations/Walk.anim") | call SetCurve("Body", "SpriteRenderer", "m_Color.a", [{time: 0, value: 1}, {time: 1, value: 0, inTangent: -1}])
+unity.asset("Assets/Animations/Walk.anim") | get curves | select path type property keyCount timeRange
+unity.asset("Assets/Animations/Walk.anim") | get curves | where property == "localPosition.y" | get keys | select index time value inTangent outTangent
+unity.asset("Assets/Animations/Walk.anim") | get curves | where property == "localPosition.y" | set keys[1].value = 2, keys[1].outTangent = 0
+unity.asset("Assets/Animations/Walk.anim") | get curves | where property == "localPosition.y" | call AddKey(1.5, 0.5)   returns the key index; RemoveKey(index), SetKeys([[t, v], …]), Evaluate(t)
+unity.asset("Assets/Animations/Walk.anim") | get curves | where path == "Body" | set postWrapMode = "Loop"
+unity.asset("Assets/Animations/Walk.anim") | call RemoveCurve("Body", "SpriteRenderer", "m_Color.a")   or … | get curves | where … | call Remove()
+unity.asset("Assets/Animations/Walk.anim") | set frameRate = 30, settings.loopTime = true
+unity.asset("Assets/Animations/Walk.anim") | call AddEvent(0.5, "Footstep", "left")   time, functionName, stringParameter?, floatParameter?, intParameter?
+unity.asset("Assets/Animations/Walk.anim") | get events | select index time functionName stringParameter
+unity.asset("Assets/Animations/Walk.anim") | set events[0].time = 0.25, events[0].intParameter = 1
+unity.asset("Assets/Animations/Walk.anim") | call RemoveEvent(0)   ClearEvents() / ClearCurves() remove all
+```
+
+Animator controllers (states by name; a trailing `layer` argument is a layer name or index, default 0):
+
+```
+animation | call CreateController("Assets/Animations/Player.controller")   Base Layer, empty state machine (CreateController(path, motion) adds a state)
+unity.asset("Assets/Animations/Player.controller") | call AddParameter("Speed", "Float")   Float, Int, Bool or Trigger
+unity.asset("Assets/Animations/Player.controller") | call AddParameter("Grounded", "Bool", true)   optional default value
+unity.asset("Assets/Animations/Player.controller") | call AddParameter("Jump", "Trigger")
+unity.asset("Assets/Animations/Player.controller") | call AddState("Idle", unity.asset("Assets/Animations/Idle.anim"))   name, motion?, layer?; the first state becomes the default
+unity.asset("Assets/Animations/Player.controller") | call AddState("Walk", unity.asset("Assets/Animations/Walk.anim"))
+unity.asset("Assets/Animations/Player.controller") | call AddTransition("Idle", "Walk", "Speed", "Greater", 0.1)   from, to ("Exit" = exit), parameter?, mode?, threshold?, layer?
+unity.asset("Assets/Animations/Player.controller") | call AddTransition("Walk", "Idle", "Speed", "Less", 0.1)
+unity.asset("Assets/Animations/Player.controller") | call AddAnyStateTransition("Idle", "Jump")   mode defaults by parameter type: Bool / Trigger If, Float Greater, Int Equals
+unity.asset("Assets/Animations/Player.controller") | call SetDefaultState("Idle")
+unity.asset("Assets/Animations/Player.controller") | get layers | select index name defaultWeight defaultState.name states.name
+unity.asset("Assets/Animations/Player.controller") | get layers | get states | select name speed motion.name transitions.destinationState.name
+unity.asset("Assets/Animations/Player.controller") | get layers | get states | where name == "Walk" | set speed = 1.5
+unity.asset("Assets/Animations/Player.controller") | get layers | get states | where name == "Idle" | get transitions | set hasExitTime = true, exitTime = 0.9, duration = 0.25
+unity.asset("Assets/Animations/Player.controller") | get layers | get states | where name == "Idle" | get transitions | call AddCondition("Grounded", "If")   RemoveCondition(index), ClearConditions()
+unity.asset("Assets/Animations/Player.controller") | get layers | get states | get transitions | select destinationState.name hasExitTime conditions
+unity.asset("Assets/Animations/Player.controller") | get parameters | select name type defaultFloat defaultBool
+unity.asset("Assets/Animations/Player.controller") | get parameters | where name == "Speed" | set defaultFloat = 0.5
+unity.asset("Assets/Animations/Player.controller") | call AddLayer("Upper Body")   returns the layer index
+unity.asset("Assets/Animations/Player.controller") | set layers[1].defaultWeight = 0.5, layers[1].blendingMode = "Additive"
+unity.asset("Assets/Animations/Player.controller") | call AddState("Wave", null, "Upper Body")
+unity.asset("Assets/Animations/Player.controller") | call RemoveTransition("Walk", "Idle")   from "AnyState" / to "Exit" for those transitions
+unity.asset("Assets/Animations/Player.controller") | call RemoveState("Wave", "Upper Body")
+unity.asset("Assets/Animations/Player.controller") | call RemoveLayer("Upper Body")
+unity.asset("Assets/Animations/Player.controller") | call RemoveTransition("AnyState", "Idle")
+unity.asset("Assets/Animations/Player.controller") | call RemoveParameter("Jump")   conditions using it are removed too
+```
+
+Animator components (`animation | get animators` = every Animator in the loaded scenes):
+
+```
+editor | call CreateGameObject("Player")
+objects | where name == "Player" | call AddComponent("Animator")
+animation | get animators | set runtimeAnimatorController = unity.asset("Assets/Animations/Player.controller"), applyRootMotion = false
+animation | get animators | select gameObject.name runtimeAnimatorController.name isHuman cullingMode
+```
+
+Parameter names and types are read-only (conditions refer to them): rename by RemoveParameter + AddParameter. New transitions
+have no exit time and no blend duration; set them on the transition. Only the Animator's configuration members are readable (its
+playback state is not meaningful in Edit Mode); in Play Mode `call SetParameter("Speed", 2)` / `call Play("Walk")` drive it.
+Other components' AnimationCurve fields take keyframe lists too: `set curve = [[0, 0], [1, 1]]`.
+
+## Terrain
+
+Terrains are components: `objects | get components | where $ is Terrain`. Settings are members of the Terrain, the data
+(size, resolutions, layers, prototypes) lives in its `terrainData`. Heights are normalized 0 … 1 (fraction of
+`terrainData.size.y`); heightmap / alphamap cells are `x` along world X and `y` along world Z.
+
+```
+objects | get components | where $ is Terrain | select $ref gameObject.name terrainData.size terrainData.heightmapResolution terrainData.terrainLayers.name
+terrain | call Create("Island", "Assets/Terrain/Island.asset", 257, "(500, 120, 500)", "(0, 0, 0)")   name, dataPath, heightmapResolution, size, position
+objects | get components | where $ is Terrain | set terrainData.size = "(800, 200, 800)"
+objects | get components | where $ is Terrain | set terrainData.heightmapResolution = 513, terrainData.alphamapResolution = 512
+objects | get components | where $ is Terrain | set heightmapPixelError = 2, drawTreesAndFoliage = false, materialTemplate = unity.asset("Assets/Mats/Terrain.mat")
+```
+
+Heights (`call` needs rql-mutate; sampling functions work in rql-query):
+
+```
+objects | get components | where $ is Terrain | call SetHeights(0.25)                                  flatten everything to 25 %
+objects | get components | where $ is Terrain | call SetHeights(0.6, 100, 100, 32, 32)                 height, x, y, w, h (w / h 0 = to the edge)
+objects | get components | where $ is Terrain | call SetHeightGrid([[0.1, 0.2], [0.3, 0.4]], 10, 20)    explicit rows (row = y) starting at cell (10, 20)
+objects | get components | where $ is Terrain | select h=(terrain.heights($, 10, 20, 2, 2))            normalized rows, at most 20 × 20
+objects | get components | where $ is Terrain | select s=(terrain.heightStats($))                       {min, max, average, cells}; region: ($, x, y, w, h)
+objects | get components | where $ is Terrain | select y=(terrain.heightAt($, 250, 250))                world surface Y at world X / Z
+```
+
+Layers (textures), trees and details:
+
+```
+terrain | call CreateLayer("Assets/Terrain/Grass.terrainlayer", unity.asset("Assets/Textures/grass.png"), "(10, 10)")
+objects | get components | where $ is Terrain | call AddLayer(unity.asset("Assets/Terrain/Grass.terrainlayer"))   returns the layer index
+objects | get components | where $ is Terrain | call PaintLayer(1, 1.0, 0, 0, 64, 64)                  layer, strength, x, y, w, h on the alphamap
+objects | get components | where $ is Terrain | call RemoveLayer(0)
+objects | get components | where $ is Terrain | set terrainData.terrainLayers[0].tileSize = "(20, 20)"
+objects | get components | where $ is Terrain | call AddTreePrototype(unity.asset("Assets/Trees/Oak.prefab"))    returns the prototype index
+objects | get components | where $ is Terrain | call PlaceTrees(0, 200, 0.1, 0.1, 0.5, 0.5)            prototype, count, minX, minZ, maxX, maxZ (normalized), heightScale?, widthScale?
+objects | get components | where $ is Terrain | call PlaceTreesAt(["(0.5, 0.5)", "(0.25, 0.75)"], 0)     normalized (x, z) positions, prototype
+objects | get components | where $ is Terrain | call ClearTrees()
+objects | get components | where $ is Terrain | select terrainData.treeInstanceCount terrainData.treePrototypes.prefab
+objects | get components | where $ is Terrain | set terrainData.treePrototypes[0] = {prefab: unity.asset("Assets/Trees/Oak.prefab"), bendFactor: 0.3}   prototypes are replaced whole
+objects | get components | where $ is Terrain | set terrainData.treeInstances[0].heightScale = 2
+objects | get components | where $ is Terrain | call AddDetailPrototype(unity.asset("Assets/Textures/grass_blade.png"))   texture = grass billboard, prefab = detail mesh
+objects | get components | where $ is Terrain | get terrainData | call SetDetailResolution(1024, 32)
+objects | get components | where $ is Terrain | where gameObject.name == "Center" | call SetNeighbors(ref("Terrain#…"), null, ref("Terrain#…"), null)   left, top, right, bottom
+```
+
+`terrainData.treeInstances` is read only when named (`select terrainData.treeInstances[0]`). Tree / detail prototype
+members are read-only (TerrainData returns copies): replace the element with an object literal. Invalid resolutions, regions
+outside the map and out-of-range indices fail without changing anything. Heights, paint, layers and trees are undoable;
+created assets (TerrainData, TerrainLayer) are not removed by Undo. Neighbors are not saved with the scene (Unity
+reconnects terrains with `allowAutoConnect` and the same `groupingID`).
 
 ## Installed RQL modules
 
 - `com.IvanMurzak.Unity.MCP.Editor.Rql.Modules.UnityCoreModule`
 - `com.IvanMurzak.Unity.MCP.Editor.Rql.ToolTypesModule`
 - `com.IvanMurzak.Unity.MCP.Editor.Rql.Mathematics.MathematicsModule`
+- `com.IvanMurzak.Unity.MCP.Editor.Rql.Animation.AnimationModule`
 - `com.IvanMurzak.Unity.MCP.Editor.Rql.Lighting.LightingModule`
 - `com.IvanMurzak.Unity.MCP.Editor.Rql.Physics3D.PhysicsModule`
+- `com.IvanMurzak.Unity.MCP.Editor.Rql.Terrains.TerrainModule`
