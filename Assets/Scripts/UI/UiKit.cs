@@ -28,6 +28,21 @@ namespace SayItAgain.UI
             }
         }
 
+        /// <summary>
+        /// TMP only applies kerning by default. Thai needs the font's mark (vowel/tone above or below a
+        /// consonant) and mark-to-mark (tone over vowel) positioning, or marks overlap and float.
+        /// </summary>
+        public static void EnableThaiShaping(TMP_Text text)
+        {
+            text.fontFeatures = new System.Collections.Generic.List<UnityEngine.TextCore.OTL_FeatureTag>
+            {
+                UnityEngine.TextCore.OTL_FeatureTag.kern,
+                UnityEngine.TextCore.OTL_FeatureTag.liga,
+                UnityEngine.TextCore.OTL_FeatureTag.mark,
+                UnityEngine.TextCore.OTL_FeatureTag.mkmk,
+            };
+        }
+
         public static Canvas CreateCanvas(string name, int sortOrder)
         {
             var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -81,6 +96,7 @@ namespace SayItAgain.UI
             tmp.alignment = align;
             tmp.textWrappingMode = TextWrappingModes.Normal;
             tmp.raycastTarget = false;
+            EnableThaiShaping(tmp);
             if (!string.IsNullOrEmpty(locKey)) rt.gameObject.AddComponent<LocalizedText>().SetKey(locKey);
             return tmp;
         }

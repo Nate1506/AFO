@@ -55,9 +55,15 @@ namespace SayItAgain
         /// Deadly at this point? Bridges and causeways are safe patches on top of always-deadly water,
         /// so a safe bound zone overrides an Always zone it overlaps.
         /// </summary>
+        /// <summary>Current flood surface height (set by FloodRise). Deep water below it sweeps villagers away.</summary>
+        public static float WaterLevel = float.NegativeInfinity;
+        /// <summary>Feet this far under the surface count as deep water.</summary>
+        public const float DeepWaterDepth = 0.45f;
+
         public static bool IsDeadlyAt(Vector3 pos)
         {
-            bool inAlways = false;
+            // Deep open water anywhere on the map (bridges and raised paths keep feet above it).
+            bool inAlways = pos.y < WaterLevel - DeepWaterDepth;
             foreach (var z in All)
             {
                 if (!z.Contains(pos)) continue;

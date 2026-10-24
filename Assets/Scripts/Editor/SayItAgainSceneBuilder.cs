@@ -179,11 +179,15 @@ namespace SayItAgain.EditorTools
             return prefab;
         }
 
-        /// <summary>Placeholder body until the CC0 character models are imported.</summary>
+        /// <summary>
+        /// One villager prefab carrying all twelve Kenney Mini Characters; Villager picks one at random,
+        /// so a crowd has adults, elders and officials in different clothes.
+        /// </summary>
         static Villager BuildVillagerPrefab()
         {
             var go = new GameObject("Villager");
-            Character(go.transform, VillagerController, Mat("VillagerBody", Color.white));
+            foreach (var model in CharacterModels)
+                Character(go.transform, VillagerController, model).gameObject.SetActive(false);
             var agent = go.AddComponent<NavMeshAgent>();
             agent.speed = 3.4f;
             agent.radius = 0.35f;
@@ -195,23 +199,32 @@ namespace SayItAgain.EditorTools
             return prefab.GetComponent<Villager>();
         }
 
-        // ---------- Characters (Quaternius Universal Animation Library, CC0) ----------
+        // ---------- Characters (Kenney Mini Characters, CC0) ----------
 
-        const string CharacterFbx = "Assets/Characters/Quaternius/UAL1_Standard.fbx";
+        const string CharacterDir = "Assets/Characters/KenneyMini";
+        /// <summary>All twelve share one rig, so the clips from the first model drive every model.</summary>
+        const string ClipSource = CharacterDir + "/character-male-a.fbx";
         const string VillagerController = Root + "/Animation/Villager.controller";
         const string ShouterController = Root + "/Animation/Shouter.controller";
         const string RescuerController = Root + "/Animation/Rescuer.controller";
+        static readonly string[] CharacterModels =
+        {
+            "character-male-a", "character-male-b", "character-male-c", "character-male-d", "character-male-e", "character-male-f",
+            "character-female-a", "character-female-b", "character-female-c", "character-female-d", "character-female-e", "character-female-f",
+        };
+        static readonly HashSet<string> LoopClips = new HashSet<string>
+            { "idle", "walk", "sprint", "holding-right", "holding-both", "emote-yes", "emote-no", "interact-right", "fall", "static" };
 
         /// <summary>Loop the looping clips, then build the three animator controllers.</summary>
         static void SetupCharacters()
         {
             if (!AssetDatabase.IsValidFolder(Root + "/Animation")) AssetDatabase.CreateFolder(Root, "Animation");
-            var importer = (ModelImporter)AssetImporter.GetAtPath(CharacterFbx);
+            var importer = (ModelImporter)AssetImporter.GetAtPath(ClipSource);
             var clips = importer.defaultClipAnimations;
             bool changed = importer.clipAnimations.Length == 0;
             foreach (var c in clips)
             {
-                bool loop = c.name.Contains("Loop");
+                bool loop = LoopClips.Contains(c.name);
                 if (c.loopTime != loop) { c.loopTime = loop; changed = true; }
             }
             if (changed)
@@ -220,7 +233,7 @@ namespace SayItAgain.EditorTools
                 importer.SaveAndReimport();
             }
 
-            // Villager: idle/walk/jog by Speed; Celebrate on the hill; Swept when the water takes them.
+            // Villager: idle/walk/sprint by Speed; cheer on the hill; fall when the water takes them.
             AssetDatabase.DeleteAsset(VillagerController);
             var vc = UnityEditor.Animations.AnimatorController.CreateAnimatorControllerAtPath(VillagerController);
             vc.AddParameter("Speed", AnimatorControllerParameterType.Float);
@@ -229,19 +242,19 @@ namespace SayItAgain.EditorTools
             var sm = vc.layers[0].stateMachine;
             vc.CreateBlendTreeInController("Locomotion", out var tree);
             tree.blendParameter = "Speed";
-            tree.AddChild(AnimClip("Idle_Loop"), 0f);
-            tree.AddChild(AnimClip("Walk_Loop"), 1.2f);
-            tree.AddChild(AnimClip("Jog_Fwd_Loop"), 3.4f);
-            var dance = sm.AddState("Celebrate");
-            dance.motion = AnimClip("Dance_Loop");
-            var swim = sm.AddState("Swept");
-            swim.motion = AnimClip("Swim_Fwd_Loop");
-            sm.AddAnyStateTransition(dance).AddCondition(UnityEditor.Animations.AnimatorConditionMode.If, 0, "Celebrate");
-            sm.AddAnyStateTransition(swim).AddCondition(UnityEditor.Animations.AnimatorConditionMode.If, 0, "Swept");
+            tree.AddChild(AnimClip("idle"), 0f);
+            tree.AddChild(AnimClip("walk"), 1.2f);
+            tree.AddChild(AnimClip("sprint"), 3.4f);
+            var cheer = sm.AddState("Celebrate");
+            cheer.motion = AnimClip("emote-yes");
+            var swept = sm.AddState("Swept");
+            swept.motion = AnimClip("fall");
+            sm.AddAnyStateTransition(cheer).AddCondition(UnityEditor.Animations.AnimatorConditionMode.If, 0, "Celebrate");
+            sm.AddAnyStateTransition(swept).AddCondition(UnityEditor.Animations.AnimatorConditionMode.If, 0, "Swept");
 
-            // Shouting villager: talking with arms; rescuers in the opening: talking on the radio.
-            SingleClipController(ShouterController, AnimClip("Idle_Talking_Loop"));
-            SingleClipController(RescuerController, AnimClip("Idle_Talking_Loop"));
+            // Shouting villager waves a "no"; rescuers hold their radio.
+            SingleClipController(ShouterController, AnimClip("emote-no"));
+            SingleClipController(RescuerController, AnimClip("holding-right"));
         }
 
         static void SingleClipController(string path, AnimationClip clip)
@@ -252,24 +265,21 @@ namespace SayItAgain.EditorTools
         }
 
         static AnimationClip AnimClip(string name) =>
-            AssetDatabase.LoadAllAssetsAtPath(CharacterFbx).OfType<AnimationClip>().First(c => c.name == "Armature|" + name);
+            AssetDatabase.LoadAllAssetsAtPath(ClipSource).OfType<AnimationClip>().First(c => c.name == name);
 
-        /// <summary>Mannequin model under a parent, scaled to about 1.75 m, with an animator and a body material.</summary>
-        static Transform Character(Transform parent, string controllerPath, Material body)
+        /// <summary>A Kenney Mini Character under a parent, about 1.4 m tall, with an animator. Keeps its own textures.</summary>
+        static Transform Character(Transform parent, string controllerPath, string model = "character-male-a")
         {
-            var model = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(CharacterFbx));
-            PrefabUtility.UnpackPrefabInstance(model, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
-            model.name = "Body";
-            model.transform.SetParent(parent, false);
-            var renderers = model.GetComponentsInChildren<Renderer>();
-            var bounds = renderers[0].bounds;
-            foreach (var r in renderers) { bounds.Encapsulate(r.bounds); r.sharedMaterial = body; }
-            if (bounds.size.y > 0.01f) model.transform.localScale *= 1.75f / bounds.size.y;
-            var animator = model.GetComponent<Animator>();
-            if (animator == null) animator = model.AddComponent<Animator>();
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterDir}/{model}.fbx"));
+            PrefabUtility.UnpackPrefabInstance(go, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            go.name = "Model_" + model;
+            go.transform.SetParent(parent, false);
+            go.transform.localScale = Vector3.one * 2.1f;
+            var animator = go.GetComponent<Animator>();
+            if (animator == null) animator = go.AddComponent<Animator>();
             animator.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(controllerPath);
             animator.applyRootMotion = false;
-            return model.transform;
+            return go.transform;
         }
 
         static AudioSource Loop(GameObject go, AudioClip clip)
@@ -425,16 +435,15 @@ namespace SayItAgain.EditorTools
 
             var gathers = new[] { ("Market", new Vector3(100, 0, -40), "sign_market", "lm_market"), ("OldSchool", new Vector3(142, 0, -44), "sign_school", "lm_school"), ("RiceMill", new Vector3(120, 0, -14), "sign_mill", "lm_mill") };
             var shouters = new List<WorldLabel>();
-            var shouterMat = Mat("Shouter", new Color(0.8f, 0.35f, 0.3f));
             for (int i = 0; i < gathers.Length; i++)
             {
                 var (name, pos, sign, _) = gathers[i];
                 var g = Group(name, village, pos);
                 g.gameObject.AddComponent<GatherPoint>().optionIndex = i;
                 Sign(g, new Vector3(0, 0, 6), sign);
-                shouters.Add(Shouter(g, new Vector3(4, 0, 4), shouterMat));
+                shouters.Add(Shouter(g, new Vector3(4, 0, 4)));
             }
-            shouters.Add(Shouter(village, new Vector3(120, 0, -32), shouterMat));
+            shouters.Add(Shouter(village, new Vector3(120, 0, -32)));
             Spawn(PlayerRole.Village, MoveMode.Free, 0f, new Vector3(120, 0.1f, -55), Quaternion.identity);
             return shouters.ToArray();
         }
@@ -829,10 +838,10 @@ namespace SayItAgain.EditorTools
             WorldLabel.Create(post.parent, localPos + new Vector3(0, 2.8f, 0), key, 2.5f, UiKit.Yellow);
         }
 
-        static WorldLabel Shouter(Transform parent, Vector3 localPos, Material mat)
+        static WorldLabel Shouter(Transform parent, Vector3 localPos)
         {
             var root = Group("Shouter", parent, parent.TransformPoint(localPos));
-            Character(root, ShouterController, mat);
+            Character(root, ShouterController, CharacterModels[Mathf.Abs(root.position.GetHashCode()) % CharacterModels.Length]);
             var label = WorldLabel.Create(root, new Vector3(0, 2.3f, 0), "", 3.2f, UiKit.White);
             // Real recorded shouts (CC0), heard only near the shouter.
             var voice = root.gameObject.AddComponent<AudioSource>();
@@ -851,7 +860,8 @@ namespace SayItAgain.EditorTools
         {
             var root = Group("Rescuer", parent, position);
             root.rotation = Quaternion.Euler(0, yaw, 0);
-            Character(root, RescuerController, Mat("RescuerOrange", new Color(1f, 0.5f, 0.1f)));
+            // The police-style outfit reads as a uniformed rescuer.
+            Character(root, RescuerController, "character-male-e");
         }
 
         static Transform Group(string name, Transform parent, Vector3 position)

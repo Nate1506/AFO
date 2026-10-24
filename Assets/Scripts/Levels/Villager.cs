@@ -21,28 +21,25 @@ namespace SayItAgain
         void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            Vary();
             animator = GetComponentInChildren<Animator>();
             offset = Random.insideUnitSphere * 2f;
             offset.y = 0f;
-            Vary();
         }
 
-        static readonly Color[] Clothes =
-        {
-            new Color(0.75f, 0.35f, 0.25f), new Color(0.3f, 0.45f, 0.7f), new Color(0.45f, 0.6f, 0.35f),
-            new Color(0.8f, 0.7f, 0.4f), new Color(0.55f, 0.4f, 0.6f), new Color(0.6f, 0.6f, 0.6f),
-        };
-
-        /// <summary>Adults, elders (slower, grey) and children (small, quick) from one model.</summary>
+        /// <summary>
+        /// The prefab carries every character model, all hidden; show one at random.
+        /// Some walk slower (elders) and some are small and quick (children).
+        /// </summary>
         void Vary()
         {
+            var models = new System.Collections.Generic.List<Transform>();
+            foreach (Transform child in transform)
+                if (child.GetComponent<Animator>() != null) models.Add(child);
+            if (models.Count > 0) models[Random.Range(0, models.Count)].gameObject.SetActive(true);
             float r = Random.value;
-            var color = Clothes[Random.Range(0, Clothes.Length)];
-            if (r < 0.25f) { transform.localScale *= 0.65f; agent.speed *= 1.1f; }
-            else if (r < 0.45f) { agent.speed *= 0.75f; color = Color.Lerp(color, Color.grey, 0.5f); }
-            var block = new MaterialPropertyBlock();
-            block.SetColor("_BaseColor", color);
-            foreach (var rend in GetComponentsInChildren<Renderer>()) rend.SetPropertyBlock(block);
+            if (r < 0.2f) { transform.localScale *= 0.7f; agent.speed *= 1.1f; }
+            else if (r < 0.4f) agent.speed *= 0.75f;
         }
 
         public void Follow(VillageDirector director, int slot)

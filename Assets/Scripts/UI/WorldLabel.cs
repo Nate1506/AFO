@@ -27,6 +27,7 @@ namespace SayItAgain.UI
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.rectTransform.sizeDelta = new Vector2(12, 3);
             tmp.textWrappingMode = TextWrappingModes.Normal;
+            UiKit.EnableThaiShaping(tmp);
             return label;
         }
 
