@@ -78,7 +78,7 @@ namespace SayItAgain.UI
 
         void BuildRoomPanel(Transform canvas)
         {
-            roomPanel = UiKit.Rect("RoomPanel", canvas, new Vector2(0.52f, 0.16f), new Vector2(0.96f, 0.9f), Vector2.zero, Vector2.zero).gameObject;
+            roomPanel = UiKit.Rect("RoomPanel", canvas, new Vector2(0.58f, 0.16f), new Vector2(0.96f, 0.9f), Vector2.zero, Vector2.zero).gameObject;
             var t = roomPanel.transform;
 
             var header = Row(t, 0);
