@@ -187,9 +187,9 @@ namespace SayItAgain.EditorTools
             {
                 var (name, p, sign, width) = stairs[i];
                 var outward = (p - top).normalized;
-                StoneStairs(hill, name, top + outward * 11f, top + outward * 30f);
-                // A ring segment 14-26 m from the temple, just outside the safe zone.
-                Zone(hill, name, top + outward * 14f, top + outward * 26f, width, HazardZone.Rule.IfAvoidedCrossing, i, mud, 0.6f);
+                var (edge, foot) = StoneStairs(hill, name, top, outward);
+                // From just below the plateau edge to the foot of the stairs, outside the safe zone.
+                Zone(hill, name, edge + outward * 1.5f, foot + outward * 2f, width, HazardZone.Rule.IfAvoidedCrossing, i, mud, 0.6f);
                 Sign(hill, hill.InverseTransformPoint(OnGround(new Vector3(p.x + outward.x * 8f, 0, p.y + outward.y * 8f), 0f)), sign);
             }
             AddLandmark(hill.gameObject, "lm_hill", hill.position + Vector3.up * 6f);
@@ -201,14 +201,25 @@ namespace SayItAgain.EditorTools
         }
 
         /// <summary>
-        /// Kao's hill top is a plateau with steep sides, so each way up is a stone stair:
-        /// a smooth walkable ramp (hidden collider) under visible steps, from the ground at b up to the plateau at a.
+        /// Kao's hill top is a plateau with steep sides, so each way up is a stone stair: from the plateau edge
+        /// it drops at a walkable 28 degrees until it meets the ground. A smooth hidden ramp carries the collider
+        /// under visible steps. Returns the top and foot of the stairs.
         /// </summary>
-        static void StoneStairs(Transform parent, string name, Vector2 a, Vector2 b)
+        static (Vector2 edge, Vector2 foot) StoneStairs(Transform parent, string name, Vector2 center, Vector2 dir)
         {
+            float plateau = GroundY(center);
+            float r = 4f;
+            while (r < 40f && GroundY(center + dir * (r + 0.5f)) > plateau - 0.4f) r += 0.5f;
+            var edge = center + dir * r;
+            float drop = Mathf.Tan(28f * Mathf.Deg2Rad);
+            float run = 1f;
+            while (run < 40f && plateau - run * drop > GroundY(edge + dir * run)) run += 0.5f;
+            var foot2 = edge + dir * run;
+
             var stone = Mat("Concrete", new Color(0.55f, 0.55f, 0.55f));
-            var top = OnGround(new Vector3(a.x, 0, a.y), 0f);
-            var foot = OnGround(new Vector3(b.x, 0, b.y), -0.1f);
+            // Start a little inside the plateau so the top step meets it without a lip.
+            var top = new Vector3(edge.x - dir.x, plateau, edge.y - dir.y);
+            var foot = new Vector3(foot2.x, plateau - run * drop - 0.1f, foot2.y);
             var root = Group(name, parent, (top + foot) * 0.5f);
             root.rotation = Quaternion.LookRotation(top - foot);
             float length = Vector3.Distance(top, foot);
@@ -227,6 +238,7 @@ namespace SayItAgain.EditorTools
                 step.localScale = new Vector3(4.5f, rise + 0.6f, length / count + 0.05f);
                 step.position = Vector3.Lerp(foot, top, t) + Vector3.up * (rise * 0.5f - (rise + 0.6f) * 0.5f);
             }
+            return (edge, foot2);
         }
 
         /// <summary>A hazard box along the segment a-b (ground level), with a slab shown while it is deadly.</summary>
