@@ -68,6 +68,7 @@ namespace SayItAgain.EditorTools
                         break;
                 }
             }
+            ReplaceKaoTerrainTextures(scene);
             Physics.SyncTransforms();
             sun.intensity = 0.6f;
             sun.color = new Color(0.75f, 0.8f, 0.9f);
@@ -234,6 +235,64 @@ namespace SayItAgain.EditorTools
             root.AddComponent<CutscenePlayer>().shots = shots;
             Rescuer(root.transform, van.TransformPoint(new Vector3(0.6f, 0, -4.4f)), van.eulerAngles.y + 180f);
             Rescuer(root.transform, OnGround(KaoTent + new Vector3(1.2f, 0, 1f), 0f), 220f);
+        }
+
+        /// <summary>
+        /// Kao's terrain layers use textures of unknown origin (web images, a stock preview, pack roof textures).
+        /// The copy gets its own terrain data with the same paint, retextured with our CC0 Poly Haven set.
+        /// </summary>
+        static void ReplaceKaoTerrainTextures(UnityEngine.SceneManagement.Scene scene)
+        {
+            const string dir = SceneDir + "/KaoTerrain";
+            AssetDatabase.DeleteAsset(dir);
+            AssetDatabase.CreateFolder(SceneDir, "KaoTerrain");
+            // Look of each original texture -> closest CC0 texture.
+            var swap = new Dictionary<string, string>
+            {
+                { "360_F_259143134_BdNxyMFtkC0osFtewc0JzLIMlyZbselt", "brown_mud_leaves_01" },
+                { "89e8471b3f46a5a31f04381e93de727d", "forrest_ground_01" },
+                { "950cdb0c0c813efdbc3e43ba0bb5b6a3", "rocky_terrain_02" },
+                { "Red-Dirt-Road-texture", "grass_path_2" },
+            };
+            var layers = new Dictionary<TerrainLayer, TerrainLayer>();
+            var datas = new Dictionary<TerrainData, TerrainData>();
+            foreach (var terrain in Object.FindObjectsByType<Terrain>(FindObjectsSortMode.None))
+            {
+                if (terrain.gameObject.scene != scene) continue;
+                var src = terrain.terrainData;
+                if (!datas.TryGetValue(src, out var copy))
+                {
+                    string path = $"{dir}/{src.name}.asset";
+                    AssetDatabase.CopyAsset(AssetDatabase.GetAssetPath(src), path);
+                    copy = AssetDatabase.LoadAssetAtPath<TerrainData>(path);
+                    var old = copy.terrainLayers;
+                    var mapped = new TerrainLayer[old.Length];
+                    for (int i = 0; i < old.Length; i++)
+                    {
+                        var o = old[i];
+                        if (o == null) continue;
+                        if (!layers.TryGetValue(o, out var n))
+                        {
+                            string tex = o.diffuseTexture != null && swap.TryGetValue(o.diffuseTexture.name, out var t) ? t : "brown_mud_leaves_01";
+                            n = new TerrainLayer
+                            {
+                                diffuseTexture = AssetDatabase.LoadAssetAtPath<Texture2D>($"Assets/Textures/PolyHaven/{tex}_diff_1k.jpg"),
+                                tileSize = o.tileSize,
+                                smoothness = 0.3f,
+                            };
+                            AssetDatabase.CreateAsset(n, $"{dir}/Layer_{o.name}.terrainlayer");
+                            layers[o] = n;
+                        }
+                        mapped[i] = n;
+                    }
+                    copy.terrainLayers = mapped;
+                    EditorUtility.SetDirty(copy);
+                    datas[src] = copy;
+                }
+                terrain.terrainData = copy;
+                var col = terrain.GetComponent<TerrainCollider>();
+                if (col != null) col.terrainData = copy;
+            }
         }
 
         static Vector3 Lerp(Vector2 a, Vector2 b, float t)
