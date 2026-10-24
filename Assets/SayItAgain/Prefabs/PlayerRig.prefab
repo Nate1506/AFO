@@ -217,6 +217,11 @@ MonoBehaviour:
   lookScale: 0.08
   headBobAmplitude: 0.04
   headBobFrequency: 9
+  stepClips:
+  - {fileID: 8300000, guid: 0d8d0a49dfb7b5249b1a307c3e17516f, type: 3}
+  - {fileID: 8300000, guid: 65383e4a4e5725946a8e73b6cef512bd, type: 3}
+  - {fileID: 8300000, guid: f208c4146492f8c42b9dd5c23d04fbc4, type: 3}
+  stepInterval: 0.5
   mode: 2
   anchor: {x: 0, y: 0, z: 0}
   confineRadius: 4
