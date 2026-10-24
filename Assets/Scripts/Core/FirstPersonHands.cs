@@ -23,6 +23,9 @@ namespace SayItAgain
         InputAction point;
         float pointUntil, swayTime;
 
+        /// <summary>Test hook: hold the talking pose.</summary>
+        public static bool DebugTalk;
+
         struct Pose { public Vector3 pos; public Vector3 rot; public Pose(Vector3 p, Vector3 r) { pos = p; rot = r; } }
 
         static readonly Pose RightIdle = new Pose(new Vector3(0.24f, -0.27f, 0.42f), new Vector3(8f, -12f, -4f));
@@ -48,7 +51,9 @@ namespace SayItAgain
         {
             if (card == null) card = FindAnyObjectByType<CardPanel>();
             bool blocked = (binoculars != null && binoculars.ZoomAmount > 0.2f) || (card != null && card.IsOpen) || PauseMenu.IsOpen;
-            bool talking = VoiceService.Instance != null && VoiceService.Instance.IsTransmitting;
+            // Raise the radio on the key itself, so it also works solo and while voice is offline.
+            bool keyHeld = GameSettings.PushToTalk && Keyboard.current != null && Keyboard.current.vKey.isPressed;
+            bool talking = DebugTalk || keyHeld || (VoiceService.Instance != null && VoiceService.Instance.IsTransmitting);
             if (point.WasPressedThisFrame() && !blocked && GameplayBootstrapRoleIsVillage()) pointUntil = Time.time + 0.9f;
 
             var rightTarget = blocked ? RightAway : talking ? RightTalk : RightIdle;
