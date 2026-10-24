@@ -114,15 +114,24 @@ namespace SayItAgain
             if (first != null && followClip != null) AudioSource.PlayClipAtPoint(followClip, first.transform.position + Vector3.up * 1.6f, GameSettings.SfxVolume);
         }
 
-        /// <summary>The player's recent path, newest last.</summary>
+        /// <summary>The player's recent path, newest last, about one point per metre.</summary>
         readonly List<Vector3> trail = new List<Vector3>();
+        /// <summary>How many old points were dropped from the front, so trail indices stay stable.</summary>
+        int trailBase;
         int followSlots;
 
         void RecordTrail(Vector3 p)
         {
             if (trail.Count == 0 || (trail[trail.Count - 1] - p).sqrMagnitude > 1f) trail.Add(p);
-            if (trail.Count > 400) trail.RemoveAt(0);
+            if (trail.Count > 3000) { trail.RemoveAt(0); trailBase++; }
         }
+
+        /// <summary>Index one past the newest trail point.</summary>
+        public int TrailEnd => trailBase + trail.Count;
+
+        /// <summary>Trail point by stable index (clamped to what is still kept).</summary>
+        public Vector3 TrailAt(int index) =>
+            trail.Count == 0 ? GameplayBootstrap.LocalRig.transform.position : trail[Mathf.Clamp(index - trailBase, 0, trail.Count - 1)];
 
         /// <summary>A point on the player's path, this many metres behind the player.</summary>
         public Vector3 TrailPoint(float metresBehind)

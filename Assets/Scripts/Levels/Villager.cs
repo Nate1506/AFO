@@ -15,6 +15,7 @@ namespace SayItAgain
         NavMeshAgent agent;
         VillageDirector director;
         float trailDistance;
+        int trailIndex;
         Vector3 offset;
         Animator animator;
 
@@ -47,6 +48,7 @@ namespace SayItAgain
             if (Current != State.Waiting) return;
             this.director = director;
             trailDistance = followDistance + slot * 1.3f;
+            trailIndex = director.TrailEnd - 1;
             Current = State.Following;
         }
 
@@ -54,8 +56,18 @@ namespace SayItAgain
         {
             if (Current == State.Following && director != null && agent.isOnNavMesh)
             {
-                // Walk the leader's own footsteps, so villagers cross where the player crossed.
-                var target = director.TrailPoint(trailDistance) + offset * 0.4f;
+                // Walk the leader's own footsteps one by one, so a villager who falls behind still crosses
+                // where the player crossed instead of cutting a corner through the water.
+                int last = director.TrailEnd - 1 - Mathf.CeilToInt(trailDistance);
+                var flat = director.TrailAt(trailIndex) - transform.position;
+                flat.y = 0f;
+                while (trailIndex < last && flat.sqrMagnitude < 9f)
+                {
+                    trailIndex++;
+                    flat = director.TrailAt(trailIndex) - transform.position;
+                    flat.y = 0f;
+                }
+                var target = (trailIndex < last ? director.TrailAt(Mathf.Min(trailIndex + 2, last)) : director.TrailPoint(trailDistance)) + offset * 0.4f;
                 if ((agent.destination - target).sqrMagnitude > 1f) agent.SetDestination(target);
             }
 
