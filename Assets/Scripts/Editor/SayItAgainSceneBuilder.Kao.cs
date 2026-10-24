@@ -195,8 +195,9 @@ namespace SayItAgain.EditorTools
             AddLandmark(hill.gameObject, "lm_hill", hill.position + Vector3.up * 6f);
             var safe = Group("SafeZone", world, hill.position);
             var zone = safe.gameObject.AddComponent<SafeZone>();
-            zone.radius = 13f;
-            zone.minHeight = hill.position.y - 1.5f;
+            // The whole plateau counts: the height check keeps the stairs and the foot of the hill out.
+            zone.radius = 25f;
+            zone.minHeight = hill.position.y - 1f;
             Sign(safe, new Vector3(-7f, 0, -9f), "sign_hill");
         }
 
