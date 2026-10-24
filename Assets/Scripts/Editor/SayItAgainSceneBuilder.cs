@@ -162,6 +162,7 @@ namespace SayItAgain.EditorTools
             var bino = root.AddComponent<Binoculars>();
             bino.viewCamera = cam;
             root.AddComponent<BinocularsOverlay>().binoculars = bino;
+            camGo.AddComponent<FirstPersonHands>();
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, PrefabDir + "/PlayerRig.prefab");
             Object.DestroyImmediate(root);
@@ -363,6 +364,9 @@ namespace SayItAgain.EditorTools
             var director = boot.gameObject.AddComponent<VillageDirector>();
             director.villagerPrefab = villagerPrefab;
             director.shouters = shouters;
+            director.followClip = Clip("Voices/villager_come_on_lets_run.ogg");
+            director.cheerClip = Clip("Voices/villagers_cheer.ogg");
+            director.sweptClips = new[] { Clip("Voices/villager_scream.ogg") };
 
             BuildStorm(sun);
             BuildCutscene();
@@ -829,7 +833,17 @@ namespace SayItAgain.EditorTools
         {
             var root = Group("Shouter", parent, parent.TransformPoint(localPos));
             Character(root, ShouterController, mat);
-            return WorldLabel.Create(root, new Vector3(0, 2.3f, 0), "", 3.2f, UiKit.White);
+            var label = WorldLabel.Create(root, new Vector3(0, 2.3f, 0), "", 3.2f, UiKit.White);
+            // Real recorded shouts (CC0), heard only near the shouter.
+            var voice = root.gameObject.AddComponent<AudioSource>();
+            voice.playOnAwake = false;
+            voice.spatialBlend = 1f;
+            voice.minDistance = 4f;
+            voice.maxDistance = 45f;
+            voice.rolloffMode = AudioRolloffMode.Linear;
+            label.voice = voice;
+            label.shoutClips = new[] { Clip("Voices/crowd_shouting.ogg"), Clip("Voices/villager_yell.ogg") };
+            return label;
         }
 
         /// <summary>A rescuer in an orange vest, talking on the radio (seen in the opening).</summary>

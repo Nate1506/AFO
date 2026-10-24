@@ -45,13 +45,31 @@ namespace SayItAgain.UI
             if (!string.IsNullOrEmpty(key)) text.text = Loc.Get(key);
         }
 
-        /// <summary>Shows raw text for a few seconds (speech bubble).</summary>
+        [Tooltip("Optional 3D voice for speech bubbles (real recorded shouts, CC0).")]
+        public AudioSource voice;
+        public AudioClip[] shoutClips;
+
+        /// <summary>Shows raw text for a few seconds (speech bubble) and shouts if a voice is set.</summary>
         public void Say(string line, float seconds)
         {
             key = null;
             text.text = line;
             text.enabled = true;
             hideAt = Time.time + seconds;
+            Shout(seconds);
+        }
+
+        void Shout(float seconds)
+        {
+            if (voice == null || shoutClips == null || shoutClips.Length == 0) return;
+            var clip = shoutClips[Random.Range(0, shoutClips.Length)];
+            voice.Stop();
+            voice.clip = clip;
+            voice.volume = GameSettings.SfxVolume;
+            // Long crowd clips: play a random slice that lasts as long as the bubble.
+            voice.time = clip.length > seconds + 1f ? Random.Range(0f, clip.length - seconds) : 0f;
+            voice.Play();
+            if (clip.length > seconds + 1f) voice.SetScheduledEndTime(AudioSettings.dspTime + seconds);
         }
 
         void LateUpdate()

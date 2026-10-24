@@ -16,6 +16,9 @@ namespace SayItAgain
         public static VillageDirector Instance { get; private set; }
 
         public Villager villagerPrefab;
+        [Tooltip("Real recorded voices (CC0): a villager answering the call, a cheer on the hill.")]
+        public AudioClip followClip, cheerClip;
+        public AudioClip[] sweptClips;
         public float callRadius = 9f;
         [Tooltip("Villagers who shout (rumours in level 2, panic in level 1). They never follow.")]
         public WorldLabel[] shouters;
@@ -28,6 +31,7 @@ namespace SayItAgain
         public float LastCallTime { get; private set; } = -10f;
 
         readonly List<Villager> villagers = new List<Villager>();
+        readonly HashSet<Villager> screamed = new HashSet<Villager>();
         InputAction call;
         bool configured, finished;
         int reportedSaved = -1, reportedLost = -1;
@@ -100,9 +104,14 @@ namespace SayItAgain
         {
             LastCallTime = Time.time;
             if (trail.Count == 0) trail.Add(player.position);
+            Villager first = null;
             foreach (var v in villagers)
                 if (v.Current == Villager.State.Waiting && Vector3.Distance(v.transform.position, player.position) <= callRadius)
+                {
                     v.Follow(this, followSlots++);
+                    if (first == null) first = v;
+                }
+            if (first != null && followClip != null) AudioSource.PlayClipAtPoint(followClip, first.transform.position + Vector3.up * 1.6f, GameSettings.SfxVolume);
         }
 
         /// <summary>The player's recent path, newest last.</summary>
@@ -140,6 +149,15 @@ namespace SayItAgain
                 else if (v.Current == Villager.State.Safe) saved++;
                 else if (v.Current == Villager.State.Swept) lost++;
             }
+            // Voices: a cheer for the first villager safe on the hill, a scream for each one the water takes.
+            if (saved > 0 && Saved == 0 && cheerClip != null) AudioSource.PlayClipAtPoint(cheerClip, player.position + player.forward, GameSettings.SfxVolume);
+            if (lost > Lost && sweptClips != null && sweptClips.Length > 0)
+                foreach (var v in villagers)
+                    if (v.Current == Villager.State.Swept && !screamed.Contains(v))
+                    {
+                        screamed.Add(v);
+                        AudioSource.PlayClipAtPoint(sweptClips[Random.Range(0, sweptClips.Length)], v.transform.position, GameSettings.SfxVolume);
+                    }
             Following = following;
             Saved = saved;
             Lost = lost;
