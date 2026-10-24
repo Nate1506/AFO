@@ -116,13 +116,13 @@ namespace SayItAgain.EditorTools
         /// <summary>Level 1 is about dropouts (more of them); Level 2 is about rumours (cleaner radio).</summary>
         static WeatherConfig BuildWeather(string name, float dropoutsPerMinute, float noisePerKm)
         {
-            string path = $"{DataDir}/{name}.asset";
-            var cfg = AssetDatabase.LoadAssetAtPath<WeatherConfig>(path);
-            if (cfg != null) return cfg;
-            cfg = ScriptableObject.CreateInstance<WeatherConfig>();
+            var cfg = LoadOrCreate<WeatherConfig>($"{DataDir}/{name}.asset");
             cfg.dropoutsPerMinute = dropoutsPerMinute;
             cfg.noisePerKm = noisePerKm;
-            AssetDatabase.CreateAsset(cfg, path);
+            // Visibility about 150-250 m: stormy, but the van can still find the hill with binoculars.
+            cfg.fogDensityMin = 0.0025f;
+            cfg.fogDensityMax = 0.0065f;
+            EditorUtility.SetDirty(cfg);
             return cfg;
         }
 
@@ -477,11 +477,11 @@ namespace SayItAgain.EditorTools
             var root = new GameObject("OpeningCutscene");
             var shots = new[]
             {
-                Shot(root.transform, "Shot1_Village", new Vector3(55, 30, -115), new Vector3(130, 0, -20), new Vector3(20, 0, 10), "cut_1", 1f),
+                Shot(root.transform, "Shot1_Village", new Vector3(92, 14, -82), new Vector3(125, 0, -30), new Vector3(10, 0, 6), "cut_1", 1f),
                 Shot(root.transform, "Shot2_Water", new Vector3(110, 3, 26), new Vector3(150, 0, 70), new Vector3(0, 0, 8), "cut_2", -1f),
                 Shot(root.transform, "Shot3_Van", new Vector3(-143, 2.6f, -51), new Vector3(-150, 1.6f, -42), new Vector3(-3, 0, 2), "cut_3", 1.6f),
                 Shot(root.transform, "Shot4_Tent", new Vector3(7, 3, 151), new Vector3(0, 1.6f, 160), new Vector3(-4, 0, 2), "cut_4", -1f),
-                Shot(root.transform, "Shot5_Hill", new Vector3(150, 18, 92), new Vector3(200, 8, 150), new Vector3(0, 4, 8), "cut_5", -1f),
+                Shot(root.transform, "Shot5_Hill", new Vector3(172, 12, 112), new Vector3(200, 9, 150), new Vector3(0, 3, 6), "cut_5", -1f),
             };
             root.AddComponent<CutscenePlayer>().shots = shots;
         }

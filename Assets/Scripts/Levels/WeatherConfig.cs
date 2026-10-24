@@ -15,8 +15,8 @@ namespace SayItAgain
 
         [Header("Visuals")]
         [Range(0f, 1f)] public float rainAtFullIntensity = 1f;
-        public float fogDensityMin = 0.004f;
-        public float fogDensityMax = 0.018f;
+        public float fogDensityMin = 0.0025f;
+        public float fogDensityMax = 0.0065f;
         [Range(0f, 1f)] public float windAtFullIntensity = 0.9f;
         [Tooltip("Seconds between lightning flashes at low / full intensity. Never below 4 s (photosensitivity).")]
         public Vector2 lightningIntervalRange = new Vector2(18f, 7f);

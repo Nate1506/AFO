@@ -100,7 +100,10 @@ namespace SayItAgain
             var cfg = StormState.Config;
             float fogMin = cfg != null ? cfg.fogDensityMin : 0.004f, fogMax = cfg != null ? cfg.fogDensityMax : 0.018f;
             // Low quality pulls fog in a little to hide the short draw distance.
-            RenderSettings.fogDensity = Mathf.Lerp(fogMin, fogMax, k) * (q == 0 ? 1.25f : 1f);
+            // Binoculars cut through some of the haze so far landmarks stay readable.
+            var rig = Net.GameplayBootstrap.LocalRig;
+            float zoom = rig != null ? rig.GetComponent<Binoculars>().ZoomAmount : 0f;
+            RenderSettings.fogDensity = Mathf.Lerp(fogMin, fogMax, k) * (q == 0 ? 1.25f : 1f) * Mathf.Lerp(1f, 0.35f, zoom);
             // Low still reaches the hill from the van (about 400 m) so the binoculars stay useful.
             if (cam != null) cam.farClipPlane = q == 0 ? 450f : q == 1 ? 650f : 1000f;
 
