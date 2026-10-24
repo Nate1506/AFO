@@ -265,7 +265,7 @@ namespace SayItAgain.UI
         {
             var box = UiKit.Rect("DriftWord", parent, new Vector2(-0.4f, 0.05f), new Vector2(1.6f, 0.75f), Vector2.zero, Vector2.zero);
             box.localRotation = Quaternion.Euler(0, 0, 9f);
-            var label = UiKit.Label(box, locKey, 340, new Color(1f, 1f, 1f, 0.06f), TextAlignmentOptions.Center);
+            var label = UiKit.Label(box, locKey, 340, new Color(1f, 1f, 1f, 0.08f), TextAlignmentOptions.Center);
             label.fontStyle = FontStyles.Bold | FontStyles.Italic;
             label.textWrappingMode = TextWrappingModes.NoWrap;
             return box.gameObject.AddComponent<DriftWord>();

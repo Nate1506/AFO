@@ -137,12 +137,12 @@ namespace SayItAgain.UI
             };
             for (int i = 0; i < items.Length; i++)
             {
-                float y = 0.6f - i * 0.088f;
+                float y = 0.62f - i * 0.095f;
                 // A slanted column of big words, each step pushed a little to the right.
                 float x = 0.04f + i * 0.022f;
-                var item = UiKit.Rect("Item" + i, main.transform, new Vector2(x, y - 0.078f), new Vector2(x + 0.4f, y), Vector2.zero, Vector2.zero);
+                var item = UiKit.Rect("Item" + i, main.transform, new Vector2(x, y - 0.088f), new Vector2(x + 0.42f, y), Vector2.zero, Vector2.zero);
                 item.localRotation = Quaternion.Euler(0, 0, 4f);
-                UiKit.MenuItem(item, items[i].key, items[i].action, 62);
+                UiKit.MenuItem(item, items[i].key, items[i].action, 74);
             }
             UiKit.Label(UiKit.Rect("Footer", main.transform, new Vector2(0.55f, 0.03f), new Vector2(0.98f, 0.09f), Vector2.zero, Vector2.zero), "menu_footer", 22, UiKit.White, TextAlignmentOptions.BottomRight);
             Cascade(main);

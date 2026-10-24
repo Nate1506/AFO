@@ -71,7 +71,7 @@ namespace SayItAgain.UI
                 // A slanted column of big words, each step pushed a little to the right.
                 var item = UiKit.Rect("Item" + i, buttons.transform, new Vector2(0.05f + i * 0.025f, y - 0.09f), new Vector2(0.45f + i * 0.025f, y), Vector2.zero, Vector2.zero);
                 item.localRotation = Quaternion.Euler(0, 0, 4f);
-                var b = UiKit.MenuItem(item, items[i].Item1, items[i].Item2, 72);
+                var b = UiKit.MenuItem(item, items[i].Item1, items[i].Item2, 84);
                 if (i == 0) firstItem = b;
                 cascade.targets.Add(item);
             }
