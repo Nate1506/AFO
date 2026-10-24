@@ -26,6 +26,9 @@ namespace SayItAgain
 
         /// <summary>Cutscene sets this to drive intensity directly; negative = use StormState.</summary>
         public static float IntensityOverride = -1f;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() { IntensityOverride = -1f; FloodRise.ProgressOverride = -1f; }
         public static StormWeather Instance { get; private set; }
 
         void Awake()
@@ -82,7 +85,13 @@ namespace SayItAgain
         {
             float k = Intensity;
             var cam = Camera.main;
-            if (cam != null) rain.transform.position = cam.transform.position + Vector3.up * 12f + cam.transform.forward * 6f;
+            if (cam != null)
+            {
+                rain.transform.position = cam.transform.position + Vector3.up * 12f + cam.transform.forward * 6f;
+                // Overcast: the sky is the fog colour, so distant shapes fade into the storm.
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = RenderSettings.fogColor;
+            }
 
             int q = GameSettings.Quality;
             var emission = rain.emission;

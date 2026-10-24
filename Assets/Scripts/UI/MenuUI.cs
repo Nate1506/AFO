@@ -19,6 +19,9 @@ namespace SayItAgain.UI
         public string gameplayScene = "Gameplay_Test";
 
         static bool seenSplash;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => seenSplash = false;
         Transform canvas;
         GameObject splash, main, levels, settings, credits, current;
         RectTransform wipe;

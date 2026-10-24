@@ -18,6 +18,9 @@ namespace SayItAgain.Net
         /// <summary>Long enough for the opening cutscene (about 20 s) plus the briefing banner.</summary>
         public const float CutsceneBriefing = 26f;
         static bool introShown;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => introShown = false;
         float BriefingSeconds;
 
         public static MatchManager Instance { get; private set; }

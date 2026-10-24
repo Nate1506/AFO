@@ -19,6 +19,9 @@ namespace SayItAgain.UI
         /// <summary>Menu "Tutorial": show even if already done.</summary>
         public static bool ForceNext;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => ForceNext = false;
+
         readonly List<(string key, Func<bool> done)> steps = new List<(string, Func<bool>)>();
         GameObject root;
         TextMeshProUGUI text, counter;

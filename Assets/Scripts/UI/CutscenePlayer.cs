@@ -9,16 +9,6 @@ using UnityEngine.UI;
 
 namespace SayItAgain.UI
 {
-    /// <summary>One camera shot: Cinemachine camera that drifts while it is live.</summary>
-    public sealed class CutsceneShot : MonoBehaviour
-    {
-        public string captionKey;
-        public float seconds = 4f;
-        public Vector3 drift = new Vector3(0, 0, 6);
-        [Tooltip("Lightning strike this many seconds into the shot; negative = none.")]
-        public float strikeAt = -1f;
-    }
-
     /// <summary>
     /// The in-engine opening (about 20 s): storm over the village, the water rising, the van, the tent,
     /// the high hill, with short captions. Skippable. Lightning is single soft pulses at least 4 s apart.
@@ -30,6 +20,10 @@ namespace SayItAgain.UI
         /// <summary>Tutorial start: skip the opening once.</summary>
         public static bool SkipNext;
         public static bool Playing { get; private set; }
+
+        // Statics survive Play Mode in the Editor when domain reload is off.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() { ReplayOnly = false; SkipNext = false; Playing = false; }
 
         public CutsceneShot[] shots;
         public string menuScene = "Lobby";

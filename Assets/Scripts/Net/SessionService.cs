@@ -24,6 +24,9 @@ namespace SayItAgain.Net
         /// <summary>Role the host takes first (the tutorial puts the host in the village).</summary>
         public static PlayerRole PreferredHostRole = PlayerRole.None;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() { PendingLevel = 0; PreferredHostRole = PlayerRole.None; }
+
         [Tooltip("Spawned by the host once the network starts. Must be in the NetworkManager prefab list.")]
         public NetworkObject roleManagerPrefab;
 

@@ -89,9 +89,9 @@ namespace SayItAgain.EditorTools
             var l2 = LoadOrCreate<LevelData>($"{DataDir}/Level_2.asset");
             Set(l2, 2, "level2_name", "level2_lesson", true, w2, orders, rumors: true, fakeHq: true, askHq: 2);
             var l3 = LoadOrCreate<LevelData>($"{DataDir}/Level_3.asset");
-            Set(l3, 3, "level3_name", "level_coming_soon", false, w2, orders, false, false, 0);
+            Set(l3, 3, "level3_name", "", false, w2, orders, false, false, 0);
             var l4 = LoadOrCreate<LevelData>($"{DataDir}/Level_4.asset");
-            Set(l4, 4, "level4_name", "level_coming_soon", false, w2, orders, false, false, 0);
+            Set(l4, 4, "level4_name", "", false, w2, orders, false, false, 0);
 
             var catalog = LoadOrCreate<LevelCatalog>("Assets/Resources/LevelCatalog.asset");
             catalog.levels = new[] { l1, l2, l3, l4 };
@@ -422,7 +422,9 @@ namespace SayItAgain.EditorTools
             sky.SetFloat("_AtmosphereThickness", 2.4f);
             sky.SetFloat("_SunSize", 0f);
             EditorUtility.SetDirty(sky);
+            // Cameras clear to the fog colour (see StormWeather); the sky material only feeds reflections.
             RenderSettings.skybox = sky;
+            RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Skybox;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.36f, 0.39f, 0.44f);
             RenderSettings.fog = true;

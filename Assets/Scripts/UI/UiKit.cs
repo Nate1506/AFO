@@ -15,6 +15,7 @@ namespace SayItAgain.UI
         public static readonly Color Yellow = new Color32(0xFF, 0xC9, 0x3C, 0xFF);
         public static readonly Color Red = new Color32(0xE6, 0x39, 0x46, 0xFF);
         public static readonly Color White = new Color32(0xF4, 0xF6, 0xFA, 0xFF);
+        public static readonly Color Ink = new Color32(0x05, 0x0B, 0x14, 0xFF);
 
         static TMP_FontAsset font;
 
@@ -93,7 +94,7 @@ namespace SayItAgain.UI
             var button = rt.gameObject.AddComponent<Button>();
             button.targetGraphic = bg;
             var colors = button.colors;
-            colors.normalColor = StormGrey;
+            colors.normalColor = Ink;
             colors.highlightedColor = Yellow;
             colors.selectedColor = Yellow;
             colors.pressedColor = White;
@@ -102,6 +103,10 @@ namespace SayItAgain.UI
             button.colors = colors;
             button.onClick.AddListener(onClick);
             rt.localRotation = Quaternion.Euler(0, 0, 2f);
+            // Yellow edge keeps dark buttons readable on both navy and grey backgrounds.
+            var edge = Rect("Edge", rt, Vector2.zero, new Vector2(0, 1), Vector2.zero, new Vector2(8, 0)).gameObject.AddComponent<Image>();
+            edge.color = Yellow;
+            edge.raycastTarget = false;
 
             var label = Label(rt, locKey, fontSize, White, TextAlignmentOptions.Center);
             label.fontStyle = FontStyles.Bold;
