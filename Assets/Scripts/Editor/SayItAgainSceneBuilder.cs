@@ -20,6 +20,7 @@ namespace SayItAgain.EditorTools
         const string PrefabDir = Root + "/Prefabs";
         const string MaterialDir = Root + "/Materials";
         const string SceneDir = Root + "/Scenes";
+        const string DataDir = Root + "/Data";
         const string LobbyScene = SceneDir + "/Lobby.unity";
         const string GameplayScene = SceneDir + "/Gameplay_Test.unity";
         const string FontSource = "Assets/Fonts/NotoSansThai/NotoSansThai.ttf";
@@ -41,7 +42,7 @@ namespace SayItAgain.EditorTools
 
         static void EnsureFolders()
         {
-            foreach (var dir in new[] { Root, PrefabDir, MaterialDir, SceneDir, "Assets/Resources/Fonts" })
+            foreach (var dir in new[] { Root, PrefabDir, MaterialDir, SceneDir, DataDir, "Assets/Resources/Fonts" })
                 if (!AssetDatabase.IsValidFolder(dir))
                     Directory.CreateDirectory(dir);
             AssetDatabase.Refresh();
@@ -128,6 +129,9 @@ namespace SayItAgain.EditorTools
 
             var session = nmGo.AddComponent<SessionService>();
             session.roleManagerPrefab = roleManagerPrefab.GetComponent<NetworkObject>();
+            nmGo.AddComponent<SayItAgain.Voice.VoiceService>().defaultWeather = BuildWeather("Weather_Level1", 8f, 0.03f);
+            BuildWeather("Weather_Level2", 5f, 0.02f);
+            nmGo.AddComponent<RadioHud>();
 
             new GameObject("LobbyUI").AddComponent<LobbyUI>();
 
@@ -214,6 +218,19 @@ namespace SayItAgain.EditorTools
             RenderSettings.fogColor = new Color(0.42f, 0.47f, 0.52f);
 
             EditorSceneManager.SaveScene(scene, GameplayScene);
+        }
+
+        /// <summary>Level 1 is about dropouts (more of them); Level 2 is about rumours (cleaner radio).</summary>
+        static WeatherConfig BuildWeather(string name, float dropoutsPerMinute, float noisePerKm)
+        {
+            string path = $"{DataDir}/{name}.asset";
+            var cfg = AssetDatabase.LoadAssetAtPath<WeatherConfig>(path);
+            if (cfg != null) return cfg;
+            cfg = ScriptableObject.CreateInstance<WeatherConfig>();
+            cfg.dropoutsPerMinute = dropoutsPerMinute;
+            cfg.noisePerKm = noisePerKm;
+            AssetDatabase.CreateAsset(cfg, path);
+            return cfg;
         }
 
         static void RegisterScenes()

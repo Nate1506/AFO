@@ -31,6 +31,9 @@ namespace SayItAgain.Net
         /// <summary>Localization key describing the latest connection state.</summary>
         public string StatusKey { get; private set; } = string.Empty;
         public event Action StatusChanged;
+        /// <summary>Raised once the network is running and the local player is in a room (also solo).</summary>
+        public event Action RoomEntered;
+        public event Action RoomExited;
 
         void Awake()
         {
@@ -71,6 +74,7 @@ namespace SayItAgain.Net
                 Session = await MultiplayerService.Instance.CreateSessionAsync(options);
                 HookSession();
                 SetStatus("status_in_room");
+                RoomEntered?.Invoke();
                 return true;
             }
             catch (Exception e)
@@ -100,6 +104,7 @@ namespace SayItAgain.Net
                 Session = await MultiplayerService.Instance.JoinSessionByCodeAsync(code);
                 HookSession();
                 SetStatus("status_in_room");
+                RoomEntered?.Invoke();
                 return true;
             }
             catch (SessionException e) when (e.Message.IndexOf("full", StringComparison.OrdinalIgnoreCase) >= 0)
@@ -124,6 +129,7 @@ namespace SayItAgain.Net
             transport.SetConnectionData("127.0.0.1", 7777, "127.0.0.1");
             IsSolo = NetworkManager.Singleton.StartHost();
             SetStatus(IsSolo ? "status_in_room" : "status_create_failed");
+            if (IsSolo) RoomEntered?.Invoke();
             return IsSolo;
         }
 
@@ -143,6 +149,7 @@ namespace SayItAgain.Net
                 NetworkManager.Singleton.Shutdown();
             IsSolo = false;
             SetStatus("status_left");
+            RoomExited?.Invoke();
         }
 
         async Task<bool> EnsureSignedInAsync()
@@ -152,7 +159,10 @@ namespace SayItAgain.Net
                 if (UnityServices.State != ServicesInitializationState.Initialized)
                 {
                     SetStatus("status_signing_in");
-                    await UnityServices.InitializeAsync();
+                    // A fresh anonymous profile per process, so several game windows on one PC
+                    // (or Multiplayer Play Mode virtual players) get different player IDs.
+                    var profile = "p" + System.Diagnostics.Process.GetCurrentProcess().Id;
+                    await UnityServices.InitializeAsync(new InitializationOptions().SetProfile(profile));
                 }
                 if (!AuthenticationService.Instance.IsSignedIn)
                 {
@@ -187,6 +197,7 @@ namespace SayItAgain.Net
         {
             UnhookSession();
             SetStatus("status_host_left");
+            RoomExited?.Invoke();
         }
 
         void OnServerStarted()
@@ -203,10 +214,11 @@ namespace SayItAgain.Net
         {
             var nm = NetworkManager.Singleton;
             // A client sees its own id when the host goes away or the connection drops.
-            if (!nm.IsServer && clientId == nm.LocalClientId)
+            if (!nm.IsServer && clientId == nm.LocalClientId && Session != null)
             {
                 UnhookSession();
                 SetStatus("status_host_left");
+                RoomExited?.Invoke();
             }
         }
 

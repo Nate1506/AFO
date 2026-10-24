@@ -32,3 +32,11 @@ lm_bigtree,Big Rain Tree,ต้นจามจุรีใหญ่
 lm_bridge,River Bridge,สะพานข้ามแม่น้ำ
 lm_tower,Water Tower,หอถังน้ำ
 lm_school,Old School,โรงเรียนเก่า
+radio_hold_v,Hold V to talk,กด V ค้างเพื่อพูด
+radio_on_air,ON AIR,กำลังส่ง
+radio_talking,{0} is talking,{0} กำลังพูด
+radio_link_tent,Radio: Van + Village,วิทยุ: รถกู้ภัย + หมู่บ้าน
+radio_link_end,Radio: Aid Tent only,วิทยุ: ถึงเต็นท์เท่านั้น
+radio_connecting,Connecting voice...,กำลังเชื่อมเสียง...
+radio_failed,Voice unavailable. Use quick-chat (Q).,เสียงใช้ไม่ได้ ใช้ข้อความด่วน (Q)
+radio_solo,Solo: bots answer by text,โหมดเดี่ยว: บอทตอบเป็นข้อความ
