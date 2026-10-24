@@ -178,15 +178,16 @@ namespace SayItAgain.EditorTools
             // Each stairs zone covers its whole side of the hill, so the hill cannot be climbed around them.
             var stairs = new[]
             {
-                ("WestStairs", new Vector2(33, 206), "sign_bridge", 34f),
-                ("SouthStairs", new Vector2(56, 194), "sign_school_ford", 30f),
-                ("EastStairs", new Vector2(80, 210), "sign_market_ford", 34f),
+                ("WestStairs", new Vector2(33, 206), "sign_bridge", 40f),
+                ("SouthStairs", new Vector2(56, 194), "sign_school_ford", 40f),
+                ("EastStairs", new Vector2(80, 210), "sign_market_ford", 40f),
             };
             var top = new Vector2(KaoTemple.x, KaoTemple.z);
             for (int i = 0; i < stairs.Length; i++)
             {
                 var (name, p, sign, width) = stairs[i];
                 var outward = (p - top).normalized;
+                StoneStairs(hill, name, top + outward * 11f, top + outward * 30f);
                 // A ring segment 14-26 m from the temple, just outside the safe zone.
                 Zone(hill, name, top + outward * 14f, top + outward * 26f, width, HazardZone.Rule.IfAvoidedCrossing, i, mud, 0.6f);
                 Sign(hill, hill.InverseTransformPoint(OnGround(new Vector3(p.x + outward.x * 8f, 0, p.y + outward.y * 8f), 0f)), sign);
@@ -197,6 +198,35 @@ namespace SayItAgain.EditorTools
             zone.radius = 13f;
             zone.minHeight = hill.position.y - 1.5f;
             Sign(safe, new Vector3(-7f, 0, -9f), "sign_hill");
+        }
+
+        /// <summary>
+        /// Kao's hill top is a plateau with steep sides, so each way up is a stone stair:
+        /// a smooth walkable ramp (hidden collider) under visible steps, from the ground at b up to the plateau at a.
+        /// </summary>
+        static void StoneStairs(Transform parent, string name, Vector2 a, Vector2 b)
+        {
+            var stone = Mat("Concrete", new Color(0.55f, 0.55f, 0.55f));
+            var top = OnGround(new Vector3(a.x, 0, a.y), 0f);
+            var foot = OnGround(new Vector3(b.x, 0, b.y), -0.1f);
+            var root = Group(name, parent, (top + foot) * 0.5f);
+            root.rotation = Quaternion.LookRotation(top - foot);
+            float length = Vector3.Distance(top, foot);
+            var ramp = Prim(PrimitiveType.Cube, "Ramp", root, new Vector3(0, -0.25f, 0), new Vector3(4.5f, 0.5f, length), stone);
+            ramp.GetComponent<Renderer>().enabled = false;
+            ramp.gameObject.isStatic = true;
+            int count = Mathf.Max(4, Mathf.CeilToInt((top.y - foot.y) / 0.3f));
+            float rise = (top.y - foot.y) / count;
+            var flat = Quaternion.LookRotation(new Vector3(top.x - foot.x, 0, top.z - foot.z));
+            for (int k = 0; k < count; k++)
+            {
+                float t = (k + 0.5f) / count;
+                var step = Prim(PrimitiveType.Cube, "Step", root, Vector3.zero, Vector3.one, stone);
+                Object.DestroyImmediate(step.GetComponent<Collider>());
+                step.rotation = flat;
+                step.localScale = new Vector3(4.5f, rise + 0.6f, length / count + 0.05f);
+                step.position = Vector3.Lerp(foot, top, t) + Vector3.up * (rise * 0.5f - (rise + 0.6f) * 0.5f);
+            }
         }
 
         /// <summary>A hazard box along the segment a-b (ground level), with a slab shown while it is deadly.</summary>
