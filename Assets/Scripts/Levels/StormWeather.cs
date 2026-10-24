@@ -61,10 +61,12 @@ namespace SayItAgain
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.maxParticles = RainByQuality[2];
             main.gravityModifier = 0.4f;
+            // The emitter faces straight down and its box is a flat horizontal slab above the camera.
+            // (Rotating only the shape made a vertical sheet that looked like one wall of rain when turning.)
+            go.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             var shape = rain.shape;
             shape.shapeType = ParticleSystemShapeType.Box;
-            shape.scale = new Vector3(36f, 1f, 36f);
-            shape.rotation = new Vector3(90f, 0f, 0f);
+            shape.scale = new Vector3(40f, 40f, 1f);
             var vel = rain.velocityOverLifetime;
             vel.enabled = true;
             vel.space = ParticleSystemSimulationSpace.World;

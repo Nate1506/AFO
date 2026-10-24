@@ -10,9 +10,10 @@ namespace SayItAgain
     /// <summary>Tiny localization table loaded from Resources/Localization/strings.csv (key,en,th).</summary>
     public static class Loc
     {
-        const string PrefKey = "set_lang";
+        // New key so earlier test installs (Thai default) start in English too.
+        const string PrefKey = "set_lang_v2";
         static Dictionary<string, string[]> table;
-        static Language current = (Language)PlayerPrefs.GetInt(PrefKey, (int)Language.Thai);
+        static Language current = (Language)PlayerPrefs.GetInt(PrefKey, (int)Language.English);
 
         public static event Action LanguageChanged;
 

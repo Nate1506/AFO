@@ -33,6 +33,7 @@ namespace SayItAgain.Voice
         readonly Dictionary<string, VivoxParticipant> participants = new Dictionary<string, VivoxParticipant>();
         readonly Dictionary<string, RadioDistortion> taps = new Dictionary<string, RadioDistortion>();
         readonly Dictionary<PlayerRole, bool> speaking = new Dictionary<PlayerRole, bool>();
+        VivoxParticipant self;
         InputAction ptt;
         AudioSource sfx;
         string channelName;
@@ -159,8 +160,10 @@ namespace SayItAgain.Voice
                     vivox.LoggedOut += OnLoggedOut;
                     vivoxReady = true;
                 }
+                // Our Vivox name is the Unity Authentication player id; RoleManager maps it to a role.
+                // (Netcode client ids are not assigned yet at this point on a joining client.)
                 if (!vivox.IsLoggedIn)
-                    await vivox.LoginAsync(new LoginOptions { DisplayName = "c" + NetworkManager.Singleton.LocalClientId });
+                    await vivox.LoginAsync(new LoginOptions { DisplayName = Unity.Services.Authentication.AuthenticationService.Instance.PlayerId });
                 // Mic stays muted except while push-to-talk is held.
                 vivox.MuteInputDevice();
                 await vivox.JoinGroupChannelAsync(channelName, ChatCapability.AudioOnly);
@@ -189,7 +192,8 @@ namespace SayItAgain.Voice
 
         void OnParticipantAdded(VivoxParticipant p)
         {
-            if (p.ChannelName != channelName || p.IsSelf) return;
+            if (p.ChannelName != channelName) return;
+            if (p.IsSelf) { self = p; return; }
             participants[p.PlayerId] = p;
             p.ParticipantSpeechDetected += () => OnSpeech(p);
             ApplyRouting();
@@ -206,15 +210,37 @@ namespace SayItAgain.Voice
         void OnSpeech(VivoxParticipant p)
         {
             var role = RoleOf(p);
-            speaking[role] = p.SpeechDetected && taps.ContainsKey(p.PlayerId);
+            speaking[role] = p.SpeechDetected && (!InMatch || taps.ContainsKey(p.PlayerId));
             Changed?.Invoke();
         }
 
-        /// <summary>Hear only relay neighbours, each through its own radio filter.</summary>
+        /// <summary>True while a round is on screen; in the lobby everyone talks freely.</summary>
+        public static bool InMatch => GameplayBootstrap.Active;
+
+        /// <summary>Own microphone level 0..1 (Vivox audio energy), for the HUD meter.</summary>
+        public float LocalMicLevel => self != null ? (float)self.AudioEnergy : 0f;
+
+        /// <summary>Called when the scene or roles change.</summary>
+        public void Refresh() => ApplyRouting();
+
+        /// <summary>
+        /// Lobby: everyone hears everyone, clear. In a round: hear only relay neighbours,
+        /// each through its own radio filter.
+        /// </summary>
         void ApplyRouting()
         {
             if (State != VoiceState.Ready || RoleManager.Instance == null) return;
             var me = RoleManager.Instance.LocalRole;
+            if (!InMatch)
+            {
+                foreach (var p in participants.Values)
+                {
+                    RemoveTap(p.PlayerId);
+                    p.UnmutePlayerLocally();
+                }
+                Changed?.Invoke();
+                return;
+            }
             foreach (var p in participants.Values)
             {
                 var role = RoleOf(p);
@@ -244,8 +270,9 @@ namespace SayItAgain.Voice
         static PlayerRole RoleOf(VivoxParticipant p)
         {
             var rm = RoleManager.Instance;
-            if (rm == null || p.DisplayName == null || p.DisplayName.Length < 2) return PlayerRole.None;
-            return ulong.TryParse(p.DisplayName.Substring(1), out var id) ? rm.RoleOf(id) : PlayerRole.None;
+            if (rm == null) return PlayerRole.None;
+            var role = rm.RoleOfPlayerId(p.DisplayName);
+            return role != PlayerRole.None ? role : rm.RoleOfPlayerId(p.PlayerId);
         }
 
         void SetTransmitting(bool on)
@@ -273,6 +300,7 @@ namespace SayItAgain.Voice
             foreach (var r in taps.Values) if (r != null) Destroy(r.gameObject);
             taps.Clear();
             participants.Clear();
+            self = null;
             speaking.Clear();
         }
 

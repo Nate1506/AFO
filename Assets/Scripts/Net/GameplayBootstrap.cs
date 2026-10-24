@@ -17,6 +17,8 @@ namespace SayItAgain.Net
         public PlayerRole editorFallbackRole = PlayerRole.Village;
 
         public static PlayerRole LocalRole { get; private set; }
+        /// <summary>A round scene is loaded (voice switches from open lobby chat to relay radio).</summary>
+        public static bool Active { get; private set; }
         public static GameObject LocalRig { get; private set; }
 
         public string lobbyScene = "Lobby";
@@ -27,6 +29,8 @@ namespace SayItAgain.Net
             if (CutscenePlayer.ReplayOnly) return;
 
             if (SessionService.Instance != null) SessionService.Instance.RoomExited += BackToLobby;
+            Active = true;
+            SayItAgain.Voice.VoiceService.Instance?.Refresh();
             var rm = RoleManager.Instance;
             LocalRole = rm != null && rm.LocalRole != PlayerRole.None ? rm.LocalRole : editorFallbackRole;
             SpawnRig(LocalRole);
@@ -44,6 +48,8 @@ namespace SayItAgain.Net
 
         void OnDestroy()
         {
+            Active = false;
+            SayItAgain.Voice.VoiceService.Instance?.Refresh();
             if (SessionService.Instance != null) SessionService.Instance.RoomExited -= BackToLobby;
         }
 

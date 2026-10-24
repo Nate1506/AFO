@@ -1,5 +1,5 @@
 key,en,th
-game_title,SAY IT AGAIN,พูดอีกที
+game_title,SAY IT AGAIN,SAY IT AGAIN
 role_none,Unassigned,ยังไม่มีบทบาท
 role_van,Van (HQ line),รถกู้ภัย (สาย HQ)
 role_tent,Aid Tent,เต็นท์ช่วยเหลือ
@@ -58,7 +58,7 @@ code_mango,MANGO,มะม่วง
 code_lotus,LOTUS,บัว
 code_kite,KITE,ว่าว
 order_sentence,"Route: {0} / Do not cross: {1} / Villagers at: {2} / Code: {3}","เส้นทาง: {0} / ห้ามข้าม: {1} / ชาวบ้านรอที่: {2} / รหัส: {3}"
-qc_sayagain,Say it again?,พูดอีกทีได้ไหม?
+qc_sayagain,Say it again?,Say it again?
 qc_copy,Copy.,รับทราบ
 qc_readback,Read back my card,ทวนสิ่งที่ฉันเข้าใจ
 qc_readback_line,Reading back: {0},ทวนนะ: {0}
@@ -163,14 +163,15 @@ cut_1,A storm is flooding the valley.,พายุกำลังทำให้
 cut_2,The water is rising over the low ground.,น้ำเริ่มท่วมที่ต่ำ
 cut_3,HQ has the safe route. Only the rescue van can hear HQ.,HQ รู้เส้นทางปลอดภัย มีแค่รถกู้ภัยที่ได้ยิน HQ
 cut_4,The aid tent must pass it on.,เต็นท์ช่วยเหลือต้องส่งต่อ
-cut_5,Get the village to the high hill. Pass it on. Say it again.,พาชาวบ้านไปเนินสูง ส่งต่อให้ถึง พูดอีกที
+cut_5,Get the village to the high hill. Pass it on. Say it again.,พาชาวบ้านไปเนินสูง ส่งต่อให้ถึง Say it again
 cut_skip,Space: skip,Space: ข้าม
 tut_look,Move the mouse to look around.,ขยับเมาส์เพื่อมองรอบ ๆ
 tut_binoculars,Hold right mouse button: binoculars. Find a landmark sign.,กดคลิกขวาค้าง: กล้องส่องทางไกล หาป้ายจุดสังเกต
 tut_card,Press Tab: your order card.,กด Tab: การ์ดคำสั่ง
-tut_quickchat,"In the card, send a quick-chat: ""Say it again?""",ในการ์ด ลองส่งข้อความด่วน: พูดอีกทีได้ไหม?
+tut_quickchat,"In the card, send a quick-chat: ""Say it again?""",ในการ์ด ลองส่งข้อความด่วน: Say it again?
 tut_ptt,Hold V to talk on the radio.,กด V ค้างเพื่อพูดผ่านวิทยุ
 tut_van,Radio the order to the Aid Tent. A bot? Press SEND TO TENT.,วิทยุบอกคำสั่งให้เต็นท์ ถ้าเป็นบอท กด ส่งให้เต็นท์
 tut_tent,Fill in what you heard and press PASS TO VILLAGE.,กรอกสิ่งที่ได้ยิน แล้วกด ส่งต่อหมู่บ้าน
 tut_village,Walk to the villagers and press E: they follow you.,เดินไปหาชาวบ้านแล้วกด E: พวกเขาจะตามคุณมา
 tut_counter,Step {0}/{1} / H: skip tips,ขั้นที่ {0}/{1} / H: ข้ามคำแนะนำ
+radio_link_lobby,Lobby: everyone hears everyone (clear),ห้องรอ: ทุกคนได้ยินกันหมด (เสียงชัด)

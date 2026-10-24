@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -21,6 +22,26 @@ namespace SayItAgain.Net
         /// <summary>Level picked by the host in the lobby (index into LevelCatalog).</summary>
         public readonly NetworkVariable<int> levelIndex = new NetworkVariable<int>();
 
+        /// <summary>
+        /// Unity Authentication player id of each connected client. Vivox participants are matched to
+        /// roles through this id (a client's Netcode id is not known yet when it logs in to Vivox).
+        /// </summary>
+        public struct ClientAuth : INetworkSerializable, IEquatable<ClientAuth>
+        {
+            public ulong clientId;
+            public FixedString64Bytes playerId;
+
+            public void NetworkSerialize<T>(BufferSerializer<T> s) where T : IReaderWriter
+            {
+                s.SerializeValue(ref clientId);
+                s.SerializeValue(ref playerId);
+            }
+
+            public bool Equals(ClientAuth o) => clientId == o.clientId && playerId.Equals(o.playerId);
+        }
+
+        readonly NetworkList<ClientAuth> auth = new NetworkList<ClientAuth>();
+
         public override void OnNetworkSpawn()
         {
             Instance = this;
@@ -29,6 +50,12 @@ namespace SayItAgain.Net
             tentOwner.OnValueChanged += OnOwnerChanged;
             villageOwner.OnValueChanged += OnOwnerChanged;
             levelIndex.OnValueChanged += (_, __) => RolesChanged?.Invoke();
+            auth.OnListChanged += _ => RolesChanged?.Invoke();
+
+            // Solo play never signs in; online players register their id for voice routing.
+            if (Unity.Services.Core.UnityServices.State == Unity.Services.Core.ServicesInitializationState.Initialized
+                && Unity.Services.Authentication.AuthenticationService.Instance.IsSignedIn)
+                RegisterAuthRpc(Unity.Services.Authentication.AuthenticationService.Instance.PlayerId);
 
             if (IsServer)
             {
@@ -37,7 +64,7 @@ namespace SayItAgain.Net
                 if (preferred != null) preferred.Value = NetworkManager.LocalClientId;
                 SessionService.PreferredHostRole = PlayerRole.None;
                 NetworkManager.OnClientConnectedCallback += AssignFirstFree;
-                NetworkManager.OnClientDisconnectCallback += Release;
+                NetworkManager.OnClientDisconnectCallback += ForgetClient;
                 foreach (var id in NetworkManager.ConnectedClientsIds) AssignFirstFree(id);
             }
             RolesChanged?.Invoke();
@@ -51,7 +78,7 @@ namespace SayItAgain.Net
             if (IsServer && NetworkManager != null)
             {
                 NetworkManager.OnClientConnectedCallback -= AssignFirstFree;
-                NetworkManager.OnClientDisconnectCallback -= Release;
+                NetworkManager.OnClientDisconnectCallback -= ForgetClient;
             }
             if (Instance == this) Instance = null;
             RolesChanged?.Invoke();
@@ -70,6 +97,24 @@ namespace SayItAgain.Net
         }
 
         public PlayerRole LocalRole => RoleOf(NetworkManager.LocalClientId);
+
+        /// <summary>Role of the client signed in with this Unity Authentication player id.</summary>
+        public PlayerRole RoleOfPlayerId(string playerId)
+        {
+            if (string.IsNullOrEmpty(playerId)) return PlayerRole.None;
+            foreach (var a in auth)
+                if (a.playerId.ToString() == playerId) return RoleOf(a.clientId);
+            return PlayerRole.None;
+        }
+
+        [Rpc(SendTo.Server)]
+        void RegisterAuthRpc(FixedString64Bytes playerId, RpcParams p = default)
+        {
+            ulong sender = p.Receive.SenderClientId;
+            for (int i = auth.Count - 1; i >= 0; i--)
+                if (auth[i].clientId == sender) auth.RemoveAt(i);
+            auth.Add(new ClientAuth { clientId = sender, playerId = playerId });
+        }
 
         /// <summary>Lobby "take role" button. Swaps only into a free (bot) role.</summary>
         [Rpc(SendTo.Server)]
@@ -100,6 +145,13 @@ namespace SayItAgain.Net
         {
             var v = Variable(RoleOf(clientId));
             if (v != null) v.Value = NoOwner;
+        }
+
+        void ForgetClient(ulong clientId)
+        {
+            Release(clientId);
+            for (int i = auth.Count - 1; i >= 0; i--)
+                if (auth[i].clientId == clientId) auth.RemoveAt(i);
         }
 
         NetworkVariable<ulong> Variable(PlayerRole role) => role switch
