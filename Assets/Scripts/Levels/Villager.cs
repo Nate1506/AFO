@@ -16,6 +16,7 @@ namespace SayItAgain
         VillageDirector director;
         float trailDistance;
         int trailIndex;
+        float stuckTime;
         Vector3 offset;
         Animator animator;
 
@@ -66,6 +67,14 @@ namespace SayItAgain
                     trailIndex++;
                     flat = director.TrailAt(trailIndex) - transform.position;
                     flat.y = 0f;
+                }
+                // A footstep the agent cannot reach (on a prop, off the NavMesh) is skipped after a moment.
+                if (trailIndex < last && agent.velocity.sqrMagnitude < 0.04f) stuckTime += Time.deltaTime;
+                else stuckTime = 0f;
+                if (stuckTime > 1.5f)
+                {
+                    trailIndex = Mathf.Min(trailIndex + 3, last);
+                    stuckTime = 0f;
                 }
                 var target = (trailIndex < last ? director.TrailAt(Mathf.Min(trailIndex + 2, last)) : director.TrailPoint(trailDistance)) + offset * 0.4f;
                 if ((agent.destination - target).sqrMagnitude > 1f) agent.SetDestination(target);
