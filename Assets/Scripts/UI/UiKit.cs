@@ -80,7 +80,7 @@ namespace SayItAgain.UI
             tmp.alignment = align;
             tmp.textWrappingMode = TextWrappingModes.Normal;
             tmp.raycastTarget = false;
-            if (!string.IsNullOrEmpty(locKey)) rt.gameObject.AddComponent<LocalizedText>().key = locKey;
+            if (!string.IsNullOrEmpty(locKey)) rt.gameObject.AddComponent<LocalizedText>().SetKey(locKey);
             return tmp;
         }
 
@@ -88,8 +88,8 @@ namespace SayItAgain.UI
         public static Button Button(Transform parent, string locKey, UnityAction onClick, float fontSize = 40)
         {
             var rt = Stretch("Button_" + locKey, parent);
+            // White base so the button's tint colours show as-is.
             var bg = rt.gameObject.AddComponent<Image>();
-            bg.color = StormGrey;
             var button = rt.gameObject.AddComponent<Button>();
             button.targetGraphic = bg;
             var colors = button.colors;
