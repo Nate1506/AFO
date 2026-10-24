@@ -128,7 +128,62 @@ namespace SayItAgain.UI
             label.fontStyle = FontStyles.Bold;
             rt.gameObject.AddComponent<ButtonLabelTint>().label = label;
             rt.gameObject.AddComponent<ButtonSfx>().click = locKey == "menu_back" ? UiSound.Back : UiSound.Select;
+            rt.gameObject.AddComponent<HoverPop>();
             return button;
+        }
+
+        /// <summary>
+        /// A big italic menu word with no box: selecting it snaps a red slash out behind it with a
+        /// yellow echo, and the word grows (see PunchItem).
+        /// </summary>
+        public static Button MenuItem(Transform parent, string locKey, UnityAction onClick, float fontSize = 64)
+        {
+            var rt = Stretch("Item_" + locKey, parent);
+            var hit = rt.gameObject.AddComponent<Image>();
+            hit.color = new Color(0f, 0f, 0f, 0f);
+            var button = rt.gameObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = hit;
+            button.onClick.AddListener(onClick);
+
+            var echo = Slash("Echo", rt, Yellow, new Vector2(16f, -12f));
+            var slash = Slash("Slash", rt, Red, Vector2.zero);
+            var word = Stretch("Word", rt);
+            word.pivot = new Vector2(0f, 0.5f);
+            word.offsetMin = word.offsetMax = Vector2.zero;
+            var shadow = Label(word, locKey, fontSize, Ink, TextAlignmentOptions.MidlineLeft);
+            shadow.rectTransform.offsetMin = shadow.rectTransform.offsetMax = new Vector2(7f, -7f);
+            var label = Label(word, locKey, fontSize, White, TextAlignmentOptions.MidlineLeft);
+            foreach (var t in new[] { shadow, label })
+            {
+                t.fontStyle = FontStyles.Bold | FontStyles.Italic;
+                t.textWrappingMode = TextWrappingModes.NoWrap;
+                t.margin = new Vector4(34f, 0f, 0f, 0f);
+            }
+
+            var punch = rt.gameObject.AddComponent<PunchItem>();
+            punch.slash = slash;
+            punch.echo = echo;
+            punch.word = word;
+            punch.label = label;
+            punch.shadow = shadow;
+            rt.gameObject.AddComponent<ButtonSfx>().click = UiSound.Select;
+            return button;
+        }
+
+        /// <summary>A slanted bar that grows from its left edge.</summary>
+        static RectTransform Slash(string name, RectTransform parent, Color color, Vector2 offset)
+        {
+            var s = Stretch(name, parent);
+            s.pivot = new Vector2(0f, 0.5f);
+            s.offsetMin = new Vector2(-6f, 2f) + offset;
+            s.offsetMax = new Vector2(40f, -2f) + offset;
+            var img = s.gameObject.AddComponent<Image>();
+            img.color = color;
+            img.raycastTarget = false;
+            s.gameObject.AddComponent<UiSkew>().skew = 0.45f;
+            s.localScale = new Vector3(0f, 1f, 1f);
+            return s;
         }
 
         public static TMP_InputField Input(Transform parent, string placeholderKey, int charLimit)
