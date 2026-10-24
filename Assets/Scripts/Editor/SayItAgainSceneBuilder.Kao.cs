@@ -218,6 +218,14 @@ namespace SayItAgain.EditorTools
             zone.size = new Vector3(width, high - low + 6f, Vector2.Distance(a, b));
             var vis = Prim(PrimitiveType.Cube, "Slab", t, new Vector3(0, high - low + 0.5f + depth - 0.05f, 0), new Vector3(width, 0.1f, zone.size.z), mat);
             Object.DestroyImmediate(vis.GetComponent<Collider>());
+            if (rule == HazardZone.Rule.IfAvoidedCrossing)
+            {
+                // A landslide lies along the slope; flood water stays level.
+                float ya = GroundY(a), yb = GroundY(b), len = Vector2.Distance(a, b);
+                vis.localPosition = new Vector3(0, (ya + yb) * 0.5f - (low - 0.5f) + depth, 0);
+                vis.localRotation = Quaternion.Euler(-Mathf.Atan2(yb - ya, len) * Mathf.Rad2Deg, 0, 0);
+                vis.localScale = new Vector3(width, 0.4f, Mathf.Sqrt(len * len + (yb - ya) * (yb - ya)));
+            }
             zone.waterVisual = vis.gameObject;
         }
 
