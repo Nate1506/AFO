@@ -8,8 +8,9 @@ Liberation Sans (TMP default) - Red Hat / Unity TextMesh Pro - SIL Open Font Lic
 <b>Engine and services</b>
 Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Multiplayer Services (Relay), Vivox, Cinemachine, AI Navigation, Input System (Unity Technologies, Unity Companion License / Unity terms).
 <b>Characters and animation</b>
-Universal Animation Library (Standard) - Quaternius - CC0 1.0
+Mini Characters - Kenney - CC0 1.0
 <b>Environment</b>
+Flood map - Kao (team member)
 Car Kit (ambulance, cones) - Kenney - CC0 1.0
 Survival Kit (tent canvas, boxes, barrel, bedrolls) - Kenney - CC0 1.0
 City Kit (Suburban) (houses) - Kenney - CC0 1.0

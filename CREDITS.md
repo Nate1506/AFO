@@ -16,7 +16,8 @@ Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Mult
 ## Characters and animation
 | Asset | Author | Source | License | Used in |
 |---|---|---|---|---|
-| Universal Animation Library (Standard) | Quaternius | https://quaternius.itch.io/universal-animation-library | CC0 1.0 | Villagers, shouting villagers, rescuers (Idle, Walk, Jog, Idle_Talking, Dance, Swim clips) |
+| Mini Characters (12 characters, 32 animations) | Kenney | https://kenney.nl/assets/mini-characters | CC0 1.0 | Villagers, shouting villagers, rescuers (idle, walk, sprint, emote-yes, emote-no, fall, holding-right clips) |
+| Universal Animation Library (Standard) | Quaternius | https://quaternius.itch.io/universal-animation-library | CC0 1.0 | Earlier character pass (in the repo, not used by the current scenes) |
 
 ## Environment
 | Asset | Author | Source | License | Used in |
@@ -25,7 +26,8 @@ Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Mult
 | Survival Kit (tent canvas, boxes, barrel, bedrolls) | Kenney | https://kenney.nl/assets/survival-kit | CC0 1.0 | Aid tent, props |
 | City Kit (Suburban) (houses) | Kenney | https://kenney.nl/assets/city-kit-suburban | CC0 1.0 | Village houses |
 | Nature Kit (trees, bushes, rocks) | Kenney | https://kenney.nl/assets/nature-kit | CC0 1.0 | Valley vegetation, Big Rain Tree |
-| Forest Ground 01, Brown Mud Leaves 01, Grass Path 2 (Rob Tuytel); Rocky Terrain 02 (Amal Kumar) | Poly Haven | https://polyhaven.com/textures | CC0 1.0 | Terrain layers |
+| Forest Ground 01, Brown Mud Leaves 01, Grass Path 2 (Rob Tuytel); Rocky Terrain 02 (Amal Kumar) | Poly Haven | https://polyhaven.com/textures | CC0 1.0 | Terrain layers (also replace the web-image terrain textures in our copy of Kao's map) |
+| Flood map (Kao.unity layout, terrain sculpt) | Kao (team member) | Assets/Kao | Team work | Gameplay map (copied to Gameplay_Kao.unity) |
 
 ## Sound effects (all real recordings, no AI audio)
 | Asset | Author | Source | License | Used in |
@@ -41,4 +43,4 @@ Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Mult
 | Female Exasperated Yell, Female Scream 1, Come On Let's Run, Cheers | AuraVoice (Nocturnal_Vanguard) | https://opengameart.org/content/come-on-lets-run | CC0 1.0 | Villager yell, swept scream, answering the call, cheer on the hill |
 
 ## Team asset packs pending license check
-JC_StylizedNature_Lite, Pine Forest_LowPoly, Medieval Village Pack Vol.1, OldVillage, PBR_Tiled, Roadside Tales Bridges, Low Poly Boats & Raft: status "Needs team OK" until their licenses are confirmed. Not used by Say It Again scenes yet.
+JC_StylizedNature_Lite, Pine Forest_LowPoly, Medieval Village Pack Vol.1, OldVillage, PBR_Tiled, Roadside Tales Bridges, Low Poly Boats & Raft, Temple (Templa.fbx): status "Needs team OK" until their licenses are confirmed. They are placed in Kao's map, so the Gameplay_Kao scene now uses them. Kao's own terrain textures (web images incl. a stock-photo preview) are NOT used: our copy is retextured with Poly Haven CC0.
