@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30f7ad41db89e95418991677b43822f2, type: 3}
+  m_Name: Level_3
+  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.LevelData
+  number: 3
+  nameKey: level3_name
+  lessonKey: level_coming_soon
+  playable: 0
+  gameplayScene: Gameplay_Test
+  weather: {fileID: 11400000, guid: ad469afd03a08dc4a80ee48640ac8397, type: 2}
+  orders: {fileID: 11400000, guid: 33f56940d99d1a04ea98b3ae0abcefe5, type: 2}
+  stormSeconds: 300
+  villagerCount: 6
+  winFraction: 0.6
+  rumorsEnabled: 0
+  rumorIntervalSeconds: {x: 20, y: 35}
+  fakeHqMessage: 0
+  askHqUses: 0

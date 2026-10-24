@@ -149,7 +149,7 @@ CharacterController:
   m_Height: 1.8
   m_Radius: 0.35
   m_SlopeLimit: 45
-  m_StepOffset: 0.3
+  m_StepOffset: 0.35
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
@@ -175,6 +175,7 @@ MonoBehaviour:
   mode: 2
   anchor: {x: 0, y: 0, z: 0}
   confineRadius: 4
+  speedMultiplier: 1
 --- !u!114 &7354041973808781252
 MonoBehaviour:
   m_ObjectHideFlags: 0
