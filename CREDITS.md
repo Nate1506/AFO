@@ -37,6 +37,8 @@ Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Mult
 | Frequency Static Sound Effects | bretbernhoft | https://opengameart.org/content/frequency-static-sound-effects | CC0 1.0 | Radio static burst (trimmed) |
 | 100 CC0 SFX #2 | rubberduck | https://opengameart.org/content/100-cc0-sfx-2 | CC0 1.0 | Thunder, mud footsteps |
 | Interface Sounds | Kenney | https://opengameart.org/content/interface-sounds | CC0 1.0 | Menu sounds, radio clicks, radio glitch |
+| Crowd Shouting/Speaking Ambience | StarNinjas | https://opengameart.org/content/crowd-shoutingspeaking-ambience | CC0 1.0 | Shouting villagers |
+| Female Exasperated Yell, Female Scream 1, Come On Let's Run, Cheers | AuraVoice (Nocturnal_Vanguard) | https://opengameart.org/content/come-on-lets-run | CC0 1.0 | Villager yell, swept scream, answering the call, cheer on the hill |
 
 ## Team asset packs pending license check
 JC_StylizedNature_Lite, Pine Forest_LowPoly, Medieval Village Pack Vol.1, OldVillage, PBR_Tiled, Roadside Tales Bridges, Low Poly Boats & Raft: status "Needs team OK" until their licenses are confirmed. Not used by Say It Again scenes yet.
