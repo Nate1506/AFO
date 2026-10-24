@@ -1,0 +1,34 @@
+key,en,th
+game_title,SAY IT AGAIN,พูดอีกที
+role_none,Unassigned,ยังไม่มีบทบาท
+role_van,Van (HQ line),รถกู้ภัย (สาย HQ)
+role_tent,Aid Tent,เต็นท์ช่วยเหลือ
+role_village,Village,หมู่บ้าน
+role_bot,Bot,บอท
+lobby_host,CREATE ROOM,สร้างห้อง
+lobby_join,JOIN,เข้าร่วม
+lobby_code_hint,Room code,รหัสห้อง
+lobby_solo,SOLO WITH BOTS,เล่นคนเดียวกับบอท
+lobby_room_code,ROOM CODE,รหัสห้อง
+lobby_take_role,TAKE,เลือก
+lobby_start,START,เริ่ม
+lobby_leave,LEAVE,ออก
+lobby_you,(you),(คุณ)
+lobby_language,ภาษาไทย / ENGLISH,ภาษาไทย / ENGLISH
+lobby_wait_host,Waiting for the host to start,รอโฮสต์กดเริ่ม
+status_signing_in,Connecting to Unity services...,กำลังเชื่อมต่อบริการ Unity...
+status_creating,Creating room...,กำลังสร้างห้อง...
+status_joining,Joining room...,กำลังเข้าห้อง...
+status_in_room,In room,อยู่ในห้องแล้ว
+status_offline,No network. Try SOLO WITH BOTS.,ไม่มีเครือข่าย ลองเล่นคนเดียวกับบอท
+status_join_failed,Could not join. Check the code.,เข้าห้องไม่ได้ ตรวจรหัสอีกครั้ง
+status_create_failed,Could not create the room.,สร้างห้องไม่ได้
+status_room_full,Room is full (3 players).,ห้องเต็มแล้ว (3 คน)
+status_left,You left the room.,คุณออกจากห้องแล้ว
+status_host_left,The host left. Room closed.,โฮสต์ออกแล้ว ห้องปิด
+status_code_empty,Enter a room code.,ใส่รหัสห้องก่อน
+lm_hill,High Hill (safe zone),เนินสูง (จุดปลอดภัย)
+lm_bigtree,Big Rain Tree,ต้นจามจุรีใหญ่
+lm_bridge,River Bridge,สะพานข้ามแม่น้ำ
+lm_tower,Water Tower,หอถังน้ำ
+lm_school,Old School,โรงเรียนเก่า
