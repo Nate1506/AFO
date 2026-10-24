@@ -93,11 +93,31 @@ namespace SayItAgain
                 if (gp.optionIndex != truth.gather) continue;
                 for (int i = 0; i < match.Level.villagerCount; i++)
                 {
-                    var v = Instantiate(villagerPrefab, gp.RandomSpot(rng), Quaternion.Euler(0, rng.Next(360), 0));
+                    var v = Instantiate(villagerPrefab, ReachableSpot(gp, rng), Quaternion.Euler(0, rng.Next(360), 0));
                     v.name = "Villager_" + i;
                     villagers.Add(v);
                 }
             }
+        }
+
+        /// <summary>
+        /// A spot near the gathering point with a walkable path to the hill, so nobody starts inside a
+        /// building or on a roof that the NavMesh cannot leave.
+        /// </summary>
+        static Vector3 ReachableSpot(GatherPoint gp, System.Random rng)
+        {
+            var goal = SafeZone.Instance != null ? SafeZone.Instance.transform.position : gp.transform.position;
+            UnityEngine.AI.NavMesh.SamplePosition(goal, out var goalHit, 8f, UnityEngine.AI.NavMesh.AllAreas);
+            var path = new UnityEngine.AI.NavMeshPath();
+            for (int tries = 0; tries < 30; tries++)
+            {
+                var spot = gp.RandomSpot(rng);
+                if (UnityEngine.AI.NavMesh.SamplePosition(spot, out var hit, 2f, UnityEngine.AI.NavMesh.AllAreas)
+                    && UnityEngine.AI.NavMesh.CalculatePath(hit.position, goalHit.position, UnityEngine.AI.NavMesh.AllAreas, path)
+                    && path.status == UnityEngine.AI.NavMeshPathStatus.PathComplete)
+                    return hit.position;
+            }
+            return gp.transform.position;
         }
 
         public void CallVillagersNear(Transform player)
