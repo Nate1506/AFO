@@ -202,8 +202,7 @@ namespace SayItAgain.EditorTools
 
         /// <summary>
         /// Kao's hill top is a plateau with steep sides, so each way up is a stone stair: from the plateau edge
-        /// it drops at a walkable 28 degrees until it meets the ground. A smooth hidden ramp carries the collider
-        /// under visible steps. Returns the top and foot of the stairs.
+        /// it drops at a walkable 28 degrees until it meets the ground, in solid steps. Returns the top and foot of the stairs.
         /// </summary>
         static (Vector2 edge, Vector2 foot) StoneStairs(Transform parent, string name, Vector2 center, Vector2 dir)
         {
@@ -222,21 +221,21 @@ namespace SayItAgain.EditorTools
             var foot = new Vector3(foot2.x, plateau - run * drop - 0.1f, foot2.y);
             var root = Group(name, parent, (top + foot) * 0.5f);
             root.rotation = Quaternion.LookRotation(top - foot);
-            float length = Vector3.Distance(top, foot);
-            var ramp = Prim(PrimitiveType.Cube, "Ramp", root, new Vector3(0, -0.25f, 0), new Vector3(4.5f, 0.5f, length), stone);
-            ramp.GetComponent<Renderer>().enabled = false;
-            ramp.gameObject.isStatic = true;
+            float length = Vector2.Distance(new Vector2(top.x, top.z), new Vector2(foot.x, foot.z));
+            // Solid steps down to the ground, so nothing walks under the stairs; 0.3 m risers are climbable.
             int count = Mathf.Max(4, Mathf.CeilToInt((top.y - foot.y) / 0.3f));
             float rise = (top.y - foot.y) / count;
             var flat = Quaternion.LookRotation(new Vector3(top.x - foot.x, 0, top.z - foot.z));
             for (int k = 0; k < count; k++)
             {
-                float t = (k + 0.5f) / count;
+                var at = Vector3.Lerp(foot, top, (k + 0.5f) / count);
+                float stepTop = foot.y + rise * (k + 1);
+                float bottom = Mathf.Min(GroundY(at), stepTop) - 0.5f;
                 var step = Prim(PrimitiveType.Cube, "Step", root, Vector3.zero, Vector3.one, stone);
-                Object.DestroyImmediate(step.GetComponent<Collider>());
                 step.rotation = flat;
-                step.localScale = new Vector3(4.5f, rise + 0.6f, length / count + 0.05f);
-                step.position = Vector3.Lerp(foot, top, t) + Vector3.up * (rise * 0.5f - (rise + 0.6f) * 0.5f);
+                step.localScale = new Vector3(4.5f, stepTop - bottom, length / count + 0.05f);
+                step.position = new Vector3(at.x, (stepTop + bottom) * 0.5f, at.z);
+                step.gameObject.isStatic = true;
             }
             return (edge, foot2);
         }
