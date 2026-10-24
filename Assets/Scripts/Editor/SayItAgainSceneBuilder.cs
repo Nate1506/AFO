@@ -251,7 +251,7 @@ namespace SayItAgain.EditorTools
         }
 
         static AnimationClip AnimClip(string name) =>
-            AssetDatabase.LoadAllAssetsAtPath(CharacterFbx).OfType<AnimationClip>().First(c => c.name.EndsWith(name));
+            AssetDatabase.LoadAllAssetsAtPath(CharacterFbx).OfType<AnimationClip>().First(c => c.name == "Armature|" + name);
 
         /// <summary>Mannequin model under a parent, scaled to about 1.75 m, with an animator and a body material.</summary>
         static Transform Character(Transform parent, string controllerPath, Material body)
