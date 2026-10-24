@@ -128,7 +128,7 @@ namespace SayItAgain.EditorTools
             var gathers = new[]
             {
                 ("Market", new Vector3(100, 0, 104), "sign_market"),
-                ("OldSchool", new Vector3(47, 0, 74), "sign_school"),
+                ("OldSchool", new Vector3(52, 0, 70), "sign_school"),
                 ("RiceMill", new Vector3(7, 0, 119), "sign_mill"),
             };
             var shouters = new List<WorldLabel>();
@@ -175,19 +175,20 @@ namespace SayItAgain.EditorTools
         {
             var hill = Group("TempleHill", world, OnGround(KaoTemple, 0f));
             var mud = Mat("Mud", new Color(0.33f, 0.26f, 0.18f));
+            // Each stairs zone covers its whole side of the hill, so the hill cannot be climbed around them.
             var stairs = new[]
             {
-                ("WestStairs", new Vector2(33, 206), "sign_bridge"),
-                ("SouthStairs", new Vector2(56, 194), "sign_school_ford"),
-                ("EastStairs", new Vector2(80, 210), "sign_market_ford"),
+                ("WestStairs", new Vector2(33, 206), "sign_bridge", 34f),
+                ("SouthStairs", new Vector2(56, 194), "sign_school_ford", 30f),
+                ("EastStairs", new Vector2(80, 210), "sign_market_ford", 34f),
             };
             var top = new Vector2(KaoTemple.x, KaoTemple.z);
             for (int i = 0; i < stairs.Length; i++)
             {
-                var (name, p, sign) = stairs[i];
+                var (name, p, sign, width) = stairs[i];
                 var outward = (p - top).normalized;
-                // A short box across the stairs, along the climb.
-                Zone(hill, name, p - outward * 5f, p + outward * 5f, 18f, HazardZone.Rule.IfAvoidedCrossing, i, mud, 0.6f);
+                // A ring segment 14-26 m from the temple, just outside the safe zone.
+                Zone(hill, name, top + outward * 14f, top + outward * 26f, width, HazardZone.Rule.IfAvoidedCrossing, i, mud, 0.6f);
                 Sign(hill, hill.InverseTransformPoint(OnGround(new Vector3(p.x + outward.x * 8f, 0, p.y + outward.y * 8f), 0f)), sign);
             }
             AddLandmark(hill.gameObject, "lm_hill", hill.position + Vector3.up * 6f);
