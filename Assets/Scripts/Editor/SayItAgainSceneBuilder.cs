@@ -335,13 +335,14 @@ namespace SayItAgain.EditorTools
             sun.color = new Color(0.75f, 0.8f, 0.9f);
 
             var world = new GameObject("World").transform;
-            Prim(PrimitiveType.Plane, "Ground", world, Vector3.zero, new Vector3(60, 1, 60), Mat("Ground", new Color(0.28f, 0.33f, 0.24f)));
+            BuildTerrain(world);
             BuildVan(world);
             BuildTent(world);
             var shouters = BuildVillage(world);
             BuildLowlands(world);
             BuildHill(world);
             BuildFarLandmarks(world);
+            ScatterVegetation(world);
 
             var water = Prim(PrimitiveType.Plane, "FloodWater", null, new Vector3(145, -0.6f, 20), new Vector3(21, 1, 20), Mat("FloodWater", new Color(0.32f, 0.27f, 0.18f, 1f), 0.9f));
             Object.DestroyImmediate(water.GetComponent<Collider>());
@@ -371,34 +372,52 @@ namespace SayItAgain.EditorTools
 
         static void BuildVan(Transform world)
         {
-            var white = Mat("VanWhite", new Color(0.9f, 0.9f, 0.88f));
             var van = Group("RescueVan", world, new Vector3(-150, 0, -40));
-            Prim(PrimitiveType.Cube, "Body", van, new Vector3(0, 1.3f, 0), new Vector3(2.2f, 2.2f, 5.2f), white);
-            Prim(PrimitiveType.Cube, "Stripe", van, new Vector3(0, 1.3f, 0), new Vector3(2.25f, 0.3f, 5.25f), Mat("AlertRed", UiKit.Red));
-            Prim(PrimitiveType.Cube, "TailgateOpen", van, new Vector3(0, 2.7f, -3f), new Vector3(2.1f, 0.08f, 1.6f), white)
+            Model("CarKit/ambulance.fbx", van, Vector3.zero, 0f, 1.6f);
+            // Rear doors swung up: the van player works at the open back.
+            Prim(PrimitiveType.Cube, "TailgateOpen", van, new Vector3(0, 2.7f, -2.9f), new Vector3(2.2f, 0.08f, 1.4f), Mat("VanWhite", new Color(0.9f, 0.9f, 0.88f)))
                 .localRotation = Quaternion.Euler(-15, 0, 0);
-            Spawn(PlayerRole.Van, MoveMode.LookOnly, 0f, van.position + new Vector3(0, 0, -3.6f), Quaternion.LookRotation(new Vector3(1, 0, 0.6f)));
+            Model("CarKit/cone.fbx", van, new Vector3(-2.2f, 0, -4.5f), 0f, 1.6f);
+            Model("CarKit/cone.fbx", van, new Vector3(2.2f, 0, -4.5f), 0f, 1.6f);
+            Model("SurvivalKit/box-large.fbx", van, new Vector3(1.8f, 0, -3.4f), 20f, 1.5f);
+            Spawn(PlayerRole.Van, MoveMode.LookOnly, 0f, van.position + new Vector3(0, 0, -3.8f), Quaternion.LookRotation(new Vector3(1, 0, 0.6f)));
         }
 
         static void BuildTent(Transform world)
         {
             var wood = Mat("Wood", new Color(0.45f, 0.32f, 0.2f));
-            var canvas = Mat("TentCanvas", new Color(0.85f, 0.72f, 0.35f));
             var tent = Group("AidTent", world, new Vector3(0, 0, 160));
-            Prim(PrimitiveType.Cube, "Floor", tent, new Vector3(0, 0.02f, 0), new Vector3(9, 0.04f, 7), wood);
-            Prim(PrimitiveType.Cube, "RoofLeft", tent, new Vector3(-2.3f, 2.2f, 0), new Vector3(0.1f, 5.4f, 7.2f), canvas).localRotation = Quaternion.Euler(0, 0, -35);
-            Prim(PrimitiveType.Cube, "RoofRight", tent, new Vector3(2.3f, 2.2f, 0), new Vector3(0.1f, 5.4f, 7.2f), canvas).localRotation = Quaternion.Euler(0, 0, 35);
+            // Open canopy, so the tent player sees out over the valley.
+            Model("SurvivalKit/tent-canvas.fbx", tent, Vector3.zero, 0f, 14f);
+            Prim(PrimitiveType.Cube, "Floor", tent, new Vector3(0, 0.02f, 0), new Vector3(8, 0.04f, 7), wood);
             Prim(PrimitiveType.Cube, "MapTable", tent, new Vector3(0, 0.45f, 1.5f), new Vector3(2f, 0.9f, 1f), wood);
+            Model("SurvivalKit/box-large.fbx", tent, new Vector3(-2.8f, 0, 2.2f), 10f, 1.6f);
+            Model("SurvivalKit/barrel.fbx", tent, new Vector3(2.9f, 0, 2.4f), 0f, 1.6f);
+            Model("SurvivalKit/bedroll.fbx", tent, new Vector3(-2.6f, 0.05f, -1.2f), 90f, 1.8f);
+            Model("SurvivalKit/bedroll.fbx", tent, new Vector3(2.6f, 0.05f, -1.2f), 90f, 1.8f);
             Spawn(PlayerRole.Tent, MoveMode.Confined, 3f, tent.position + new Vector3(0, 0.05f, -1f), Quaternion.identity);
         }
 
         /// <summary>Village on the south bank: three possible gathering points, houses, shouting villagers.</summary>
         static WorldLabel[] BuildVillage(Transform world)
         {
-            var wood = Mat("Wood", new Color(0.45f, 0.32f, 0.2f));
             var village = Group("Village", world, Vector3.zero);
-            foreach (var p in new[] { new Vector3(92, 1.5f, -22), new Vector3(150, 1.5f, -22), new Vector3(85, 1.5f, -58), new Vector3(158, 1.5f, -62), new Vector3(108, 1.5f, -70), new Vector3(134, 1.5f, -70) })
-                Prim(PrimitiveType.Cube, "House", village, p, new Vector3(7, 3, 6), wood);
+            var houses = new[]
+            {
+                (new Vector3(92, 0, -22), 90f), (new Vector3(150, 0, -22), -90f), (new Vector3(85, 0, -58), 90f),
+                (new Vector3(158, 0, -62), -90f), (new Vector3(108, 0, -72), 0f), (new Vector3(134, 0, -72), 0f),
+                (new Vector3(80, 0, -38), 90f), (new Vector3(162, 0, -40), -90f),
+            };
+            for (int i = 0; i < houses.Length; i++)
+            {
+                var (pos, yaw) = houses[i];
+                var house = Model($"Suburban/building-type-{(char)('a' + i % 6)}.fbx", village, pos, yaw, 7f);
+                house.gameObject.AddComponent<BoxCollider>().size = new Vector3(1.3f, 0.9f, 1.05f);
+                house.GetComponent<BoxCollider>().center = new Vector3(0, 0.45f, 0);
+            }
+            foreach (var (pos, yaw) in new[] { (new Vector3(96, 0, -46), 0f), (new Vector3(104, 0, -34), 90f) })
+                Model("SurvivalKit/barrel.fbx", village, pos, yaw, 1.6f);
+            Model("SurvivalKit/box-large.fbx", village, new Vector3(146, 0, -50), 15f, 1.8f);
 
             var gathers = new[] { ("Market", new Vector3(100, 0, -40), "sign_market", "lm_market"), ("OldSchool", new Vector3(142, 0, -44), "sign_school", "lm_school"), ("RiceMill", new Vector3(120, 0, -14), "sign_mill", "lm_mill") };
             var shouters = new List<WorldLabel>();
@@ -432,7 +451,7 @@ namespace SayItAgain.EditorTools
             for (int i = 0; i < crossings.Length; i++)
             {
                 var (name, x, sign) = crossings[i];
-                Prim(PrimitiveType.Cube, name + "_Deck", low, new Vector3(x, 0.1f, 10), new Vector3(6, 0.2f, 11), deck);
+                Prim(PrimitiveType.Cube, name + "_Deck", low, new Vector3(x, -0.15f, 10), new Vector3(6, 0.7f, 11), deck);
                 Hazard(low, name, new Vector3(x, 0, 10), new Vector3(6, 4, 10.5f), HazardZone.Rule.IfAvoidedCrossing, i, water, 0.45f);
                 Sign(low, new Vector3(x + 4, 0, 2), sign);
             }
@@ -442,7 +461,7 @@ namespace SayItAgain.EditorTools
             for (int i = 0; i < causeways.Length; i++)
             {
                 var (name, x, sign) = causeways[i];
-                Prim(PrimitiveType.Cube, name + "_Causeway", low, new Vector3(x, 0.125f, 61), new Vector3(8, 0.25f, 78.5f), mud);
+                Prim(PrimitiveType.Cube, name + "_Causeway", low, new Vector3(x, -0.2f, 61), new Vector3(8, 0.9f, 78.5f), mud);
                 Hazard(low, name, new Vector3(x, 0, 61), new Vector3(8, 4, 78.5f), HazardZone.Rule.UnlessSafeRoute, i, water, 0.45f);
                 Sign(low, new Vector3(x + 5, 0, 19), sign);
             }
@@ -475,14 +494,12 @@ namespace SayItAgain.EditorTools
 
         static void BuildHill(Transform world)
         {
-            var hill = Prim(PrimitiveType.Sphere, "HighHill", world, new Vector3(200, -12, 150), new Vector3(120, 40, 120), Mat("Ground", new Color(0.28f, 0.33f, 0.24f)));
-            // Non-uniform sphere colliders stay round; a mesh collider follows the flattened hill.
-            Object.DestroyImmediate(hill.GetComponent<SphereCollider>());
-            hill.gameObject.AddComponent<MeshCollider>();
+            // The hill itself is part of the terrain (see TerrainHeight).
+            var hill = Group("HighHill", world, new Vector3(200, 0, 150));
             AddLandmark(hill.gameObject, "lm_hill", new Vector3(200, 12, 150));
             var top = Group("SafeZone", world, new Vector3(200, 0, 150));
             top.gameObject.AddComponent<SafeZone>();
-            Sign(top, new Vector3(0, 7.8f, 0), "sign_hill");
+            Sign(top, new Vector3(0, HillHeight - 0.2f, 0), "sign_hill");
         }
 
         static void BuildFarLandmarks(Transform world)
@@ -490,13 +507,185 @@ namespace SayItAgain.EditorTools
             var wood = Mat("Wood", new Color(0.45f, 0.32f, 0.2f));
             var concrete = Mat("Concrete", new Color(0.55f, 0.55f, 0.55f));
             var tree = Group("BigRainTree", world, new Vector3(90, 0, 120));
-            Prim(PrimitiveType.Cylinder, "Trunk", tree, new Vector3(0, 4, 0), new Vector3(1.2f, 4, 1.2f), wood);
-            Prim(PrimitiveType.Sphere, "Crown", tree, new Vector3(0, 10, 0), new Vector3(12, 7, 12), Mat("Leaf", new Color(0.18f, 0.35f, 0.18f)));
+            Model("NatureKit/tree_oak.fbx", tree, Vector3.zero, 30f, 14f);
             AddLandmark(tree.gameObject, "lm_bigtree", tree.position + Vector3.up * 8);
             var tower = Group("WaterTower", world, new Vector3(-40, 0, 40));
             Prim(PrimitiveType.Cylinder, "Leg", tower, new Vector3(0, 6, 0), new Vector3(0.8f, 6, 0.8f), concrete);
             Prim(PrimitiveType.Cylinder, "Tank", tower, new Vector3(0, 14, 0), new Vector3(6, 2.5f, 6), Mat("AlertRed", UiKit.Red));
             AddLandmark(tower.gameObject, "lm_tower", tower.position + Vector3.up * 14);
+        }
+
+        // ---------- Terrain ----------
+
+        const float TerrainSize = 640f, TerrainHeight = 45f, TerrainBase = 3f, HillHeight = 9f;
+        static readonly Vector3 TerrainOrigin = new Vector3(-260f, -TerrainBase, -240f);
+
+        /// <summary>
+        /// Valley terrain: flat play area (village, river, flooded field, causeways), the high hill as a smooth
+        /// bump, low rolling ground around it and mountains at the edge to frame the valley in the fog.
+        /// </summary>
+        static void BuildTerrain(Transform world)
+        {
+            const string dataPath = SceneDir + "/Gameplay_Terrain.asset";
+            AssetDatabase.DeleteAsset(dataPath);
+            var data = new TerrainData { heightmapResolution = 513 };
+            data.size = new Vector3(TerrainSize, TerrainHeight, TerrainSize);
+            int res = data.heightmapResolution;
+            var heights = new float[res, res];
+            for (int zi = 0; zi < res; zi++)
+            for (int xi = 0; xi < res; xi++)
+            {
+                float x = TerrainOrigin.x + xi / (res - 1f) * TerrainSize;
+                float z = TerrainOrigin.z + zi / (res - 1f) * TerrainSize;
+                heights[zi, xi] = Mathf.Clamp01((TerrainBase + TerrainHeightAt(x, z)) / TerrainHeight);
+            }
+            data.SetHeights(0, 0, heights);
+
+            data.terrainLayers = new[]
+            {
+                Layer("Grass", "forrest_ground_01", 8f),
+                Layer("Mud", "brown_mud_leaves_01", 6f),
+                Layer("Rock", "rocky_terrain_02", 10f),
+                Layer("Path", "grass_path_2", 5f),
+            };
+            data.alphamapResolution = 256;
+            int ares = data.alphamapResolution;
+            var alpha = new float[ares, ares, 4];
+            for (int zi = 0; zi < ares; zi++)
+            for (int xi = 0; xi < ares; xi++)
+            {
+                float nx = xi / (ares - 1f), nz = zi / (ares - 1f);
+                float x = TerrainOrigin.x + nx * TerrainSize, z = TerrainOrigin.z + nz * TerrainSize;
+                var w = LayerWeights(x, z, data.GetSteepness(nx, nz), TerrainHeightAt(x, z));
+                for (int l = 0; l < 4; l++) alpha[zi, xi, l] = w[l];
+            }
+            data.SetAlphamaps(0, 0, alpha);
+            AssetDatabase.CreateAsset(data, dataPath);
+
+            var go = Terrain.CreateTerrainGameObject(data);
+            go.name = "Terrain";
+            go.transform.SetParent(world, false);
+            go.transform.position = TerrainOrigin;
+            var terrain = go.GetComponent<Terrain>();
+            terrain.materialTemplate = TerrainMaterial();
+            terrain.heightmapPixelError = 8f;
+            terrain.basemapDistance = 250f;
+            terrain.drawInstanced = true;
+            terrain.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            go.isStatic = true;
+        }
+
+        static float TerrainHeightAt(float x, float z)
+        {
+            var p = new Vector2(x, z);
+            float flat = Mathf.Max(
+                RectMask(x, z, 30f, 262f, -100f, 216f, 25f),
+                Mathf.Max(DiscMask(p, new Vector2(-150f, -40f), 22f, 18f), DiscMask(p, new Vector2(0f, 160f), 20f, 18f)));
+            float h = (Mathf.PerlinNoise(x * 0.015f + 31f, z * 0.015f + 17f) - 0.5f) * 3f * (1f - flat);
+
+            // River and flooded field sit a little lower than the banks.
+            if (x > 48f && x < 244f && ((z > 4f && z < 15.5f) || (z > 21.5f && z < 101f))) h = -0.25f;
+
+            float d = Vector2.Distance(p, new Vector2(200f, 150f));
+            if (d < 62f) h = Mathf.Max(h, HillHeight * (0.5f + 0.5f * Mathf.Cos(Mathf.PI * d / 62f)));
+
+            float r = Vector2.Distance(p, new Vector2(60f, 60f));
+            if (r > 250f) h += Mathf.SmoothStep(0f, 1f, (r - 250f) / 90f) * (14f + 14f * Mathf.PerlinNoise(x * 0.01f, z * 0.01f));
+            return h;
+        }
+
+        static float[] LayerWeights(float x, float z, float steepness, float height)
+        {
+            var w = new float[4];
+            if (steepness > 22f || height > 12f) w[2] = 1f;
+            else if ((x > 48f && x < 244f && z > 4f && z < 101f) || (x > 78f && x < 166f && z > -82f && z < 2f))
+                w[1] = 1f;
+            else if ((z > 15f && z < 22f && x > 50f && x < 240f) || (z > 100f && z < 113f && x > 60f && x < 232f))
+                w[3] = 1f;
+            else w[0] = 1f;
+            return w;
+        }
+
+        static float RectMask(float x, float z, float x0, float x1, float z0, float z1, float fade)
+        {
+            float dx = Mathf.Max(x0 - x, 0f, x - x1), dz = Mathf.Max(z0 - z, 0f, z - z1);
+            return 1f - Mathf.Clamp01(Mathf.Sqrt(dx * dx + dz * dz) / fade);
+        }
+
+        static float DiscMask(Vector2 p, Vector2 c, float radius, float fade) =>
+            1f - Mathf.Clamp01((Vector2.Distance(p, c) - radius) / fade);
+
+        static TerrainLayer Layer(string name, string texture, float tile)
+        {
+            string path = $"{DataDir}/TerrainLayer_{name}.terrainlayer";
+            var layer = AssetDatabase.LoadAssetAtPath<TerrainLayer>(path);
+            if (layer == null)
+            {
+                layer = new TerrainLayer();
+                AssetDatabase.CreateAsset(layer, path);
+            }
+            layer.diffuseTexture = AssetDatabase.LoadAssetAtPath<Texture2D>($"Assets/Textures/PolyHaven/{texture}_diff_1k.jpg");
+            layer.tileSize = new Vector2(tile, tile);
+            layer.smoothness = 0.35f;
+            EditorUtility.SetDirty(layer);
+            return layer;
+        }
+
+        static Material TerrainMaterial()
+        {
+            string path = $"{MaterialDir}/Terrain.mat";
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (mat == null)
+            {
+                mat = new Material(Shader.Find("Universal Render Pipeline/Terrain/Lit"));
+                AssetDatabase.CreateAsset(mat, path);
+            }
+            return mat;
+        }
+
+        static float GroundY(float x, float z) => TerrainHeightAt(x, z);
+
+        /// <summary>Trees, bushes and rocks around the valley (outside the play corridors), no colliders.</summary>
+        static void ScatterVegetation(Transform world)
+        {
+            var root = Group("Vegetation", world, Vector3.zero);
+            var rng = new System.Random(7);
+            string[] trees = { "tree_default", "tree_oak", "tree_fat", "tree_cone", "tree_detailed" };
+            int placed = 0;
+            for (int i = 0; i < 2000 && placed < 260; i++)
+            {
+                float x = (float)rng.NextDouble() * 560f - 220f;
+                float z = (float)rng.NextDouble() * 560f - 200f;
+                if (RectMask(x, z, 34f, 258f, -96f, 212f, 1f) > 0f) continue;
+                if (Vector2.Distance(new Vector2(x, z), new Vector2(-150f, -40f)) < 28f) continue;
+                if (Vector2.Distance(new Vector2(x, z), new Vector2(0f, 160f)) < 24f) continue;
+                if (Vector2.Distance(new Vector2(x, z), new Vector2(-40f, 40f)) < 10f) continue;
+                float y = GroundY(x, z);
+                if (y > 20f) continue;
+                double kind = rng.NextDouble();
+                string model = kind < 0.7 ? "NatureKit/" + trees[rng.Next(trees.Length)] + ".fbx"
+                    : kind < 0.9 ? "NatureKit/plant_bushLarge.fbx" : "NatureKit/rock_largeA.fbx";
+                float scale = kind < 0.7 ? 6f + (float)rng.NextDouble() * 5f : kind < 0.9 ? 4f : 5f + (float)rng.NextDouble() * 4f;
+                Model(model, root, new Vector3(x, y - 0.1f, z), (float)rng.NextDouble() * 360f, scale);
+                placed++;
+            }
+            // A few trees inside the village and along the bank road.
+            foreach (var (x, z) in new[] { (88f, -48f), (156f, -50f), (112f, -82f), (128f, 0f), (60f, -10f), (176f, -6f) })
+                Model("NatureKit/" + trees[rng.Next(trees.Length)] + ".fbx", root, new Vector3(x, 0f, z), (float)rng.NextDouble() * 360f, 7f);
+        }
+
+        /// <summary>A CC0 prop from Assets/Props, unpacked, static, at a world position.</summary>
+        static Transform Model(string path, Transform parent, Vector3 localPos, float yaw, float scale)
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Props/" + path);
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(asset);
+            PrefabUtility.UnpackPrefabInstance(go, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            go.transform.localScale = Vector3.one * scale;
+            foreach (var t in go.GetComponentsInChildren<Transform>()) t.gameObject.isStatic = true;
+            return go.transform;
         }
 
         /// <summary>Dark sky, cold dim light, fog, storm grading, and the rain/lightning driver.</summary>
