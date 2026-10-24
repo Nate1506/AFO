@@ -12,7 +12,7 @@ namespace SayItAgain.EditorTools
         static readonly string[] Scenes =
         {
             "Assets/SayItAgain/Scenes/Lobby.unity",
-            "Assets/SayItAgain/Scenes/Gameplay_Test.unity",
+            "Assets/SayItAgain/Scenes/Gameplay_Kao.unity",
         };
 
         [MenuItem("Tools/Say It Again/Build Windows")]

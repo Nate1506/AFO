@@ -16,7 +16,7 @@ namespace SayItAgain.UI
     public sealed class MenuUI : MonoBehaviour
     {
         public LobbyUI lobby;
-        public string gameplayScene = "Gameplay_Test";
+        public string gameplayScene = "Gameplay_Kao";
 
         static bool seenSplash;
 

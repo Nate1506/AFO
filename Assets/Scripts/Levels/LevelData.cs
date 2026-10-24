@@ -10,7 +10,7 @@ namespace SayItAgain
         public string nameKey = "level1_name";
         public string lessonKey = "level1_lesson";
         public bool playable = true;
-        public string gameplayScene = "Gameplay_Test";
+        public string gameplayScene = "Gameplay_Kao";
         [Tooltip("Play the opening storm cutscene before this level (once per session).")]
         public bool introCutscene;
 

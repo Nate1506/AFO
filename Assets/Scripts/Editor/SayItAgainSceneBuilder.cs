@@ -17,7 +17,7 @@ using UnityEngine.SceneManagement;
 namespace SayItAgain.EditorTools
 {
     /// <summary>Generates the lobby scene, the gameplay test scene, level data and the prefabs they need. Safe to re-run.</summary>
-    public static class SayItAgainSceneBuilder
+    public static partial class SayItAgainSceneBuilder
     {
         const string Root = "Assets/SayItAgain";
         const string PrefabDir = Root + "/Prefabs";
@@ -41,7 +41,8 @@ namespace SayItAgain.EditorTools
             var matchManager = BuildNetworkPrefab<MatchManager>("MatchManager");
             var villager = BuildVillagerPrefab();
             BuildLobbyScene(roleManager, matchManager);
-            BuildGameplayScene(rig, matchManager, villager);
+            // The old generated test valley (BuildGameplayScene) is kept in code but no longer shipped.
+            BuildKaoScene(rig, matchManager, villager);
             RegisterScenes();
             AssetDatabase.SaveAssets();
             Debug.Log("[SayItAgain] Scenes built");
@@ -110,7 +111,7 @@ namespace SayItAgain.EditorTools
             l.rumorsEnabled = rumors;
             l.fakeHqMessage = fakeHq;
             l.askHqUses = askHq;
-            l.gameplayScene = "Gameplay_Test";
+            l.gameplayScene = "Gameplay_Kao";
             EditorUtility.SetDirty(l);
         }
 
@@ -812,9 +813,9 @@ namespace SayItAgain.EditorTools
 
         static void RegisterScenes()
         {
-            var scenes = EditorBuildSettings.scenes.Where(s => s.path != LobbyScene && s.path != GameplayScene).ToList();
+            var scenes = EditorBuildSettings.scenes.Where(s => s.path != LobbyScene && s.path != GameplayScene && s.path != KaoScene).ToList();
             scenes.Add(new EditorBuildSettingsScene(LobbyScene, true));
-            scenes.Add(new EditorBuildSettingsScene(GameplayScene, true));
+            scenes.Add(new EditorBuildSettingsScene(KaoScene, true));
             EditorBuildSettings.scenes = scenes.ToArray();
         }
 

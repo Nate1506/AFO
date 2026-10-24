@@ -29,7 +29,7 @@ status_host_left,The host left. Room closed.,โฮสต์ออกแล้�
 status_code_empty,Enter a room code.,ใส่รหัสห้องก่อน
 lm_hill,High Hill (safe zone),เนินสูง (จุดปลอดภัย)
 lm_bigtree,Big Rain Tree,ต้นจามจุรีใหญ่
-lm_bridge,River Bridge,สะพานข้ามแม่น้ำ
+lm_bridge,West Bridge,สะพานฝั่งตะวันตก
 lm_tower,Water Tower,หอถังน้ำ
 lm_school,Old School,โรงเรียนเก่า
 radio_hold_v,Hold V to talk,กด V ค้างเพื่อพูด
@@ -41,15 +41,15 @@ radio_connecting,Connecting voice...,กำลังเชื่อมเสี�
 radio_failed,Voice unavailable. Use quick-chat (Q).,เสียงใช้ไม่ได้ ใช้ข้อความด่วน (Q)
 radio_solo,Solo: bots answer by text,โหมดเดี่ยว: บอทตอบเป็นข้อความ
 slot_route,Safe route,เส้นทางปลอดภัย
-slot_avoid,Do NOT cross,ห้ามข้าม
+slot_avoid,Do NOT use,ห้ามใช้
 slot_gather,Villagers wait at,ชาวบ้านรอที่
 slot_code,Code word,รหัสยืนยัน
-opt_route_east,East road,ถนนฝั่งตะวันออก
-opt_route_west,West ridge,สันเขาฝั่งตะวันตก
-opt_route_north,North field track,ทางทุ่งนาฝั่งเหนือ
-opt_avoid_bridge,River bridge,สะพานข้ามแม่น้ำ
-opt_avoid_school,School road ford,ทางข้ามหน้าโรงเรียน
-opt_avoid_market,Market lane ford,ทางข้ามซอยตลาด
+opt_route_east,East road (east bridge),ถนนฝั่งตะวันออก (สะพานตะวันออก)
+opt_route_west,West road (bridge),ถนนฝั่งตะวันตก (ข้ามสะพาน)
+opt_route_north,Centre road (lakeside),ถนนกลาง (ริมทะเลสาบ)
+opt_avoid_bridge,West stairs,บันไดฝั่งตะวันตก
+opt_avoid_school,South stairs,บันไดฝั่งใต้
+opt_avoid_market,East stairs,บันไดฝั่งตะวันออก
 opt_gather_market,Market,ตลาด
 opt_gather_school,Old school,โรงเรียนเก่า
 opt_gather_mill,Rice mill,โรงสีข้าว
@@ -57,7 +57,7 @@ code_tiger,TIGER,เสือ
 code_mango,MANGO,มะม่วง
 code_lotus,LOTUS,บัว
 code_kite,KITE,ว่าว
-order_sentence,"Route: {0} / Do not cross: {1} / Villagers at: {2} / Code: {3}","เส้นทาง: {0} / ห้ามข้าม: {1} / ชาวบ้านรอที่: {2} / รหัส: {3}"
+order_sentence,"Route: {0} / Do not use: {1} / Villagers at: {2} / Code: {3}","เส้นทาง: {0} / ห้ามใช้: {1} / ชาวบ้านรอที่: {2} / รหัส: {3}"
 qc_sayagain,Say it again?,Say it again?
 qc_copy,Copy.,รับทราบ
 qc_readback,Read back my card,ทวนสิ่งที่ฉันเข้าใจ
@@ -117,12 +117,12 @@ result_lobby,BACK TO LOBBY,กลับห้องรอ
 sign_market,MARKET,ตลาด
 sign_school,OLD SCHOOL,โรงเรียนเก่า
 sign_mill,RICE MILL,โรงสีข้าว
-sign_bridge,RIVER BRIDGE,สะพานข้ามแม่น้ำ
-sign_school_ford,SCHOOL ROAD FORD,ทางข้ามหน้าโรงเรียน
-sign_market_ford,MARKET LANE FORD,ทางข้ามซอยตลาด
+sign_bridge,WEST STAIRS,บันไดฝั่งตะวันตก
+sign_school_ford,SOUTH STAIRS,บันไดฝั่งใต้
+sign_market_ford,EAST STAIRS,บันไดฝั่งตะวันออก
 sign_east,EAST ROAD,ถนนฝั่งตะวันออก
-sign_west,WEST RIDGE,สันเขาฝั่งตะวันตก
-sign_north,NORTH FIELD TRACK,ทางทุ่งนาฝั่งเหนือ
+sign_west,WEST ROAD,ถนนฝั่งตะวันตก
+sign_north,CENTRE ROAD,ถนนกลาง
 sign_hill,HIGH HILL - SAFE ZONE,เนินสูง - จุดปลอดภัย
 splash_tagline,A storm. A broken radio. One message that must get through.,พายุถล่ม วิทยุขาดหาย ข้อความเดียวที่ต้องส่งให้ถึง
 splash_press,Press any key,กดปุ่มใดก็ได้

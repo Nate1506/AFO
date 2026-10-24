@@ -10,7 +10,7 @@ namespace SayItAgain.UI
     /// <summary>Create / join a room by code, or start solo with bots. Shows the role table and lets the host start.</summary>
     public sealed class LobbyUI : MonoBehaviour
     {
-        public string gameplayScene = "Gameplay_Test";
+        public string gameplayScene = "Gameplay_Kao";
 
         static readonly PlayerRole[] Roles = { PlayerRole.Van, PlayerRole.Tent, PlayerRole.Village };
 
