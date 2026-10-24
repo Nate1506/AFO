@@ -15,6 +15,7 @@ namespace SayItAgain.UI
         GameObject briefing, clockPlate;
         readonly Queue<string> lines = new Queue<string>();
         Canvas canvas;
+        int lastTick;
 
         void Start()
         {
@@ -68,6 +69,10 @@ namespace SayItAgain.UI
             float left = match.SecondsLeft;
             clock.text = $"{(int)left / 60}:{(int)left % 60:00}";
             clock.color = left < 60f ? UiKit.Red : UiKit.Yellow;
+            // Countdown tick for the last ten seconds.
+            int whole = Mathf.CeilToInt(left);
+            if (whole != lastTick && whole <= 10 && whole > 0 && match.phase.Value == MatchPhase.Playing) UiSfx.Play(UiSound.Tick);
+            lastTick = whole;
 
             bool inBriefing = match.phase.Value == MatchPhase.Briefing;
             briefing.SetActive(inBriefing);

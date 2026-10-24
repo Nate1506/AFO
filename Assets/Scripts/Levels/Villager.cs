@@ -23,6 +23,25 @@ namespace SayItAgain
             animator = GetComponentInChildren<Animator>();
             offset = Random.insideUnitSphere * 2f;
             offset.y = 0f;
+            Vary();
+        }
+
+        static readonly Color[] Clothes =
+        {
+            new Color(0.75f, 0.35f, 0.25f), new Color(0.3f, 0.45f, 0.7f), new Color(0.45f, 0.6f, 0.35f),
+            new Color(0.8f, 0.7f, 0.4f), new Color(0.55f, 0.4f, 0.6f), new Color(0.6f, 0.6f, 0.6f),
+        };
+
+        /// <summary>Adults, elders (slower, grey) and children (small, quick) from one model.</summary>
+        void Vary()
+        {
+            float r = Random.value;
+            var color = Clothes[Random.Range(0, Clothes.Length)];
+            if (r < 0.25f) { transform.localScale *= 0.65f; agent.speed *= 1.1f; }
+            else if (r < 0.45f) { agent.speed *= 0.75f; color = Color.Lerp(color, Color.grey, 0.5f); }
+            var block = new MaterialPropertyBlock();
+            block.SetColor("_BaseColor", color);
+            foreach (var rend in GetComponentsInChildren<Renderer>()) rend.SetPropertyBlock(block);
         }
 
         public void Follow(Transform target)
@@ -53,6 +72,7 @@ namespace SayItAgain
         {
             Current = State.Swept;
             agent.enabled = false;
+            if (animator != null) animator.SetTrigger("Swept");
             // Carried off by the current: drift and sink out of sight.
             StartCoroutine(Drift());
         }

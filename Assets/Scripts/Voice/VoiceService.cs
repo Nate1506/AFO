@@ -23,6 +23,8 @@ namespace SayItAgain.Voice
         public WeatherConfig defaultWeather;
         [Tooltip("Optional CC0 radio click played on press / release of push-to-talk.")]
         public AudioClip pttOnClip, pttOffClip;
+        [Tooltip("Crackle when thunder hits the line.")]
+        public AudioClip glitchClip;
 
         public VoiceState State { get; private set; } = VoiceState.Off;
         public bool IsTransmitting { get; private set; }
@@ -57,6 +59,13 @@ namespace SayItAgain.Voice
             session.RoomExited += OnRoomExited;
             RoleManager.RolesChanged += ApplyRouting;
             GameSettings.Changed += ApplyDeviceSettings;
+            StormState.Thunder += OnThunder;
+        }
+
+        void OnThunder(float loudness)
+        {
+            bool inRoom = SessionService.Instance != null && SessionService.Instance.InRoom;
+            if (inRoom && glitchClip != null) sfx.PlayOneShot(glitchClip, 0.35f * loudness * GameSettings.SfxVolume);
         }
 
         void OnDestroy()
@@ -71,6 +80,7 @@ namespace SayItAgain.Voice
             }
             RoleManager.RolesChanged -= ApplyRouting;
             GameSettings.Changed -= ApplyDeviceSettings;
+            StormState.Thunder -= OnThunder;
             UnhookVivox();
         }
 
@@ -247,7 +257,7 @@ namespace SayItAgain.Voice
                 else VivoxService.Instance.MuteInputDevice();
             }
             var clip = on ? pttOnClip : pttOffClip;
-            if (clip != null) sfx.PlayOneShot(clip);
+            if (clip != null && GameSettings.PushToTalk) sfx.PlayOneShot(clip, GameSettings.SfxVolume);
             Changed?.Invoke();
         }
 

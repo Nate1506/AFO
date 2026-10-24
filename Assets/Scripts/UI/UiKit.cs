@@ -111,6 +111,7 @@ namespace SayItAgain.UI
             var label = Label(rt, locKey, fontSize, White, TextAlignmentOptions.Center);
             label.fontStyle = FontStyles.Bold;
             rt.gameObject.AddComponent<ButtonLabelTint>().label = label;
+            rt.gameObject.AddComponent<ButtonSfx>().click = locKey == "menu_back" ? UiSound.Back : UiSound.Select;
             return button;
         }
 

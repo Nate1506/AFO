@@ -35,6 +35,7 @@ namespace SayItAgain.EditorTools
             EnsureFolders();
             BuildFontAsset();
             BuildLevelData();
+            SetupCharacters();
             var rig = BuildPlayerRig();
             var roleManager = BuildNetworkPrefab<RoleManager>("RoleManager");
             var matchManager = BuildNetworkPrefab<MatchManager>("MatchManager");
@@ -157,6 +158,7 @@ namespace SayItAgain.EditorTools
 
             var fpc = root.AddComponent<FirstPersonController>();
             fpc.viewCamera = cam;
+            fpc.stepClips = new[] { Clip("Footsteps/step_mud_01.ogg"), Clip("Footsteps/step_mud_02.ogg"), Clip("Footsteps/step_mud_03.ogg") };
             var bino = root.AddComponent<Binoculars>();
             bino.viewCamera = cam;
             root.AddComponent<BinocularsOverlay>().binoculars = bino;
@@ -179,21 +181,107 @@ namespace SayItAgain.EditorTools
         /// <summary>Placeholder body until the CC0 character models are imported.</summary>
         static Villager BuildVillagerPrefab()
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            go.name = "Villager";
-            Object.DestroyImmediate(go.GetComponent<Collider>());
-            go.transform.localScale = new Vector3(0.7f, 0.85f, 0.7f);
-            go.GetComponent<Renderer>().sharedMaterial = Mat("Villager", new Color(0.85f, 0.55f, 0.3f));
+            var go = new GameObject("Villager");
+            Character(go.transform, VillagerController, Mat("VillagerBody", Color.white));
             var agent = go.AddComponent<NavMeshAgent>();
             agent.speed = 3.4f;
             agent.radius = 0.35f;
-            agent.baseOffset = 0.85f;
+            agent.baseOffset = 0f;
             agent.stoppingDistance = 0.8f;
             go.AddComponent<Villager>();
             var prefab = PrefabUtility.SaveAsPrefabAsset(go, PrefabDir + "/Villager.prefab");
             Object.DestroyImmediate(go);
             return prefab.GetComponent<Villager>();
         }
+
+        // ---------- Characters (Quaternius Universal Animation Library, CC0) ----------
+
+        const string CharacterFbx = "Assets/Characters/Quaternius/UAL1_Standard.fbx";
+        const string VillagerController = Root + "/Animation/Villager.controller";
+        const string ShouterController = Root + "/Animation/Shouter.controller";
+        const string RescuerController = Root + "/Animation/Rescuer.controller";
+
+        /// <summary>Loop the looping clips, then build the three animator controllers.</summary>
+        static void SetupCharacters()
+        {
+            if (!AssetDatabase.IsValidFolder(Root + "/Animation")) AssetDatabase.CreateFolder(Root, "Animation");
+            var importer = (ModelImporter)AssetImporter.GetAtPath(CharacterFbx);
+            var clips = importer.defaultClipAnimations;
+            bool changed = importer.clipAnimations.Length == 0;
+            foreach (var c in clips)
+            {
+                bool loop = c.name.Contains("Loop");
+                if (c.loopTime != loop) { c.loopTime = loop; changed = true; }
+            }
+            if (changed)
+            {
+                importer.clipAnimations = clips;
+                importer.SaveAndReimport();
+            }
+
+            // Villager: idle/walk/jog by Speed; Celebrate on the hill; Swept when the water takes them.
+            AssetDatabase.DeleteAsset(VillagerController);
+            var vc = UnityEditor.Animations.AnimatorController.CreateAnimatorControllerAtPath(VillagerController);
+            vc.AddParameter("Speed", AnimatorControllerParameterType.Float);
+            vc.AddParameter("Celebrate", AnimatorControllerParameterType.Trigger);
+            vc.AddParameter("Swept", AnimatorControllerParameterType.Trigger);
+            var sm = vc.layers[0].stateMachine;
+            vc.CreateBlendTreeInController("Locomotion", out var tree);
+            tree.blendParameter = "Speed";
+            tree.AddChild(AnimClip("Idle_Loop"), 0f);
+            tree.AddChild(AnimClip("Walk_Loop"), 1.2f);
+            tree.AddChild(AnimClip("Jog_Fwd_Loop"), 3.4f);
+            var dance = sm.AddState("Celebrate");
+            dance.motion = AnimClip("Dance_Loop");
+            var swim = sm.AddState("Swept");
+            swim.motion = AnimClip("Swim_Fwd_Loop");
+            sm.AddAnyStateTransition(dance).AddCondition(UnityEditor.Animations.AnimatorConditionMode.If, 0, "Celebrate");
+            sm.AddAnyStateTransition(swim).AddCondition(UnityEditor.Animations.AnimatorConditionMode.If, 0, "Swept");
+
+            // Shouting villager: talking with arms; rescuers in the opening: talking on the radio.
+            SingleClipController(ShouterController, AnimClip("Idle_Talking_Loop"));
+            SingleClipController(RescuerController, AnimClip("Idle_Talking_Loop"));
+        }
+
+        static void SingleClipController(string path, AnimationClip clip)
+        {
+            AssetDatabase.DeleteAsset(path);
+            var c = UnityEditor.Animations.AnimatorController.CreateAnimatorControllerAtPath(path);
+            c.layers[0].stateMachine.AddState("Main").motion = clip;
+        }
+
+        static AnimationClip AnimClip(string name) =>
+            AssetDatabase.LoadAllAssetsAtPath(CharacterFbx).OfType<AnimationClip>().First(c => c.name.EndsWith(name));
+
+        /// <summary>Mannequin model under a parent, scaled to about 1.75 m, with an animator and a body material.</summary>
+        static Transform Character(Transform parent, string controllerPath, Material body)
+        {
+            var model = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(CharacterFbx));
+            PrefabUtility.UnpackPrefabInstance(model, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            model.name = "Body";
+            model.transform.SetParent(parent, false);
+            var renderers = model.GetComponentsInChildren<Renderer>();
+            var bounds = renderers[0].bounds;
+            foreach (var r in renderers) { bounds.Encapsulate(r.bounds); r.sharedMaterial = body; }
+            if (bounds.size.y > 0.01f) model.transform.localScale *= 1.75f / bounds.size.y;
+            var animator = model.GetComponent<Animator>();
+            if (animator == null) animator = model.AddComponent<Animator>();
+            animator.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(controllerPath);
+            animator.applyRootMotion = false;
+            return model.transform;
+        }
+
+        static AudioSource Loop(GameObject go, AudioClip clip)
+        {
+            var src = go.AddComponent<AudioSource>();
+            src.clip = clip;
+            src.loop = true;
+            src.playOnAwake = true;
+            src.spatialBlend = 0f;
+            return src;
+        }
+
+        static AudioClip Clip(string path) => AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/" + path);
 
         // ---------- Scenes ----------
 
@@ -223,7 +311,11 @@ namespace SayItAgain.EditorTools
 
             var session = nmGo.AddComponent<SessionService>();
             session.roleManagerPrefab = roleManagerPrefab.GetComponent<NetworkObject>();
-            nmGo.AddComponent<VoiceService>().defaultWeather = AssetDatabase.LoadAssetAtPath<WeatherConfig>($"{DataDir}/Weather_Level1.asset");
+            var voice = nmGo.AddComponent<VoiceService>();
+            voice.defaultWeather = AssetDatabase.LoadAssetAtPath<WeatherConfig>($"{DataDir}/Weather_Level1.asset");
+            voice.pttOnClip = Clip("Radio/radio_click_on.ogg");
+            voice.pttOffClip = Clip("Radio/radio_click_off.ogg");
+            voice.glitchClip = Clip("Radio/radio_glitch.ogg");
             nmGo.AddComponent<RadioHud>();
 
             var ui = new GameObject("FrontEnd");
@@ -453,6 +545,19 @@ namespace SayItAgain.EditorTools
             var storm = new GameObject("Storm").AddComponent<StormWeather>();
             storm.sun = sun;
             storm.rainMaterial = rain;
+            storm.rainLoop = Loop(storm.gameObject, Clip("Ambience/rain_loop_heavy.ogg"));
+            storm.windLoop = Loop(storm.gameObject, Clip("Ambience/wind_loop.ogg"));
+            storm.thunderClips = new[] { Clip("Thunder/thunder_near.ogg") };
+
+            // Flood siren wailing from the village (3D, heard faintly from far away).
+            var siren = new GameObject("FloodSiren");
+            siren.transform.position = new Vector3(120, 8, -30);
+            var sirenSource = Loop(siren, Clip("Ambience/flood_siren.ogg"));
+            sirenSource.spatialBlend = 1f;
+            sirenSource.minDistance = 25f;
+            sirenSource.maxDistance = 450f;
+            sirenSource.rolloffMode = AudioRolloffMode.Linear;
+            sirenSource.volume = 0.5f;
 
             const string profilePath = DataDir + "/StormVolume.asset";
             AssetDatabase.DeleteAsset(profilePath);
@@ -484,6 +589,8 @@ namespace SayItAgain.EditorTools
                 Shot(root.transform, "Shot5_Hill", new Vector3(172, 12, 112), new Vector3(200, 9, 150), new Vector3(0, 3, 6), "cut_5", -1f),
             };
             root.AddComponent<CutscenePlayer>().shots = shots;
+            Rescuer(root.transform, new Vector3(-150, 0, -44.2f), 0f);
+            Rescuer(root.transform, new Vector3(0.6f, 0.05f, 160.5f), 200f);
         }
 
         static CutsceneShot Shot(Transform parent, string name, Vector3 pos, Vector3 lookAt, Vector3 drift, string caption, float strikeAt)
@@ -531,9 +638,17 @@ namespace SayItAgain.EditorTools
 
         static WorldLabel Shouter(Transform parent, Vector3 localPos, Material mat)
         {
-            var body = Prim(PrimitiveType.Capsule, "Shouter", parent, localPos + new Vector3(0, 0.85f, 0), new Vector3(0.7f, 0.85f, 0.7f), mat);
-            Object.DestroyImmediate(body.GetComponent<Collider>());
-            return WorldLabel.Create(body, new Vector3(0, 1.6f, 0), "", 3.2f, UiKit.White);
+            var root = Group("Shouter", parent, parent.TransformPoint(localPos));
+            Character(root, ShouterController, mat);
+            return WorldLabel.Create(root, new Vector3(0, 2.3f, 0), "", 3.2f, UiKit.White);
+        }
+
+        /// <summary>A rescuer in an orange vest, talking on the radio (seen in the opening).</summary>
+        static void Rescuer(Transform parent, Vector3 position, float yaw)
+        {
+            var root = Group("Rescuer", parent, position);
+            root.rotation = Quaternion.Euler(0, yaw, 0);
+            Character(root, RescuerController, Mat("RescuerOrange", new Color(1f, 0.5f, 0.1f)));
         }
 
         static Transform Group(string name, Transform parent, Vector3 position)

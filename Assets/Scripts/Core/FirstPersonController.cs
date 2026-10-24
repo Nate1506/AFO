@@ -25,6 +25,10 @@ namespace SayItAgain
         public float headBobAmplitude = 0.04f;
         public float headBobFrequency = 9f;
 
+        [Tooltip("Mud footsteps (CC0), one picked at random per step.")]
+        public AudioClip[] stepClips;
+        public float stepInterval = 0.5f;
+
         public MoveMode mode = MoveMode.Free;
         public Vector3 anchor;
         public float confineRadius = 4f;
@@ -37,7 +41,8 @@ namespace SayItAgain
 
         CharacterController controller;
         InputAction move, look, run;
-        float pitch, verticalVelocity, bobTime, cameraBaseY;
+        float pitch, verticalVelocity, bobTime, cameraBaseY, stepTimer;
+        AudioSource stepSource;
 
         void Awake()
         {
@@ -120,8 +125,23 @@ namespace SayItAgain
             velocity.y = verticalVelocity;
             controller.Move(velocity * Time.deltaTime);
             IsMoving = input.sqrMagnitude > 0.01f;
+            PlaySteps(speed);
 
             if (mode == MoveMode.Confined) ClampToAnchor();
+        }
+
+        void PlaySteps(float speed)
+        {
+            if (!IsMoving || stepClips == null || stepClips.Length == 0 || !controller.isGrounded) return;
+            stepTimer -= Time.deltaTime * speed / walkSpeed;
+            if (stepTimer > 0f) return;
+            stepTimer = stepInterval;
+            if (stepSource == null)
+            {
+                stepSource = gameObject.AddComponent<AudioSource>();
+                stepSource.spatialBlend = 0f;
+            }
+            stepSource.PlayOneShot(stepClips[Random.Range(0, stepClips.Length)], 0.5f * GameSettings.SfxVolume);
         }
 
         void ApplyGravityOnly()

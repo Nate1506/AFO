@@ -63,7 +63,12 @@ namespace SayItAgain.UI
             if (root.activeSelf != show)
             {
                 root.SetActive(show);
-                if (show) FirstPersonController.SetCursorLocked(false);
+                if (show)
+                {
+                    FirstPersonController.SetCursorLocked(false);
+                    UiSfx.Play(match.phase.Value == MatchPhase.Won ? UiSound.Success : UiSound.Fail);
+                    UiSfx.Play(UiSound.Result, 0.6f);
+                }
             }
             if (!show) return;
 

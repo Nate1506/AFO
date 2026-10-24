@@ -74,6 +74,7 @@ namespace SayItAgain.UI
 
         void SetOpen(bool open)
         {
+            if (open != IsOpen) UiSfx.Play(open ? UiSound.Pause : UiSound.Back);
             IsOpen = open;
             root.SetActive(open);
             buttons.SetActive(true);
