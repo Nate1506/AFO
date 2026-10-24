@@ -21,7 +21,7 @@ Judging: problem (20), fun and design (30), feasibility and impact (30), present
 | 0:22-0:35 | Van view: Tab shows the HQ order card (route / do not cross / villagers at / code word). Hold V, radio HUD shows ON AIR | "คำสั่งมี 4 ส่วน เส้นทาง จุดห้ามข้าม จุดที่ชาวบ้านรอ และรหัสยืนยัน" |
 | 0:35-0:50 | Tent view: radio feed with "..." gaps, quick-chat "Say it again?", read-back, card filled in | "ฝนกับฟ้าร้องทำให้คำหาย ผู้เล่นต้องถามซ้ำและทวนกลับ ไม่ใช่เดา" |
 | 0:50-1:05 | Level 2: a villager shouts "The east road is flooded!", the tent presses ASK HQ and gets the real answer; fake HQ message with the wrong code word | "ด่านสองมีข่าวลือและข้อความปลอม เครื่องมือคือรหัสยืนยันและการตรวจกับต้นทาง" |
-| 1:05-1:30 | Village view: binoculars on a landmark sign, walk to the gathering point, press E, villagers follow over the right crossing and causeway, flood rising | "คนในหมู่บ้านต้องพาชาวบ้านไปเนินสูง ถ้าข้อมูลผิด สะพานพังหรือถนนท่วม ชาวบ้านจะถูกน้ำพัด" |
+| 1:05-1:30 | Village view: binoculars on a landmark sign, walk to the gathering point, press E, villagers follow along the right road and up the right stairs to the temple hill, flood rising | "คนในหมู่บ้านต้องพาชาวบ้านไปเนินสูง ถ้าข้อมูลผิด ถนนท่วมหรือบันไดดินถล่ม ชาวบ้านจะถูกน้ำพัด" |
 | 1:30-1:45 | Results: VILLAGE SAVED + Chain Reveal table, red cell where the message changed | "จบด่าน เกมเฉลยว่าข้อความเพี้ยนตรงไหน ทุกคนเห็นว่าตัวเองพลาดตรงจุดไหน" |
 | 1:45-1:55 | Quick cuts: settings (Thai/English, push-to-talk, reduce motion), solo with bots | "เล่นได้ทั้งออนไลน์ 3 คนด้วยรหัสห้อง หรือเล่นคนเดียวกับบอท มีโหมดลดการเคลื่อนไหว และฟ้าแลบที่ปลอดภัยต่อผู้ที่ไวต่อแสง" |
 | 1:55-2:00 | Title card "SAY IT AGAIN" | "ฝึกพูดซ้ำ ทวนกลับ และตรวจสอบ ก่อนจะถึงวันที่ต้องใช้จริง" |
