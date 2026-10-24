@@ -37,8 +37,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   rainAtFullIntensity: 1
-  fogDensityMin: 0.004
-  fogDensityMax: 0.018
+  fogDensityMin: 0.0025
+  fogDensityMax: 0.0065
   windAtFullIntensity: 0.9
   lightningIntervalRange: {x: 18, y: 7}
   noisePerKm: 0.03
