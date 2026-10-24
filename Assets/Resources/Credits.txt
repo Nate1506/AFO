@@ -1,0 +1,12 @@
+<b>Credits</b>
+
+<b>Team</b>
+Say It Again was made for the We R in Trouble Game contest (All for One University).
+
+<b>Fonts</b>
+Noto Sans Thai - The Noto Project Authors - SIL Open Font License 1.1
+Oswald - Vernon Adams and contributors - SIL Open Font License 1.1
+Liberation Sans (TMP default) - Red Hat / Unity TextMesh Pro - SIL Open Font License 1.1
+
+<b>Engine and services</b>
+Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Multiplayer Services (Relay), Vivox, Cinemachine, AI Navigation, Input System (Unity Technologies, Unity Companion License / Unity terms).

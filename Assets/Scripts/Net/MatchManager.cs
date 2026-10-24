@@ -14,7 +14,11 @@ namespace SayItAgain.Net
     /// </summary>
     public sealed class MatchManager : NetworkBehaviour
     {
-        public const float BriefingSeconds = 5f;
+        public const float ShortBriefing = 5f;
+        /// <summary>Long enough for the opening cutscene (about 20 s) plus the briefing banner.</summary>
+        public const float CutsceneBriefing = 26f;
+        static bool introShown;
+        float BriefingSeconds;
 
         public static MatchManager Instance { get; private set; }
         public static event Action<RadioMessage> RadioReceived;
@@ -187,6 +191,9 @@ namespace SayItAgain.Net
             askHqLeft.Value = Level.askHqUses;
             saved.Value = lost.Value = 0;
             finishSeconds.Value = -1f;
+            bool cutscene = Level.introCutscene && !introShown && !UI.CutscenePlayer.SkipNext;
+            introShown |= cutscene;
+            BriefingSeconds = cutscene ? CutsceneBriefing : ShortBriefing;
             playStart.Value = Now + BriefingSeconds;
             stormEnd.Value = playStart.Value + Level.stormSeconds;
             phase.Value = MatchPhase.Briefing;

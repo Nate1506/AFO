@@ -19,8 +19,14 @@ namespace SayItAgain.Net
         public static PlayerRole LocalRole { get; private set; }
         public static GameObject LocalRig { get; private set; }
 
+        public string lobbyScene = "Lobby";
+
         void Start()
         {
+            // Menu replay of the opening: scenery only, no player.
+            if (CutscenePlayer.ReplayOnly) return;
+
+            if (SessionService.Instance != null) SessionService.Instance.RoomExited += BackToLobby;
             var rm = RoleManager.Instance;
             LocalRole = rm != null && rm.LocalRole != PlayerRole.None ? rm.LocalRole : editorFallbackRole;
             SpawnRig(LocalRole);
@@ -32,7 +38,17 @@ namespace SayItAgain.Net
             hud.AddComponent<GameHud>();
             hud.AddComponent<CardPanel>();
             hud.AddComponent<ResultPanel>();
+            hud.AddComponent<PauseMenu>();
+            hud.AddComponent<TutorialOverlay>();
         }
+
+        void OnDestroy()
+        {
+            if (SessionService.Instance != null) SessionService.Instance.RoomExited -= BackToLobby;
+        }
+
+        /// <summary>The host left or the connection dropped: go back to the menu instead of standing in a dead match.</summary>
+        void BackToLobby() => UnityEngine.SceneManagement.SceneManager.LoadScene(lobbyScene);
 
         void SpawnRig(PlayerRole role)
         {

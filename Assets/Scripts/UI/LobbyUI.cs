@@ -14,7 +14,7 @@ namespace SayItAgain.UI
 
         static readonly PlayerRole[] Roles = { PlayerRole.Van, PlayerRole.Tent, PlayerRole.Village };
 
-        GameObject entryPanel, roomPanel;
+        GameObject entryPanel, roomPanel, canvasRoot;
         TMP_InputField codeInput;
         TextMeshProUGUI statusLabel, codeLabel, waitLabel;
         Button startButton, levelButton;
@@ -42,6 +42,7 @@ namespace SayItAgain.UI
         void Build()
         {
             var canvas = UiKit.CreateCanvas("LobbyCanvas", 0).transform;
+            canvasRoot = canvas.gameObject;
             UiKit.Panel("Background", canvas, UiKit.Navy);
 
             // Tilted title slab on the left.
@@ -60,6 +61,7 @@ namespace SayItAgain.UI
 
             BuildEntryPanel(canvas);
             BuildRoomPanel(canvas);
+            canvasRoot.SetActive(visible);
         }
 
         void BuildEntryPanel(Transform canvas)
@@ -75,7 +77,7 @@ namespace SayItAgain.UI
                 "lobby_join", () => _ = SessionService.Instance.JoinRoomAsync(codeInput.text));
 
             UiKit.Button(Row(t, 2), "lobby_solo", () => SessionService.Instance.StartSolo());
-            UiKit.Button(Row(t, 3), "lobby_language", ToggleLanguage, 32);
+            UiKit.Button(Row(t, 3), "menu_back", () => BackRequested?.Invoke(), 32);
         }
 
         void BuildRoomPanel(Transform canvas)
@@ -161,7 +163,15 @@ namespace SayItAgain.UI
             nm.SceneManager.LoadScene(gameplayScene, LoadSceneMode.Single);
         }
 
-        static void ToggleLanguage() =>
-            Loc.Current = Loc.Current == Language.Thai ? Language.English : Language.Thai;
+        public event System.Action BackRequested;
+
+        bool visible = true;
+
+        /// <summary>MenuUI may call this before Start builds the canvas; the flag is applied after building.</summary>
+        public void SetVisible(bool show)
+        {
+            visible = show;
+            if (canvasRoot != null) canvasRoot.SetActive(show);
+        }
     }
 }

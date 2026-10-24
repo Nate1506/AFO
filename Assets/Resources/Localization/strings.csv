@@ -124,3 +124,53 @@ sign_east,EAST ROAD,ถนนฝั่งตะวันออก
 sign_west,WEST RIDGE,สันเขาฝั่งตะวันตก
 sign_north,NORTH FIELD TRACK,ทางทุ่งนาฝั่งเหนือ
 sign_hill,HIGH HILL - SAFE ZONE,เนินสูง - จุดปลอดภัย
+splash_tagline,A storm. A broken radio. One message that must get through.,พายุถล่ม วิทยุขาดหาย ข้อความเดียวที่ต้องส่งให้ถึง
+splash_press,Press any key,กดปุ่มใดก็ได้
+menu_play,PLAY,เล่น
+menu_tutorial,TUTORIAL,ฝึกเล่น
+menu_opening,OPENING,ฉากเปิดเรื่อง
+menu_settings,SETTINGS,ตั้งค่า
+menu_credits,CREDITS,เครดิต
+menu_quit,QUIT,ออกจากเกม
+menu_back,BACK,กลับ
+menu_footer,Say It Again / All for One University / We R in Trouble Game,Say It Again / All for One University / We R in Trouble Game
+levels_title,CHOOSE LEVEL,เลือกด่าน
+settings_title,SETTINGS,ตั้งค่า
+set_master,Master volume,เสียงรวม
+set_voice,Radio voice volume,เสียงวิทยุ
+set_sfx,Effects volume,เสียงเอฟเฟกต์
+set_ptt,Push-to-talk (V),กดค้างเพื่อพูด (V)
+set_vad,Open-mic sensitivity,ความไวไมค์ (เมื่อไม่ใช้กดพูด)
+set_mic,Microphone,ไมโครโฟน
+set_mic_default,System default,ค่าเริ่มต้นของระบบ
+set_mic_test,TEST,ทดสอบ
+set_language,Language,ภาษา
+set_sens,Mouse sensitivity,ความไวเมาส์
+set_fov,Field of view,มุมมองกล้อง (FOV)
+set_headbob,Head bob,กล้องโยกตอนเดิน
+set_reducemotion,Reduce motion,ลดการเคลื่อนไหว
+set_quality,Quality (rain / fog),คุณภาพ (ฝน / หมอก)
+set_on,ON,เปิด
+set_off,OFF,ปิด
+quality_0,Low,ต่ำ
+quality_1,Medium,กลาง
+quality_2,High,สูง
+pause_title,PAUSED,หยุดเกม
+pause_resume,RESUME,เล่นต่อ
+pause_leave,LEAVE MATCH,ออกจากเกม
+pause_note,The storm does not wait: the clock and the other players keep going.,พายุไม่รอใคร: นาฬิกาและผู้เล่นคนอื่นยังเดินต่อ
+cut_1,A storm is flooding the valley.,พายุกำลังทำให้น้ำท่วมทั้งหุบเขา
+cut_2,The water is rising over the low ground.,น้ำเริ่มท่วมที่ต่ำ
+cut_3,HQ has the safe route. Only the rescue van can hear HQ.,HQ รู้เส้นทางปลอดภัย มีแค่รถกู้ภัยที่ได้ยิน HQ
+cut_4,The aid tent must pass it on.,เต็นท์ช่วยเหลือต้องส่งต่อ
+cut_5,Get the village to the high hill. Pass it on. Say it again.,พาชาวบ้านไปเนินสูง ส่งต่อให้ถึง พูดอีกที
+cut_skip,Space: skip,Space: ข้าม
+tut_look,Move the mouse to look around.,ขยับเมาส์เพื่อมองรอบ ๆ
+tut_binoculars,Hold right mouse button: binoculars. Find a landmark sign.,กดคลิกขวาค้าง: กล้องส่องทางไกล หาป้ายจุดสังเกต
+tut_card,Press Tab: your order card.,กด Tab: การ์ดคำสั่ง
+tut_quickchat,"In the card, send a quick-chat: ""Say it again?""",ในการ์ด ลองส่งข้อความด่วน: พูดอีกทีได้ไหม?
+tut_ptt,Hold V to talk on the radio.,กด V ค้างเพื่อพูดผ่านวิทยุ
+tut_van,Radio the order to the Aid Tent. A bot? Press SEND TO TENT.,วิทยุบอกคำสั่งให้เต็นท์ ถ้าเป็นบอท กด ส่งให้เต็นท์
+tut_tent,Fill in what you heard and press PASS TO VILLAGE.,กรอกสิ่งที่ได้ยิน แล้วกด ส่งต่อหมู่บ้าน
+tut_village,Walk to the villagers and press E: they follow you.,เดินไปหาชาวบ้านแล้วกด E: พวกเขาจะตามคุณมา
+tut_counter,Step {0}/{1} / H: skip tips,ขั้นที่ {0}/{1} / H: ข้ามคำแนะนำ

@@ -85,6 +85,7 @@ namespace SayItAgain.EditorTools
 
             var l1 = LoadOrCreate<LevelData>($"{DataDir}/Level_1.asset");
             Set(l1, 1, "level1_name", "level1_lesson", true, w1, orders, rumors: false, fakeHq: false, askHq: 0);
+            l1.introCutscene = true;
             var l2 = LoadOrCreate<LevelData>($"{DataDir}/Level_2.asset");
             Set(l2, 2, "level2_name", "level2_lesson", true, w2, orders, rumors: true, fakeHq: true, askHq: 2);
             var l3 = LoadOrCreate<LevelData>($"{DataDir}/Level_3.asset");
@@ -152,6 +153,7 @@ namespace SayItAgain.EditorTools
             var cam = camGo.GetComponent<Camera>();
             cam.nearClipPlane = 0.05f;
             cam.farClipPlane = 1200f;
+            UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = true;
 
             var fpc = root.AddComponent<FirstPersonController>();
             fpc.viewCamera = cam;
@@ -224,7 +226,9 @@ namespace SayItAgain.EditorTools
             nmGo.AddComponent<VoiceService>().defaultWeather = AssetDatabase.LoadAssetAtPath<WeatherConfig>($"{DataDir}/Weather_Level1.asset");
             nmGo.AddComponent<RadioHud>();
 
-            new GameObject("LobbyUI").AddComponent<LobbyUI>();
+            var ui = new GameObject("FrontEnd");
+            var lobby = ui.AddComponent<LobbyUI>();
+            ui.AddComponent<MenuUI>().lobby = lobby;
 
             EditorSceneManager.SaveScene(scene, LobbyScene);
         }
@@ -267,10 +271,8 @@ namespace SayItAgain.EditorTools
             director.villagerPrefab = villagerPrefab;
             director.shouters = shouters;
 
-            RenderSettings.fog = true;
-            RenderSettings.fogMode = FogMode.ExponentialSquared;
-            RenderSettings.fogDensity = 0.006f;
-            RenderSettings.fogColor = new Color(0.42f, 0.47f, 0.52f);
+            BuildStorm(sun);
+            BuildCutscene();
 
             EditorSceneManager.SaveScene(scene, GameplayScene);
         }
@@ -403,6 +405,98 @@ namespace SayItAgain.EditorTools
             Prim(PrimitiveType.Cylinder, "Leg", tower, new Vector3(0, 6, 0), new Vector3(0.8f, 6, 0.8f), concrete);
             Prim(PrimitiveType.Cylinder, "Tank", tower, new Vector3(0, 14, 0), new Vector3(6, 2.5f, 6), Mat("AlertRed", UiKit.Red));
             AddLandmark(tower.gameObject, "lm_tower", tower.position + Vector3.up * 14);
+        }
+
+        /// <summary>Dark sky, cold dim light, fog, storm grading, and the rain/lightning driver.</summary>
+        static void BuildStorm(Light sun)
+        {
+            var sky = AssetDatabase.LoadAssetAtPath<Material>($"{MaterialDir}/StormSky.mat");
+            if (sky == null)
+            {
+                sky = new Material(Shader.Find("Skybox/Procedural"));
+                AssetDatabase.CreateAsset(sky, $"{MaterialDir}/StormSky.mat");
+            }
+            sky.SetColor("_SkyTint", new Color(0.32f, 0.34f, 0.37f));
+            sky.SetColor("_GroundColor", new Color(0.12f, 0.13f, 0.14f));
+            sky.SetFloat("_Exposure", 0.45f);
+            sky.SetFloat("_AtmosphereThickness", 2.4f);
+            sky.SetFloat("_SunSize", 0f);
+            EditorUtility.SetDirty(sky);
+            RenderSettings.skybox = sky;
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.36f, 0.39f, 0.44f);
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.ExponentialSquared;
+            RenderSettings.fogDensity = 0.006f;
+            RenderSettings.fogColor = new Color(0.36f, 0.4f, 0.45f);
+            sun.transform.rotation = Quaternion.Euler(38f, -30f, 0f);
+
+            var rain = AssetDatabase.LoadAssetAtPath<Material>($"{MaterialDir}/Rain.mat");
+            if (rain == null)
+            {
+                rain = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
+                AssetDatabase.CreateAsset(rain, $"{MaterialDir}/Rain.mat");
+            }
+            // Transparent alpha blend for thin streaks.
+            rain.SetFloat("_Surface", 1f);
+            rain.SetFloat("_Blend", 0f);
+            rain.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            rain.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            rain.SetFloat("_ZWrite", 0f);
+            rain.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            rain.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            rain.SetColor("_BaseColor", new Color(0.8f, 0.85f, 0.9f, 0.5f));
+            EditorUtility.SetDirty(rain);
+
+            var storm = new GameObject("Storm").AddComponent<StormWeather>();
+            storm.sun = sun;
+            storm.rainMaterial = rain;
+
+            const string profilePath = DataDir + "/StormVolume.asset";
+            AssetDatabase.DeleteAsset(profilePath);
+            var profile = ScriptableObject.CreateInstance<UnityEngine.Rendering.VolumeProfile>();
+            AssetDatabase.CreateAsset(profile, profilePath);
+            var color = profile.Add<UnityEngine.Rendering.Universal.ColorAdjustments>(true);
+            color.saturation.Override(-35f);
+            color.postExposure.Override(-0.2f);
+            color.colorFilter.Override(new Color(0.86f, 0.92f, 1f));
+            var vignette = profile.Add<UnityEngine.Rendering.Universal.Vignette>(true);
+            vignette.intensity.Override(0.28f);
+            foreach (var c in profile.components) AssetDatabase.AddObjectToAsset(c, profile);
+            EditorUtility.SetDirty(profile);
+            var volume = new GameObject("StormVolume").AddComponent<UnityEngine.Rendering.Volume>();
+            volume.isGlobal = true;
+            volume.sharedProfile = profile;
+        }
+
+        /// <summary>Five Cinemachine shots for the opening, about 4 s each.</summary>
+        static void BuildCutscene()
+        {
+            var root = new GameObject("OpeningCutscene");
+            var shots = new[]
+            {
+                Shot(root.transform, "Shot1_Village", new Vector3(55, 30, -115), new Vector3(130, 0, -20), new Vector3(20, 0, 10), "cut_1", 1f),
+                Shot(root.transform, "Shot2_Water", new Vector3(110, 3, 26), new Vector3(150, 0, 70), new Vector3(0, 0, 8), "cut_2", -1f),
+                Shot(root.transform, "Shot3_Van", new Vector3(-143, 2.6f, -51), new Vector3(-150, 1.6f, -42), new Vector3(-3, 0, 2), "cut_3", 1.6f),
+                Shot(root.transform, "Shot4_Tent", new Vector3(7, 3, 151), new Vector3(0, 1.6f, 160), new Vector3(-4, 0, 2), "cut_4", -1f),
+                Shot(root.transform, "Shot5_Hill", new Vector3(150, 18, 92), new Vector3(200, 8, 150), new Vector3(0, 4, 8), "cut_5", -1f),
+            };
+            root.AddComponent<CutscenePlayer>().shots = shots;
+        }
+
+        static CutsceneShot Shot(Transform parent, string name, Vector3 pos, Vector3 lookAt, Vector3 drift, string caption, float strikeAt)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            go.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(lookAt - pos));
+            var vcam = go.AddComponent<Unity.Cinemachine.CinemachineCamera>();
+            vcam.Priority = 0;
+            vcam.Lens.FieldOfView = 55f;
+            var shot = go.AddComponent<CutsceneShot>();
+            shot.captionKey = caption;
+            shot.drift = drift;
+            shot.strikeAt = strikeAt;
+            return shot;
         }
 
         static void RegisterScenes()

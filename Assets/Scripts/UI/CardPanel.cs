@@ -23,6 +23,8 @@ namespace SayItAgain.UI
         PlayerRole role;
 
         public bool IsOpen => root != null && root.activeSelf;
+        /// <summary>Counters the tutorial watches.</summary>
+        public static int QuickChatsSent, CardsSent;
 
         void Awake()
         {
@@ -63,7 +65,7 @@ namespace SayItAgain.UI
                 float x0 = 0.04f + (i % 3) * 0.31f;
                 float y0 = i < 3 ? 0.11f : 0.02f;
                 UiKit.Button(UiKit.Rect("QC" + i, t, new Vector2(x0, y0), new Vector2(x0 + 0.29f, y0 + 0.08f), Vector2.zero, Vector2.zero),
-                    RadioFeedText.PhraseKey(p), () => MatchManager.Instance?.QuickChatRpc(p, card), 24);
+                    RadioFeedText.PhraseKey(p), () => { QuickChatsSent++; MatchManager.Instance?.QuickChatRpc(p, card); }, 24);
             }
 
             root.SetActive(false);
@@ -96,7 +98,7 @@ namespace SayItAgain.UI
         void Update()
         {
             var match = MatchManager.Instance;
-            if (match == null || role == PlayerRole.None) return;
+            if (match == null || role == PlayerRole.None || PauseMenu.IsOpen) return;
             bool toggle = toggleCard.WasPressedThisFrame() || toggleChat.WasPressedThisFrame();
             if (toggle && !match.IsOver) SetOpen(!IsOpen);
             if (match.IsOver && IsOpen) SetOpen(false);
@@ -146,6 +148,7 @@ namespace SayItAgain.UI
 
         void Send()
         {
+            CardsSent++;
             card.submitted = true;
             MatchManager.Instance.SetCardRpc(card, true);
         }

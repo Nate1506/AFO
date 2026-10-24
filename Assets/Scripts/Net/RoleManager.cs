@@ -32,6 +32,10 @@ namespace SayItAgain.Net
 
             if (IsServer)
             {
+                levelIndex.Value = SessionService.PendingLevel;
+                var preferred = Variable(SessionService.PreferredHostRole);
+                if (preferred != null) preferred.Value = NetworkManager.LocalClientId;
+                SessionService.PreferredHostRole = PlayerRole.None;
                 NetworkManager.OnClientConnectedCallback += AssignFirstFree;
                 NetworkManager.OnClientDisconnectCallback += Release;
                 foreach (var id in NetworkManager.ConnectedClientsIds) AssignFirstFree(id);

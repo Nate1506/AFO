@@ -56,6 +56,7 @@ namespace SayItAgain.Voice
             session.RoomEntered += OnRoomEntered;
             session.RoomExited += OnRoomExited;
             RoleManager.RolesChanged += ApplyRouting;
+            GameSettings.Changed += ApplyDeviceSettings;
         }
 
         void OnDestroy()
@@ -69,13 +70,37 @@ namespace SayItAgain.Voice
                 SessionService.Instance.RoomExited -= OnRoomExited;
             }
             RoleManager.RolesChanged -= ApplyRouting;
+            GameSettings.Changed -= ApplyDeviceSettings;
             UnhookVivox();
         }
 
         void Update()
         {
-            bool want = State == VoiceState.Ready && ptt.IsPressed() && !TextInputFocused();
+            bool held = GameSettings.PushToTalk ? ptt.IsPressed() && !TextInputFocused() : true;
+            bool want = State == VoiceState.Ready && held;
             if (want != IsTransmitting) SetTransmitting(want);
+            foreach (var t in taps.Values)
+                if (t != null) t.GetComponent<AudioSource>().volume = GameSettings.VoiceVolume;
+        }
+
+        /// <summary>Re-apply mic choice and open-mic sensitivity (called when settings change).</summary>
+        async void ApplyDeviceSettings()
+        {
+            if (!vivoxReady || !VivoxService.Instance.IsLoggedIn) return;
+            try
+            {
+                var vivox = VivoxService.Instance;
+                string wanted = GameSettings.MicDevice;
+                if (!string.IsNullOrEmpty(wanted))
+                    foreach (var d in vivox.AvailableInputDevices)
+                        if (d.DeviceName.Contains(wanted)) { await vivox.SetActiveInputDeviceAsync(d); break; }
+                int sensitivity = Mathf.RoundToInt(GameSettings.VoiceThreshold * 100f);
+                await vivox.SetVoiceActivityDetectionPropertiesAsync(sensitivity: sensitivity);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Voice] Device settings failed: {e.Message}");
+            }
         }
 
         public bool IsSpeaking(PlayerRole role) => speaking.TryGetValue(role, out var s) && s;
@@ -143,6 +168,7 @@ namespace SayItAgain.Voice
             if (name != channelName) return;
             SetState(VoiceState.Ready);
             ApplyRouting();
+            ApplyDeviceSettings();
         }
 
         void OnLoggedOut()

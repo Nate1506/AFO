@@ -19,6 +19,11 @@ namespace SayItAgain.Net
 
         public static SessionService Instance { get; private set; }
 
+        /// <summary>Level picked on the level select screen; applied when this player hosts.</summary>
+        public static int PendingLevel;
+        /// <summary>Role the host takes first (the tutorial puts the host in the village).</summary>
+        public static PlayerRole PreferredHostRole = PlayerRole.None;
+
         [Tooltip("Spawned by the host once the network starts. Must be in the NetworkManager prefab list.")]
         public NetworkObject roleManagerPrefab;
 

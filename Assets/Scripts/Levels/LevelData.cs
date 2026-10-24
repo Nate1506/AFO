@@ -11,6 +11,8 @@ namespace SayItAgain
         public string lessonKey = "level1_lesson";
         public bool playable = true;
         public string gameplayScene = "Gameplay_Test";
+        [Tooltip("Play the opening storm cutscene before this level (once per session).")]
+        public bool introCutscene;
 
         public WeatherConfig weather;
         public OrderData orders;

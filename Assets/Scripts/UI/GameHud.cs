@@ -14,29 +14,32 @@ namespace SayItAgain.UI
         TextMeshProUGUI clock, objective, feed, hint, briefingTitle, briefingBody;
         GameObject briefing, clockPlate;
         readonly Queue<string> lines = new Queue<string>();
+        Canvas canvas;
 
         void Start()
         {
-            var canvas = UiKit.CreateCanvas("GameHud", 5).transform;
-            canvas.SetParent(transform, false);
+            var c = UiKit.CreateCanvas("GameHud", 5);
+            canvas = c;
+            var canvasT = c.transform;
+            canvasT.SetParent(transform, false);
 
-            clockPlate = UiKit.Rect("ClockPlate", canvas, new Vector2(0.42f, 0.9f), new Vector2(0.58f, 0.98f), Vector2.zero, Vector2.zero).gameObject;
+            clockPlate = UiKit.Rect("ClockPlate", canvasT, new Vector2(0.42f, 0.9f), new Vector2(0.58f, 0.98f), Vector2.zero, Vector2.zero).gameObject;
             clockPlate.AddComponent<Image>().color = UiKit.Navy;
             clockPlate.transform.localRotation = Quaternion.Euler(0, 0, -2f);
             clock = UiKit.Label(clockPlate.transform, null, 56, UiKit.Yellow, TextAlignmentOptions.Center);
             clock.fontStyle = FontStyles.Bold;
 
-            objective = UiKit.Label(UiKit.Rect("Objective", canvas, new Vector2(0.015f, 0.9f), new Vector2(0.4f, 0.98f), Vector2.zero, Vector2.zero), null, 26, UiKit.White, TextAlignmentOptions.TopLeft);
+            objective = UiKit.Label(UiKit.Rect("Objective", canvasT, new Vector2(0.015f, 0.9f), new Vector2(0.4f, 0.98f), Vector2.zero, Vector2.zero), null, 26, UiKit.White, TextAlignmentOptions.TopLeft);
             objective.fontStyle = FontStyles.Bold;
-            hint = UiKit.Label(UiKit.Rect("Hint", canvas, new Vector2(0.3f, 0.25f), new Vector2(0.7f, 0.32f), Vector2.zero, Vector2.zero), null, 32, UiKit.Yellow, TextAlignmentOptions.Center);
+            hint = UiKit.Label(UiKit.Rect("Hint", canvasT, new Vector2(0.3f, 0.25f), new Vector2(0.7f, 0.32f), Vector2.zero, Vector2.zero), null, 32, UiKit.Yellow, TextAlignmentOptions.Center);
             hint.fontStyle = FontStyles.Bold;
 
-            var feedRt = UiKit.Rect("Feed", canvas, new Vector2(0.62f, 0.45f), new Vector2(0.985f, 0.88f), Vector2.zero, Vector2.zero);
+            var feedRt = UiKit.Rect("Feed", canvasT, new Vector2(0.62f, 0.45f), new Vector2(0.985f, 0.88f), Vector2.zero, Vector2.zero);
             feedRt.gameObject.AddComponent<Image>().color = new Color(UiKit.Navy.r, UiKit.Navy.g, UiKit.Navy.b, 0.7f);
             feed = UiKit.Label(UiKit.Rect("Text", feedRt, Vector2.zero, Vector2.one, new Vector2(16, 12), new Vector2(-16, -12)), null, 24, UiKit.White, TextAlignmentOptions.BottomLeft);
             feed.richText = true;
 
-            briefing = UiKit.Rect("Briefing", canvas, new Vector2(0.15f, 0.55f), new Vector2(0.85f, 0.8f), Vector2.zero, Vector2.zero).gameObject;
+            briefing = UiKit.Rect("Briefing", canvasT, new Vector2(0.15f, 0.55f), new Vector2(0.85f, 0.8f), Vector2.zero, Vector2.zero).gameObject;
             briefing.AddComponent<Image>().color = UiKit.Yellow;
             briefing.transform.localRotation = Quaternion.Euler(0, 0, 3f);
             briefingTitle = UiKit.Label(UiKit.Rect("Title", briefing.transform, new Vector2(0.03f, 0.55f), new Vector2(0.97f, 0.95f), Vector2.zero, Vector2.zero), null, 64, UiKit.Navy, TextAlignmentOptions.Center);
@@ -57,6 +60,7 @@ namespace SayItAgain.UI
 
         void Update()
         {
+            if (canvas != null) canvas.enabled = !CutscenePlayer.Playing;
             var match = MatchManager.Instance;
             if (match == null || match.Level == null) return;
             var role = GameplayBootstrap.LocalRole;
