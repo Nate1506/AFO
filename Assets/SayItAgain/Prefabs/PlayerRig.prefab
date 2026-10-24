@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.FirstPersonHands
   sleeve: {r: 1, g: 0.5, b: 0.1, a: 1}
-  skin: {r: 0.78, g: 0.58, b: 0.44, a: 1}
+  glove: {r: 0.16, g: 0.17, b: 0.19, a: 1}
 --- !u!1 &6915568673263203964
 GameObject:
   m_ObjectHideFlags: 0

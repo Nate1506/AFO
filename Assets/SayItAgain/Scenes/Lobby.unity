@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &56477264
+--- !u!1 &21414089
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,153 +127,50 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 56477271}
-  - component: {fileID: 56477270}
-  - component: {fileID: 56477269}
-  - component: {fileID: 56477268}
-  - component: {fileID: 56477267}
-  - component: {fileID: 56477266}
-  - component: {fileID: 56477265}
+  - component: {fileID: 21414092}
+  - component: {fileID: 21414091}
+  - component: {fileID: 21414090}
   m_Layer: 0
-  m_Name: NetworkManager
+  m_Name: FrontEnd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &56477265
+--- !u!114 &21414090
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56477264}
+  m_GameObject: {fileID: 21414089}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1726cc294bf51af4691f9b03f9d4ef82, type: 3}
+  m_Script: {fileID: 11500000, guid: 433e7653b7d10dc4aae94e675f852c22, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.UI.RadioHud
---- !u!114 &56477266
+  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.UI.MenuUI
+  lobby: {fileID: 21414091}
+  gameplayScene: Gameplay_Kao
+--- !u!114 &21414091
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56477264}
+  m_GameObject: {fileID: 21414089}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a5cc65d27ecf034db5f55fc0d4a4869, type: 3}
+  m_Script: {fileID: 11500000, guid: d3a9ceec44ea6734e991eeb64f1bbc19, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.Voice.VoiceService
-  defaultWeather: {fileID: 11400000, guid: 2e5191ae314a65b46a203d8c9dbed310, type: 2}
-  pttOnClip: {fileID: 8300000, guid: ae6b8c78b775ff8469b95b2b984ff9a2, type: 3}
-  pttOffClip: {fileID: 8300000, guid: 969e83e792d13f54489ef7232a2a7fae, type: 3}
-  glitchClip: {fileID: 8300000, guid: 67261315e596c5445b51efae1e8a6ae1, type: 3}
---- !u!114 &56477267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56477264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79c55654a75ae8143820999dec5e3a57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.Net.SessionService
-  roleManagerPrefab: {fileID: 7800665232322700308, guid: 758c0e6920d1d6d4f9f4c1b62f3df5be, type: 3}
---- !u!114 &56477268
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56477264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkManager
-  NetworkManagerExpanded: 0
-  NetworkConfig:
-    ProtocolVersion: 0
-    NetworkTransport: {fileID: 56477269}
-    PlayerPrefab: {fileID: 0}
-    Prefabs:
-      NetworkPrefabsLists:
-      - {fileID: 11400000, guid: b98891a8af459074cb357ae83d6f178c, type: 2}
-    TickRate: 30
-    ClientConnectionBufferTimeout: 10
-    ConnectionApproval: 0
-    ConnectionData: 
-    EnableTimeResync: 0
-    TimeResyncInterval: 30
-    EnsureNetworkVariableLengthSafety: 0
-    EnableSceneManagement: 1
-    ForceSamePrefabs: 1
-    RecycleNetworkIds: 1
-    NetworkIdRecycleDelay: 120
-    RpcHashSize: 0
-    LoadSceneTimeOut: 120
-    SpawnTimeout: 10
-    EnableNetworkLogs: 1
-    NetworkTopology: 0
-    UseCMBService: 0
-    AutoSpawnPlayerPrefabClientSide: 1
-    NetworkProfilingMetrics: 1
-    OldPrefabList: []
-  RunInBackground: 1
-  LogLevel: 1
---- !u!114 &56477269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56477264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Transports.UTP.UnityTransport
-  m_ProtocolType: 0
-  m_UseWebSockets: 0
-  m_UseEncryption: 0
-  m_MaxPacketQueueSize: 128
-  m_MaxPayloadSize: 6144
-  m_HeartbeatTimeoutMS: 500
-  m_ConnectTimeoutMS: 1000
-  m_MaxConnectAttempts: 60
-  m_DisconnectTimeoutMS: 30000
-  ConnectionData:
-    Address: 127.0.0.1
-    Port: 7777
-    WebSocketPath: /
-    ServerListenAddress: 
-    ClientBindPort: 0
-  DebugSimulator:
-    PacketDelayMS: 0
-    PacketJitterMS: 0
-    PacketDropRate: 0
---- !u!114 &56477270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56477264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c05e9da2169e97a4fbd200bf766e3a40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.Net.SingletonGuard
---- !u!4 &56477271
+  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.UI.LobbyUI
+  gameplayScene: Gameplay_Kao
+--- !u!4 &21414092
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56477264}
+  m_GameObject: {fileID: 21414089}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -282,7 +179,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &989464740
+--- !u!1 &341733569
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -290,9 +187,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 989464743}
-  - component: {fileID: 989464742}
-  - component: {fileID: 989464741}
+  - component: {fileID: 341733572}
+  - component: {fileID: 341733571}
+  - component: {fileID: 341733570}
   m_Layer: 0
   m_Name: LobbyCamera
   m_TagString: Untagged
@@ -300,21 +197,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &989464741
+--- !u!81 &341733570
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 989464740}
+  m_GameObject: {fileID: 341733569}
   m_Enabled: 1
---- !u!20 &989464742
+--- !u!20 &341733571
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 989464740}
+  m_GameObject: {fileID: 341733569}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
@@ -359,13 +256,13 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!4 &989464743
+--- !u!4 &341733572
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 989464740}
+  m_GameObject: {fileID: 341733569}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -374,7 +271,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2059875111
+--- !u!1 &1847183823
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -382,50 +279,153 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2059875114}
-  - component: {fileID: 2059875113}
-  - component: {fileID: 2059875112}
+  - component: {fileID: 1847183830}
+  - component: {fileID: 1847183829}
+  - component: {fileID: 1847183828}
+  - component: {fileID: 1847183827}
+  - component: {fileID: 1847183826}
+  - component: {fileID: 1847183825}
+  - component: {fileID: 1847183824}
   m_Layer: 0
-  m_Name: FrontEnd
+  m_Name: NetworkManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2059875112
+--- !u!114 &1847183824
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2059875111}
+  m_GameObject: {fileID: 1847183823}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 433e7653b7d10dc4aae94e675f852c22, type: 3}
+  m_Script: {fileID: 11500000, guid: 1726cc294bf51af4691f9b03f9d4ef82, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.UI.MenuUI
-  lobby: {fileID: 2059875113}
-  gameplayScene: Gameplay_Test
---- !u!114 &2059875113
+  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.UI.RadioHud
+--- !u!114 &1847183825
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2059875111}
+  m_GameObject: {fileID: 1847183823}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3a9ceec44ea6734e991eeb64f1bbc19, type: 3}
+  m_Script: {fileID: 11500000, guid: 6a5cc65d27ecf034db5f55fc0d4a4869, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.UI.LobbyUI
-  gameplayScene: Gameplay_Test
---- !u!4 &2059875114
+  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.Voice.VoiceService
+  defaultWeather: {fileID: 11400000, guid: 2e5191ae314a65b46a203d8c9dbed310, type: 2}
+  pttOnClip: {fileID: 8300000, guid: ae6b8c78b775ff8469b95b2b984ff9a2, type: 3}
+  pttOffClip: {fileID: 8300000, guid: 969e83e792d13f54489ef7232a2a7fae, type: 3}
+  glitchClip: {fileID: 8300000, guid: 67261315e596c5445b51efae1e8a6ae1, type: 3}
+--- !u!114 &1847183826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847183823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c55654a75ae8143820999dec5e3a57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.Net.SessionService
+  roleManagerPrefab: {fileID: 7800665232322700308, guid: 758c0e6920d1d6d4f9f4c1b62f3df5be, type: 3}
+--- !u!114 &1847183827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847183823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkManager
+  NetworkManagerExpanded: 0
+  NetworkConfig:
+    ProtocolVersion: 0
+    NetworkTransport: {fileID: 1847183828}
+    PlayerPrefab: {fileID: 0}
+    Prefabs:
+      NetworkPrefabsLists:
+      - {fileID: 11400000, guid: b98891a8af459074cb357ae83d6f178c, type: 2}
+    TickRate: 30
+    ClientConnectionBufferTimeout: 10
+    ConnectionApproval: 0
+    ConnectionData: 
+    EnableTimeResync: 0
+    TimeResyncInterval: 30
+    EnsureNetworkVariableLengthSafety: 0
+    EnableSceneManagement: 1
+    ForceSamePrefabs: 1
+    RecycleNetworkIds: 1
+    NetworkIdRecycleDelay: 120
+    RpcHashSize: 0
+    LoadSceneTimeOut: 120
+    SpawnTimeout: 10
+    EnableNetworkLogs: 1
+    NetworkTopology: 0
+    UseCMBService: 0
+    AutoSpawnPlayerPrefabClientSide: 1
+    NetworkProfilingMetrics: 1
+    OldPrefabList: []
+  RunInBackground: 1
+  LogLevel: 1
+--- !u!114 &1847183828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847183823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Transports.UTP.UnityTransport
+  m_ProtocolType: 0
+  m_UseWebSockets: 0
+  m_UseEncryption: 0
+  m_MaxPacketQueueSize: 128
+  m_MaxPayloadSize: 6144
+  m_HeartbeatTimeoutMS: 500
+  m_ConnectTimeoutMS: 1000
+  m_MaxConnectAttempts: 60
+  m_DisconnectTimeoutMS: 30000
+  ConnectionData:
+    Address: 127.0.0.1
+    Port: 7777
+    WebSocketPath: /
+    ServerListenAddress: 
+    ClientBindPort: 0
+  DebugSimulator:
+    PacketDelayMS: 0
+    PacketJitterMS: 0
+    PacketDropRate: 0
+--- !u!114 &1847183829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847183823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c05e9da2169e97a4fbd200bf766e3a40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SayItAgain.Net.SingletonGuard
+--- !u!4 &1847183830
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2059875111}
+  m_GameObject: {fileID: 1847183823}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -438,6 +438,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 989464743}
-  - {fileID: 56477271}
-  - {fileID: 2059875114}
+  - {fileID: 341733572}
+  - {fileID: 1847183830}
+  - {fileID: 21414092}
