@@ -106,8 +106,9 @@ namespace SayItAgain.UI
 
         void Apply()
         {
-            slash.localScale = new Vector3(Mathf.Max(0f, focus), 1f, 1f);
-            echo.localScale = new Vector3(Mathf.Max(0f, lag), 1f, 1f);
+            // Below a sliver the bars are hidden, so a settling spring leaves no stray line behind.
+            slash.localScale = new Vector3(focus < 0.03f ? 0f : focus, 1f, 1f);
+            echo.localScale = new Vector3(lag < 0.03f ? 0f : lag, 1f, 1f);
             float grow = 1f + 0.22f * focus;
             word.localScale = new Vector3(grow, grow, 1f);
             word.anchoredPosition = new Vector2(28f * focus, 0f);
