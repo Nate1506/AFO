@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SayItAgain.Net;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace SayItAgain
 {
@@ -44,16 +45,26 @@ namespace SayItAgain
             var cc = GetComponent<CharacterController>();
             for (int i = 0; i < points.Count; i++)
             {
-                float stuck = 0f;
-                while (true)
+                // Walk the NavMesh path to the next waypoint, so props and cliffs do not stop the test.
+                var corners = new List<Vector3> { points[i] };
+                var path = new NavMeshPath();
+                if (NavMesh.SamplePosition(transform.position, out var from, 3f, NavMesh.AllAreas)
+                    && NavMesh.SamplePosition(points[i], out var to, 6f, NavMesh.AllAreas)
+                    && NavMesh.CalculatePath(from.position, to.position, NavMesh.AllAreas, path))
+                    corners = new List<Vector3>(path.corners);
+                foreach (var corner in corners)
                 {
-                    var to = points[i] - transform.position;
-                    to.y = 0;
-                    if (to.magnitude < 1.5f || stuck > 25f) break;
-                    transform.rotation = Quaternion.LookRotation(to);
-                    cc.Move(to.normalized * speed * Time.deltaTime + Vector3.down * 4f * Time.deltaTime);
-                    stuck += Time.deltaTime;
-                    yield return null;
+                    float stuck = 0f;
+                    while (true)
+                    {
+                        var d = corner - transform.position;
+                        d.y = 0;
+                        if (d.magnitude < 1.2f || stuck > 25f) break;
+                        transform.rotation = Quaternion.LookRotation(d);
+                        cc.Move(d.normalized * speed * Time.deltaTime + Vector3.down * 4f * Time.deltaTime);
+                        stuck += Time.deltaTime;
+                        yield return null;
+                    }
                 }
                 if (i == 0)
                 {
