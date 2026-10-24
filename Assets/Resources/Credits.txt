@@ -9,6 +9,12 @@ Liberation Sans (TMP default) - Red Hat / Unity TextMesh Pro - SIL Open Font Lic
 Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Multiplayer Services (Relay), Vivox, Cinemachine, AI Navigation, Input System (Unity Technologies, Unity Companion License / Unity terms).
 <b>Characters and animation</b>
 Universal Animation Library (Standard) - Quaternius - CC0 1.0
+<b>Environment</b>
+Car Kit (ambulance, cones) - Kenney - CC0 1.0
+Survival Kit (tent canvas, boxes, barrel, bedrolls) - Kenney - CC0 1.0
+City Kit (Suburban) (houses) - Kenney - CC0 1.0
+Nature Kit (trees, bushes, rocks) - Kenney - CC0 1.0
+Forest Ground 01, Brown Mud Leaves 01, Grass Path 2 (Rob Tuytel); Rocky Terrain 02 (Amal Kumar) - Poly Haven - CC0 1.0
 <b>Sound effects (all real recordings, no AI audio)</b>
 Rain (loopable) - Ylmir - CC0 1.0
 Rain + Long Thunder - WuxiaScrub - CC0 1.0

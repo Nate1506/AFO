@@ -166,7 +166,7 @@ namespace SayItAgain.UI
             credits = Screen("Credits");
             Title(credits.transform, "menu_credits", new Vector2(-0.03f, 0.82f), new Vector2(0.4f, 0.96f), 72);
             var text = Resources.Load<TextAsset>("Credits");
-            var body = UiKit.Label(UiKit.Rect("Body", credits.transform, new Vector2(0.08f, 0.16f), new Vector2(0.92f, 0.76f), Vector2.zero, Vector2.zero), null, 24, UiKit.White, TextAlignmentOptions.TopLeft);
+            var body = UiKit.Label(UiKit.Rect("Body", credits.transform, new Vector2(0.08f, 0.14f), new Vector2(0.92f, 0.78f), Vector2.zero, Vector2.zero), null, 19, UiKit.White, TextAlignmentOptions.TopLeft);
             body.text = text != null ? text.text : string.Empty;
             UiKit.Button(UiKit.Rect("Back", credits.transform, new Vector2(0.05f, 0.05f), new Vector2(0.25f, 0.12f), Vector2.zero, Vector2.zero), "menu_back", () => Show(main), 32);
         }

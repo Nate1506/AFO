@@ -18,6 +18,15 @@ Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Mult
 |---|---|---|---|---|
 | Universal Animation Library (Standard) | Quaternius | https://quaternius.itch.io/universal-animation-library | CC0 1.0 | Villagers, shouting villagers, rescuers (Idle, Walk, Jog, Idle_Talking, Dance, Swim clips) |
 
+## Environment
+| Asset | Author | Source | License | Used in |
+|---|---|---|---|---|
+| Car Kit (ambulance, cones) | Kenney | https://kenney.nl/assets/car-kit | CC0 1.0 | Rescue van |
+| Survival Kit (tent canvas, boxes, barrel, bedrolls) | Kenney | https://kenney.nl/assets/survival-kit | CC0 1.0 | Aid tent, props |
+| City Kit (Suburban) (houses) | Kenney | https://kenney.nl/assets/city-kit-suburban | CC0 1.0 | Village houses |
+| Nature Kit (trees, bushes, rocks) | Kenney | https://kenney.nl/assets/nature-kit | CC0 1.0 | Valley vegetation, Big Rain Tree |
+| Forest Ground 01, Brown Mud Leaves 01, Grass Path 2 (Rob Tuytel); Rocky Terrain 02 (Amal Kumar) | Poly Haven | https://polyhaven.com/textures | CC0 1.0 | Terrain layers |
+
 ## Sound effects (all real recordings, no AI audio)
 | Asset | Author | Source | License | Used in |
 |---|---|---|---|---|
