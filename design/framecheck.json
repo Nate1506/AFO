@@ -1,0 +1,7 @@
+{
+  "csharpCode": "using UnityEngine;\npublic static class FrameCheck { public static string Run() { return \"frame=\" + Time.frameCount + \" unscaledTime=\" + Time.unscaledTime.ToString(\"F3\") + \" realtime=\" + Time.realtimeSinceStartup.ToString(\"F3\") + \" playMode=\" + UnityEditor.EditorApplication.isPlaying; } }",
+  "className": "FrameCheck",
+  "methodName": "Run",
+  "usings": [],
+  "include": []
+}

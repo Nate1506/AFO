@@ -1,0 +1,7 @@
+{
+  "csharpCode": "UnityEngine.Application.runInBackground = true; return \"runInBackground=\" + UnityEngine.Application.runInBackground;",
+  "className": "",
+  "methodName": "",
+  "usings": [],
+  "include": []
+}
