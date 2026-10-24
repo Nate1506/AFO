@@ -40,3 +40,87 @@ radio_link_end,Radio: Aid Tent only,วิทยุ: ถึงเต็นท์
 radio_connecting,Connecting voice...,กำลังเชื่อมเสียง...
 radio_failed,Voice unavailable. Use quick-chat (Q).,เสียงใช้ไม่ได้ ใช้ข้อความด่วน (Q)
 radio_solo,Solo: bots answer by text,โหมดเดี่ยว: บอทตอบเป็นข้อความ
+slot_route,Safe route,เส้นทางปลอดภัย
+slot_avoid,Do NOT cross,ห้ามข้าม
+slot_gather,Villagers wait at,ชาวบ้านรอที่
+slot_code,Code word,รหัสยืนยัน
+opt_route_east,East road,ถนนฝั่งตะวันออก
+opt_route_west,West ridge,สันเขาฝั่งตะวันตก
+opt_route_north,North field track,ทางทุ่งนาฝั่งเหนือ
+opt_avoid_bridge,River bridge,สะพานข้ามแม่น้ำ
+opt_avoid_school,School road ford,ทางข้ามหน้าโรงเรียน
+opt_avoid_market,Market lane ford,ทางข้ามซอยตลาด
+opt_gather_market,Market,ตลาด
+opt_gather_school,Old school,โรงเรียนเก่า
+opt_gather_mill,Rice mill,โรงสีข้าว
+code_tiger,TIGER,เสือ
+code_mango,MANGO,มะม่วง
+code_lotus,LOTUS,บัว
+code_kite,KITE,ว่าว
+order_sentence,"Route: {0} / Do not cross: {1} / Villagers at: {2} / Code: {3}","เส้นทาง: {0} / ห้ามข้าม: {1} / ชาวบ้านรอที่: {2} / รหัส: {3}"
+qc_sayagain,Say it again?,พูดอีกทีได้ไหม?
+qc_copy,Copy.,รับทราบ
+qc_readback,Read back my card,ทวนสิ่งที่ฉันเข้าใจ
+qc_readback_line,Reading back: {0},ทวนนะ: {0}
+qc_correct,Correct.,ถูกต้อง
+qc_wrong,Wrong. Listen again.,ไม่ถูก ฟังใหม่
+qc_wait,Wait...,รอสักครู่...
+feed_rumor,"""{0}""","""{0}"""
+feed_from_crowd,Villagers shouting,เสียงชาวบ้านตะโกน
+feed_hq_reply,Confirmed. {0}: {1},ยืนยัน {0}: {1}
+feed_fake_hq,Change of plan! Take {0}. Code: {1},เปลี่ยนแผน! ไปทาง{0} รหัส: {1}
+rumor_route_flooded,The {0} is flooded! Don't go that way!,{0}น้ำท่วมแล้ว! อย่าไปทางนั้น!
+rumor_route_dry,Take the {0}! It's still dry!,ไปทาง{0}สิ! ยังแห้งอยู่!
+rumor_gather,Everyone went to the {0}!,ทุกคนไปรวมกันที่{0}แล้ว!
+rumor_avoid_safe,The {0} is fine! You can cross!,{0}ยังข้ามได้! ไม่เป็นไรหรอก!
+panic_0,Help! The water is rising!,ช่วยด้วย! น้ำขึ้นแล้ว!
+panic_1,Where do we go?!,จะไปทางไหนดี?!
+panic_2,Hurry! Hurry!,เร็วเข้า! เร็วเข้า!
+level1_name,LEVEL 1: STATIC,ด่าน 1: สัญญาณขาดหาย
+level1_lesson,The radio drops words. Repeat and read back.,วิทยุขาดเป็นช่วง ๆ ให้ถามซ้ำและทวนกลับ
+level2_name,LEVEL 2: RUMOURS,ด่าน 2: ข่าวลือ
+level2_lesson,People shout rumours. Verify with the source.,ชาวบ้านตะโกนข่าวลือ ให้ตรวจสอบกับต้นทาง
+level3_name,LEVEL 3,ด่าน 3
+level4_name,LEVEL 4,ด่าน 4
+level_coming_soon,Coming soon,เร็ว ๆ นี้
+brief_you_are,You are: {0},คุณคือ: {0}
+obj_van,Read HQ's order (Tab) and radio it to the Aid Tent.,อ่านคำสั่ง HQ (Tab) แล้ววิทยุบอกเต็นท์
+obj_tent,Note what the Van says (Tab). Check it. Pass it to the Village.,จดสิ่งที่รถบอก (Tab) ตรวจให้ชัวร์ แล้วส่งต่อหมู่บ้าน
+obj_village,"Find the villagers, press E to lead them, reach the high hill.",หาชาวบ้าน กด E ให้ตามมา แล้วพาไปเนินสูง
+obj_none,Waiting...,รอสักครู่...
+hud_keys,V talk / Tab card / Q quick-chat / RMB binoculars,V พูด / Tab การ์ด / Q ข้อความด่วน / คลิกขวา กล้องส่องทางไกล
+hint_water,Deep water! Turn back!,น้ำลึก! ถอยกลับ!
+hint_called,"""Follow me!""","""ตามฉันมา!"""
+hint_following,{0} following / {1} safe,ตามมา {0} คน / ปลอดภัย {1} คน
+card_title_hq,HQ ORDER,คำสั่งจาก HQ
+card_title_understood,WHAT I UNDERSTOOD,สิ่งที่ฉันเข้าใจ
+card_prev,<,<
+card_next,>,>
+card_ask_hq,ASK HQ,ถาม HQ
+card_ask_left,Ask HQ to confirm one line: {0} left,ถาม HQ ยืนยันได้อีก {0} ครั้ง
+card_send_van,SEND TO TENT,ส่งให้เต็นท์
+card_send_tent,PASS TO VILLAGE,ส่งต่อหมู่บ้าน
+card_send_village,CONFIRM PLAN,ยืนยันแผน
+card_hint_bot,The next role is a bot: this card is what you tell it.,คนถัดไปเป็นบอท การ์ดนี้คือสิ่งที่คุณบอกมัน
+card_hint_voice,Say it by voice. The card records what you understood.,พูดผ่านวิทยุ การ์ดใช้บันทึกสิ่งที่คุณเข้าใจ
+card_hint_village,Lock in the plan you will follow.,ล็อกแผนที่คุณจะใช้
+result_won,VILLAGE SAVED,หมู่บ้านรอดแล้ว
+result_lost,STORM WON,พายุชนะ
+result_summary,Saved {0}/{1} / Lost {2} / Time {3}:{4:00},รอด {0}/{1} คน / สูญหาย {2} คน / เวลา {3}:{4:00}
+reveal_hq,HQ ORDER,คำสั่ง HQ
+reveal_broke,The message first changed on {0}: {1},ข้อความเพี้ยนครั้งแรกที่ {0}: {1}
+reveal_link_van_tent,Van → Tent,รถ → เต็นท์
+reveal_link_tent_village,Tent → Village,เต็นท์ → หมู่บ้าน
+reveal_clean,The message arrived intact.,ข้อความไปถึงครบถ้วน
+result_again,PLAY AGAIN,เล่นอีกครั้ง
+result_lobby,BACK TO LOBBY,กลับห้องรอ
+sign_market,MARKET,ตลาด
+sign_school,OLD SCHOOL,โรงเรียนเก่า
+sign_mill,RICE MILL,โรงสีข้าว
+sign_bridge,RIVER BRIDGE,สะพานข้ามแม่น้ำ
+sign_school_ford,SCHOOL ROAD FORD,ทางข้ามหน้าโรงเรียน
+sign_market_ford,MARKET LANE FORD,ทางข้ามซอยตลาด
+sign_east,EAST ROAD,ถนนฝั่งตะวันออก
+sign_west,WEST RIDGE,สันเขาฝั่งตะวันตก
+sign_north,NORTH FIELD TRACK,ทางทุ่งนาฝั่งเหนือ
+sign_hill,HIGH HILL - SAFE ZONE,เนินสูง - จุดปลอดภัย

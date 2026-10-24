@@ -17,7 +17,8 @@ namespace SayItAgain.UI
         GameObject entryPanel, roomPanel;
         TMP_InputField codeInput;
         TextMeshProUGUI statusLabel, codeLabel, waitLabel;
-        Button startButton;
+        Button startButton, levelButton;
+        TextMeshProUGUI levelLabel;
         readonly TextMeshProUGUI[] occupantLabels = new TextMeshProUGUI[3];
         readonly Button[] takeButtons = new Button[3];
 
@@ -84,8 +85,10 @@ namespace SayItAgain.UI
 
             var header = Row(t, 0);
             UiKit.Label(UiKit.Rect("CodeCaption", header, new Vector2(0, 0.62f), Vector2.one, Vector2.zero, Vector2.zero), "lobby_room_code", 30, UiKit.Yellow);
-            codeLabel = UiKit.Label(UiKit.Rect("Code", header, Vector2.zero, new Vector2(1, 0.7f), Vector2.zero, Vector2.zero), null, 72, UiKit.White);
+            codeLabel = UiKit.Label(UiKit.Rect("Code", header, Vector2.zero, new Vector2(0.55f, 0.7f), Vector2.zero, Vector2.zero), null, 72, UiKit.White);
             codeLabel.fontStyle = FontStyles.Bold;
+            levelButton = UiKit.Button(UiKit.Rect("LevelBox", header, new Vector2(0.56f, 0.05f), new Vector2(1f, 0.62f), Vector2.zero, Vector2.zero), null, CycleLevel, 28);
+            levelLabel = levelButton.GetComponentInChildren<TextMeshProUGUI>();
 
             for (int i = 0; i < Roles.Length; i++)
             {
@@ -134,6 +137,21 @@ namespace SayItAgain.UI
             }
             startButton.gameObject.SetActive(nm.IsServer);
             waitLabel.gameObject.SetActive(!nm.IsServer);
+
+            var level = rm != null ? LevelCatalog.Instance.Get(rm.levelIndex.Value) : null;
+            levelLabel.text = level != null ? Loc.Get(level.nameKey) : string.Empty;
+            levelButton.interactable = nm.IsServer;
+        }
+
+        /// <summary>Host picks among playable levels. The level select screen will replace this.</summary>
+        void CycleLevel()
+        {
+            var rm = RoleManager.Instance;
+            var levels = LevelCatalog.Instance.levels;
+            if (rm == null || !NetworkManager.Singleton.IsServer || levels == null) return;
+            int i = rm.levelIndex.Value;
+            do i = (i + 1) % levels.Length; while (!levels[i].playable);
+            rm.levelIndex.Value = i;
         }
 
         void StartGame()

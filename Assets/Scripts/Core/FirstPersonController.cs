@@ -32,6 +32,8 @@ namespace SayItAgain
         /// <summary>Set by menus, cards and pause to stop look/move while the cursor is free.</summary>
         public bool InputBlocked { get; set; }
         public bool IsMoving { get; private set; }
+        /// <summary>Set by the world, e.g. wading through flood water.</summary>
+        public float speedMultiplier = 1f;
 
         CharacterController controller;
         InputAction move, look, run;
@@ -112,7 +114,7 @@ namespace SayItAgain
             }
 
             var input = Vector2.ClampMagnitude(move.ReadValue<Vector2>(), 1f);
-            float speed = run.IsPressed() ? runSpeed : walkSpeed;
+            float speed = (run.IsPressed() ? runSpeed : walkSpeed) * speedMultiplier;
             var velocity = (transform.right * input.x + transform.forward * input.y) * speed;
             verticalVelocity = controller.isGrounded ? -1f : verticalVelocity - gravity * Time.deltaTime;
             velocity.y = verticalVelocity;

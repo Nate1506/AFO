@@ -87,7 +87,7 @@ namespace SayItAgain.UI
         /// <summary>Angular button: slanted yellow highlight on hover/select, tilted label.</summary>
         public static Button Button(Transform parent, string locKey, UnityAction onClick, float fontSize = 40)
         {
-            var rt = Stretch("Button_" + locKey, parent);
+            var rt = Stretch("Button_" + (locKey ?? "dynamic"), parent);
             // White base so the button's tint colours show as-is.
             var bg = rt.gameObject.AddComponent<Image>();
             var button = rt.gameObject.AddComponent<Button>();

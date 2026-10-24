@@ -1,14 +1,18 @@
+using SayItAgain.UI;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace SayItAgain.Net
 {
     /// <summary>
-    /// Spawns the local first-person rig at the spawn point for this client's role.
+    /// Spawns the local first-person rig at the spawn point for this client's role, the HUD, and
+    /// (on the host) the round's MatchManager.
     /// Roles are far apart and never see each other, so rigs are local only (no network transform).
     /// </summary>
     public sealed class GameplayBootstrap : MonoBehaviour
     {
         public GameObject playerRigPrefab;
+        public NetworkObject matchManagerPrefab;
         [Tooltip("Used when the scene is played directly in the Editor without a room.")]
         public PlayerRole editorFallbackRole = PlayerRole.Village;
 
@@ -20,6 +24,14 @@ namespace SayItAgain.Net
             var rm = RoleManager.Instance;
             LocalRole = rm != null && rm.LocalRole != PlayerRole.None ? rm.LocalRole : editorFallbackRole;
             SpawnRig(LocalRole);
+
+            var nm = NetworkManager.Singleton;
+            if (nm != null && nm.IsServer) Instantiate(matchManagerPrefab).Spawn(destroyWithScene: true);
+
+            var hud = new GameObject("Hud");
+            hud.AddComponent<GameHud>();
+            hud.AddComponent<CardPanel>();
+            hud.AddComponent<ResultPanel>();
         }
 
         void SpawnRig(PlayerRole role)

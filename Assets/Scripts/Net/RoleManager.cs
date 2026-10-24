@@ -18,6 +18,8 @@ namespace SayItAgain.Net
         readonly NetworkVariable<ulong> vanOwner = new NetworkVariable<ulong>(NoOwner);
         readonly NetworkVariable<ulong> tentOwner = new NetworkVariable<ulong>(NoOwner);
         readonly NetworkVariable<ulong> villageOwner = new NetworkVariable<ulong>(NoOwner);
+        /// <summary>Level picked by the host in the lobby (index into LevelCatalog).</summary>
+        public readonly NetworkVariable<int> levelIndex = new NetworkVariable<int>();
 
         public override void OnNetworkSpawn()
         {
@@ -26,6 +28,7 @@ namespace SayItAgain.Net
             vanOwner.OnValueChanged += OnOwnerChanged;
             tentOwner.OnValueChanged += OnOwnerChanged;
             villageOwner.OnValueChanged += OnOwnerChanged;
+            levelIndex.OnValueChanged += (_, __) => RolesChanged?.Invoke();
 
             if (IsServer)
             {
