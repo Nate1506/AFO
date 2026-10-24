@@ -53,7 +53,8 @@ namespace SayItAgain.UI
             redBar.gameObject.AddComponent<Image>().color = UiKit.Red;
             redBar.localRotation = Quaternion.Euler(0, 0, 6f);
 
-            statusLabel = UiKit.Label(UiKit.Rect("Status", canvas, new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.13f), Vector2.zero, Vector2.zero),
+            // Sits above the radio HUD, which owns the bottom-left corner.
+            statusLabel = UiKit.Label(UiKit.Rect("Status", canvas, new Vector2(0.02f, 0.24f), new Vector2(0.5f, 0.32f), Vector2.zero, Vector2.zero),
                 null, 34, UiKit.White, TextAlignmentOptions.BottomLeft);
 
             BuildEntryPanel(canvas);

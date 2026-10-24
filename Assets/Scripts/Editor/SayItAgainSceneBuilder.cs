@@ -110,7 +110,8 @@ namespace SayItAgain.EditorTools
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            var camGo = new GameObject("LobbyCamera", typeof(Camera));
+            // The listener lets players hear radio voice while waiting in the lobby.
+            var camGo = new GameObject("LobbyCamera", typeof(Camera), typeof(AudioListener));
             var cam = camGo.GetComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = UiKit.Navy;
