@@ -118,7 +118,7 @@ namespace SayItAgain
 
             // The round ends when the player stands on the hill with nobody still on the way.
             bool atHill = SafeZone.Instance != null && SafeZone.Instance.Contains(player.position);
-            bool done = atHill && following == 0 && saved > 0;
+            bool done = atHill && following == 0;
             if (saved != reportedSaved || lost != reportedLost || (done && !finished))
             {
                 reportedSaved = saved;

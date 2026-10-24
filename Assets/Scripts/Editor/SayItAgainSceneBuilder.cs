@@ -429,7 +429,8 @@ namespace SayItAgain.EditorTools
         static void Sign(Transform parent, Vector3 localPos, string key)
         {
             var post = Prim(PrimitiveType.Cube, "SignPost", parent, localPos + new Vector3(0, 1.2f, 0), new Vector3(0.15f, 2.4f, 0.15f), Mat("Wood", new Color(0.45f, 0.32f, 0.2f)));
-            WorldLabel.Create(post.parent, localPos + new Vector3(0, 2.8f, 0), key, 4f, UiKit.Yellow);
+            Object.DestroyImmediate(post.GetComponent<Collider>());
+            WorldLabel.Create(post.parent, localPos + new Vector3(0, 2.8f, 0), key, 2.5f, UiKit.Yellow);
         }
 
         static WorldLabel Shouter(Transform parent, Vector3 localPos, Material mat)
