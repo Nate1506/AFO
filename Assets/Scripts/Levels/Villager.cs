@@ -13,7 +13,8 @@ namespace SayItAgain
         public float followDistance = 2.5f;
 
         NavMeshAgent agent;
-        Transform leader;
+        VillageDirector director;
+        float trailDistance;
         Vector3 offset;
         Animator animator;
 
@@ -44,18 +45,20 @@ namespace SayItAgain
             foreach (var rend in GetComponentsInChildren<Renderer>()) rend.SetPropertyBlock(block);
         }
 
-        public void Follow(Transform target)
+        public void Follow(VillageDirector director, int slot)
         {
             if (Current != State.Waiting) return;
-            leader = target;
+            this.director = director;
+            trailDistance = followDistance + slot * 1.3f;
             Current = State.Following;
         }
 
         void Update()
         {
-            if (Current == State.Following && leader != null && agent.isOnNavMesh)
+            if (Current == State.Following && director != null && agent.isOnNavMesh)
             {
-                var target = leader.position + offset - leader.forward * followDistance;
+                // Walk the leader's own footsteps, so villagers cross where the player crossed.
+                var target = director.TrailPoint(trailDistance) + offset * 0.4f;
                 if ((agent.destination - target).sqrMagnitude > 1f) agent.SetDestination(target);
             }
 

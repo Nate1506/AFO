@@ -70,6 +70,7 @@ namespace SayItAgain
             fpc.speedMultiplier = PlayerInWater ? 0.3f : 1f;
 
             if (match.IsOver) return;
+            RecordTrail(player.position);
             if (call.WasPressedThisFrame() && !fpc.InputBlocked) CallVillagersNear(player);
             CountAndReport(match, player);
             PanicChatter(match);
@@ -98,9 +99,36 @@ namespace SayItAgain
         public void CallVillagersNear(Transform player)
         {
             LastCallTime = Time.time;
+            if (trail.Count == 0) trail.Add(player.position);
             foreach (var v in villagers)
                 if (v.Current == Villager.State.Waiting && Vector3.Distance(v.transform.position, player.position) <= callRadius)
-                    v.Follow(player);
+                    v.Follow(this, followSlots++);
+        }
+
+        /// <summary>The player's recent path, newest last.</summary>
+        readonly List<Vector3> trail = new List<Vector3>();
+        int followSlots;
+
+        void RecordTrail(Vector3 p)
+        {
+            if (trail.Count == 0 || (trail[trail.Count - 1] - p).sqrMagnitude > 1f) trail.Add(p);
+            if (trail.Count > 400) trail.RemoveAt(0);
+        }
+
+        /// <summary>A point on the player's path, this many metres behind the player.</summary>
+        public Vector3 TrailPoint(float metresBehind)
+        {
+            if (trail.Count == 0) return GameplayBootstrap.LocalRig.transform.position;
+            var current = GameplayBootstrap.LocalRig.transform.position;
+            float left = metresBehind;
+            for (int i = trail.Count - 1; i >= 0; i--)
+            {
+                float step = Vector3.Distance(current, trail[i]);
+                if (step >= left) return Vector3.Lerp(current, trail[i], left / Mathf.Max(step, 0.001f));
+                left -= step;
+                current = trail[i];
+            }
+            return trail[0];
         }
 
         void CountAndReport(MatchManager match, Transform player)
