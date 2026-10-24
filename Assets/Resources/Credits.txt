@@ -1,12 +1,19 @@
 <b>Credits</b>
-
 <b>Team</b>
 Say It Again was made for the We R in Trouble Game contest (All for One University).
-
 <b>Fonts</b>
 Noto Sans Thai - The Noto Project Authors - SIL Open Font License 1.1
 Oswald - Vernon Adams and contributors - SIL Open Font License 1.1
 Liberation Sans (TMP default) - Red Hat / Unity TextMesh Pro - SIL Open Font License 1.1
-
 <b>Engine and services</b>
 Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Multiplayer Services (Relay), Vivox, Cinemachine, AI Navigation, Input System (Unity Technologies, Unity Companion License / Unity terms).
+<b>Characters and animation</b>
+Universal Animation Library (Standard) - Quaternius - CC0 1.0
+<b>Sound effects (all real recordings, no AI audio)</b>
+Rain (loopable) - Ylmir - CC0 1.0
+Rain + Long Thunder - WuxiaScrub - CC0 1.0
+Storm Siren - TinyWorlds - CC0 1.0
+Wind Whoosh Loop - SketchMan3 - CC0 1.0
+Frequency Static Sound Effects - bretbernhoft - CC0 1.0
+100 CC0 SFX #2 - rubberduck - CC0 1.0
+Interface Sounds - Kenney - CC0 1.0
