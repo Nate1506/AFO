@@ -34,7 +34,7 @@ namespace SayItAgain.UI
         {
             var canvas = UiKit.CreateCanvas("PauseMenu", 50).transform;
             canvas.SetParent(transform, false);
-            root = UiKit.Panel("Dim", canvas, new Color(UiKit.Navy.r, UiKit.Navy.g, UiKit.Navy.b, 0.86f)).gameObject;
+            root = UiKit.Panel("Dim", canvas, new Color(UiKit.Navy.r, UiKit.Navy.g, UiKit.Navy.b, 0.96f)).gameObject;
 
             var slab = UiKit.Rect("Slab", root.transform, new Vector2(-0.1f, -0.2f), new Vector2(0.42f, 1.2f), Vector2.zero, Vector2.zero);
             slab.gameObject.AddComponent<Image>().color = UiKit.StormGrey;
@@ -56,7 +56,7 @@ namespace SayItAgain.UI
                 float y = 0.62f - i * 0.1f;
                 UiKit.Button(UiKit.Rect("Item" + i, buttons.transform, new Vector2(0.06f + i * 0.015f, y - 0.08f), new Vector2(0.4f + i * 0.015f, y), Vector2.zero, Vector2.zero), items[i].Item1, items[i].Item2, 44);
             }
-            UiKit.Label(UiKit.Rect("Note", buttons.transform, new Vector2(0.5f, 0.4f), new Vector2(0.95f, 0.6f), Vector2.zero, Vector2.zero), "pause_note", 30, UiKit.White, TextAlignmentOptions.MidlineLeft);
+            UiKit.Label(UiKit.Rect("Note", buttons.transform, new Vector2(0.5f, 0.12f), new Vector2(0.95f, 0.3f), Vector2.zero, Vector2.zero), "pause_note", 30, UiKit.White, TextAlignmentOptions.MidlineLeft);
 
             settings = SettingsPanel.Build(root.transform, () => { settings.SetActive(false); buttons.SetActive(true); }).gameObject;
             settings.SetActive(false);
