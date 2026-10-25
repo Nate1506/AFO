@@ -255,10 +255,12 @@ namespace SayItAgain.EditorTools
             var slab = Prim(PrimitiveType.Cube, "Mud", root, new Vector3(0, 0.45f, 0), new Vector3(6f, 0.7f, length * 0.7f), mud);
             Object.DestroyImmediate(slab.GetComponent<Collider>());
             var rng = new System.Random(top.GetHashCode());
+            var rubble = Mat("Rubble", new Color(0.36f, 0.32f, 0.27f));
             for (int k = 0; k < 6; k++)
             {
                 var rock = Model("NatureKit/rock_largeA.fbx", root, new Vector3((float)rng.NextDouble() * 4f - 2f, 0.6f, ((float)rng.NextDouble() - 0.5f) * length * 0.7f), (float)rng.NextDouble() * 360f, 2.2f + (float)rng.NextDouble() * 1.6f);
                 foreach (var c in rock.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+                foreach (var r in rock.GetComponentsInChildren<Renderer>()) r.sharedMaterial = rubble;
             }
             return root;
         }
