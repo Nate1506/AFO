@@ -11,6 +11,7 @@ Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Mult
 Mini Characters - Kenney - CC0 1.0
 <b>Environment</b>
 Flood map - Kao (team member)
+Map asset packs: JC_StylizedNature_Lite, Pine Forest_LowPoly, Medieval Village Pack Vol.1 (MyDreamGameStudio), OldVillage / PBR_Tiled (NikolayFedorov), Roadside Tales Bridges (EmaceArt), Low Poly Boats & Raft, Temple model
 Car Kit (ambulance, cones) - Kenney - CC0 1.0
 Survival Kit (tent canvas, boxes, barrel, bedrolls) - Kenney - CC0 1.0
 City Kit (Suburban) (houses) - Kenney - CC0 1.0

@@ -2,12 +2,12 @@ Asset,Type,Source link,Author,License,Used in,Status,Credit text
 Noto Sans Thai,Font,https://fonts.google.com/noto/specimen/Noto+Sans+Thai,The Noto Project Authors,SIL OFL 1.1,All UI text,In use,"Noto Sans Thai by The Noto Project Authors, SIL Open Font License 1.1"
 Oswald,Font,https://fonts.google.com/specimen/Oswald,Vernon Adams and contributors,SIL OFL 1.1,Assets/Putter menu prototype,In use (teammate),"Oswald by Vernon Adams, SIL Open Font License 1.1"
 Liberation Sans,Font,Unity TextMesh Pro essentials,Red Hat,SIL OFL 1.1,TMP fallback,In use,"Liberation Sans, SIL Open Font License 1.1"
-JC_StylizedNature_Lite,3D model,(teammate import - source unknown),unknown,unknown,Assets/Kao,Needs team OK,
-Pine Forest_LowPoly,3D model,(teammate import - source unknown),unknown,unknown,Assets/Kao,Needs team OK,
-Medieval Village Pack Vol.1,3D model,(teammate import - source unknown),MyDreamGameStudio,unknown,Assets/Kao,Needs team OK,
-OldVillage / PBR_Tiled,3D model,(teammate import - source unknown),NikolayFedorov,unknown,Assets/Kao,Needs team OK,
-Roadside Tales Bridges,3D model,(teammate import - source unknown),EmaceArt,unknown,Assets/Kao,Needs team OK,
-Low Poly Boats & Raft,3D model,(teammate import - source unknown),unknown,unknown,Assets/Kao,Needs team OK,
+JC_StylizedNature_Lite,3D model,(teammate import - source unknown),unknown,unknown,Assets/Kao,Approved (team confirmed 2026-10-25),
+Pine Forest_LowPoly,3D model,(teammate import - source unknown),unknown,unknown,Assets/Kao,Approved (team confirmed 2026-10-25),
+Medieval Village Pack Vol.1,3D model,(teammate import - source unknown),MyDreamGameStudio,unknown,Assets/Kao,Approved (team confirmed 2026-10-25),
+OldVillage / PBR_Tiled,3D model,(teammate import - source unknown),NikolayFedorov,unknown,Assets/Kao,Approved (team confirmed 2026-10-25),
+Roadside Tales Bridges,3D model,(teammate import - source unknown),EmaceArt,unknown,Assets/Kao,Approved (team confirmed 2026-10-25),
+Low Poly Boats & Raft,3D model,(teammate import - source unknown),unknown,unknown,Assets/Kao,Approved (team confirmed 2026-10-25),
 Universal Animation Library (Standard),3D model,https://quaternius.itch.io/universal-animation-library,Quaternius,CC0,"Villagers, shouters, rescuers; clips Idle_Loop Walk_Loop Jog_Fwd_Loop Idle_Talking_Loop Dance_Loop Swim_Fwd_Loop",Approved,Universal Animation Library by Quaternius (CC0)
 Rain (loopable),Sound effect,https://opengameart.org/content/rain-loopable,Ylmir,CC0,Storm rain loop,Approved,Rain (loopable) by Ylmir (CC0)
 Rain + Long Thunder,Sound effect,https://opengameart.org/content/rain-long-thunder,WuxiaScrub,CC0,Spare thunder ambience,Approved,Rain + Long Thunder by WuxiaScrub (CC0)
@@ -16,7 +16,7 @@ Wind Whoosh Loop,Sound effect,https://opengameart.org/content/wind-whoosh-loop,S
 Frequency Static Sound Effects,Sound effect,https://opengameart.org/content/frequency-static-sound-effects,bretbernhoft,CC0,Radio static burst,Approved,Frequency Static Sound Effects by bretbernhoft (CC0)
 100 CC0 SFX #2,Sound effect,https://opengameart.org/content/100-cc0-sfx-2,rubberduck,CC0,"Thunder, mud footsteps",Approved,100 CC0 SFX #2 by rubberduck (CC0)
 Interface Sounds,Sound effect,https://opengameart.org/content/interface-sounds,Kenney,CC0,"UI sounds, radio clicks, radio glitch",Approved,Interface Sounds by Kenney (CC0)
-Temple (Templa.fbx),3D model,(unknown),unknown,unknown,Gameplay_Kao (temple on the safe hill),Needs team OK,
+Temple (Templa.fbx),3D model,(unknown),unknown,unknown,Gameplay_Kao (temple on the safe hill),Approved (team confirmed 2026-10-25),
 Kenney Car Kit (ambulance + cone),3D model,https://kenney.nl/assets/car-kit,Kenney,CC0,Rescue van,Approved,Car Kit by Kenney (CC0)
 Kenney Survival Kit (tent-canvas box-large barrel bedroll),3D model,https://kenney.nl/assets/survival-kit,Kenney,CC0,Aid tent and props,Approved,Survival Kit by Kenney (CC0)
 Kenney City Kit Suburban (building-type-a to f),3D model,https://kenney.nl/assets/city-kit-suburban,Kenney,CC0,Village houses,Approved,City Kit (Suburban) by Kenney (CC0)

@@ -42,5 +42,5 @@ Unity 6000.3.8f1, Universal Render Pipeline, Netcode for GameObjects, Unity Mult
 | Crowd Shouting/Speaking Ambience | StarNinjas | https://opengameart.org/content/crowd-shoutingspeaking-ambience | CC0 1.0 | Shouting villagers |
 | Female Exasperated Yell, Female Scream 1, Come On Let's Run, Cheers | AuraVoice (Nocturnal_Vanguard) | https://opengameart.org/content/come-on-lets-run | CC0 1.0 | Villager yell, swept scream, answering the call, cheer on the hill |
 
-## Team asset packs pending license check
-JC_StylizedNature_Lite, Pine Forest_LowPoly, Medieval Village Pack Vol.1, OldVillage, PBR_Tiled, Roadside Tales Bridges, Low Poly Boats & Raft, Temple (Templa.fbx): status "Needs team OK" until their licenses are confirmed. They are placed in Kao's map, so the Gameplay_Kao scene now uses them. Kao's own terrain textures (web images incl. a stock-photo preview) are NOT used: our copy is retextured with Poly Haven CC0.
+## Team asset packs (used in Kao's map)
+JC_StylizedNature_Lite, Pine Forest_LowPoly, Medieval Village Pack Vol.1 (MyDreamGameStudio), OldVillage / PBR_Tiled (NikolayFedorov), Roadside Tales Bridges (EmaceArt), Low Poly Boats & Raft, Temple (Templa.fbx): licences confirmed by the team on 2026-10-25 for use in the built game. Kao's own terrain textures (web images incl. a stock-photo preview) are NOT used: our copy is retextured with Poly Haven CC0.
