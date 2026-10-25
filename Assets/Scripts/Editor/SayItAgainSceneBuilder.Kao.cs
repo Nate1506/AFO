@@ -304,9 +304,15 @@ namespace SayItAgain.EditorTools
             Debug.Log($"[SayItAgain] Kao water: {walls} wall strips");
         }
 
-        /// <summary>Water if the middle is under the flood, or any corner clearly is (no dry gaps along the shore).</summary>
+        /// <summary>Water if the middle is under the flood, or any corner clearly is (no dry gaps along the shore); never under a boardwalk.</summary>
         static bool IsWaterCell(float x, float z, float cell)
         {
+            // Never wall over a boardwalk.
+            for (float dx = 0f; dx <= cell; dx += cell * 0.5f)
+            for (float dz = 0f; dz <= cell; dz += cell * 0.5f)
+                if (Physics.Raycast(new Vector3(x + dx, 30f, z + dz), Vector3.down, out var hit, 60f, ~(1 << WaterLayer), QueryTriggerInteraction.Ignore)
+                    && hit.collider.name == "Boardwalk")
+                    return false;
             if (TopSurface(new Vector2(x + cell * 0.5f, z + cell * 0.5f)) < KaoWaterTop) return true;
             foreach (var c in new[] { new Vector2(x, z), new Vector2(x + cell, z), new Vector2(x, z + cell), new Vector2(x + cell, z + cell) })
                 if (TopSurface(c) < KaoWaterTop - 0.15f) return true;
