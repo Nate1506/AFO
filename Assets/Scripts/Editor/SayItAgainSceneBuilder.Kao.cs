@@ -132,7 +132,7 @@ namespace SayItAgain.EditorTools
             {
                 ("Market", new Vector3(100, 0, 104), "sign_market"),
                 ("OldSchool", new Vector3(52, 0, 70), "sign_school"),
-                ("RiceMill", new Vector3(7, 0, 119), "sign_mill"),
+                ("RiceMill", new Vector3(26, 0, 128), "sign_mill"),
             };
             var shouters = new List<WorldLabel>();
             for (int i = 0; i < gathers.Length; i++)
@@ -270,10 +270,11 @@ namespace SayItAgain.EditorTools
                     for (float d = 0f; d <= len; d += 1f)
                     {
                         var p = Vector2.Lerp(a, b, d / len);
-                        // Boardwalk wherever the road is low, plus a metre either side to step on and off.
+                        // Boardwalk wherever the ground under the road is low (props such as Kao's old bridge
+                        // pieces are not relied on), plus a metre either side to step on and off.
                         bool low = false;
                         for (float e = -1.5f; e <= 1.5f && !low; e += 1.5f)
-                            low = TopSurface(Vector2.Lerp(a, b, Mathf.Clamp01((d + e) / len))) < KaoWaterTop + 0.05f;
+                            low = GroundY(Vector2.Lerp(a, b, Mathf.Clamp01((d + e) / len))) < KaoWaterTop + 0.05f;
                         if (!low) continue;
                         var plank = Prim(PrimitiveType.Cube, "Boardwalk", root, new Vector3(p.x, deck - 0.15f, p.y), new Vector3(4f, 0.3f, 1.15f), wood);
                         plank.rotation = flat;
