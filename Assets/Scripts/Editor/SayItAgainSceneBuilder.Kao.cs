@@ -182,7 +182,7 @@ namespace SayItAgain.EditorTools
             var stairs = new[]
             {
                 ("WestStairs", new Vector2(33, 206), "sign_bridge", 9f),
-                ("SouthStairs", new Vector2(56, 194), "sign_school_ford", 9f),
+                ("SouthStairs", new Vector2(46, 192), "sign_school_ford", 9f),  // angled off the house at the foot of the hill
                 ("EastStairs", new Vector2(80, 210), "sign_market_ford", 9f),
             };
             var top = new Vector2(KaoTemple.x, KaoTemple.z);
