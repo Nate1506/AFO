@@ -43,6 +43,7 @@ namespace SayItAgain.Net
             hud.AddComponent<CardPanel>();
             hud.AddComponent<ResultPanel>();
             hud.AddComponent<PauseMenu>();
+            hud.AddComponent<MapOverlay>();
             hud.AddComponent<TutorialOverlay>();
         }
 

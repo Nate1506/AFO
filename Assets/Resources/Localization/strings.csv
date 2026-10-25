@@ -88,7 +88,9 @@ obj_van,Read HQ's order (Tab) and radio it to the Aid Tent.,อ่านคำ�
 obj_tent,Note what the Van says (Tab). Check it. Pass it to the Village.,จดสิ่งที่รถบอก (Tab) ตรวจให้ชัวร์ แล้วส่งต่อหมู่บ้าน
 obj_village,"Find the villagers, press E to lead them, reach the high hill.",หาชาวบ้าน กด E ให้ตามมา แล้วพาไปเนินสูง
 obj_none,Waiting...,รอสักครู่...
-hud_keys,V talk / Tab card / Q quick-chat / RMB binoculars,V พูด / Tab การ์ด / Q ข้อความด่วน / คลิกขวา กล้องส่องทางไกล
+hud_keys,V talk / Tab card / Q quick-chat / RMB binoculars / M map,V พูด / Tab การ์ด / Q ข้อความด่วน / คลิกขวา กล้องส่องทางไกล / M แผนที่
+map_title,MAP  (M to close),แผนที่  (กด M เพื่อปิด)
+map_you,YOU,คุณ
 hint_water,Deep water! Turn back!,น้ำลึก! ถอยกลับ!
 hint_landslide,Landslide! These stairs are collapsing. Turn back!,ดินถล่ม! บันไดนี้กำลังพัง ถอยกลับ!
 hint_called,"""Follow me!""","""ตามฉันมา!"""
