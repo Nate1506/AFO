@@ -110,6 +110,15 @@ namespace SayItAgain
             gameObject.SetActive(false);
         }
 
+        /// <summary>Demo shortcut: jump to a spot and end up safe (good ending) or swept away (bad ending).</summary>
+        public void WarpTo(Vector3 position, bool safe)
+        {
+            if (Current == State.Swept) return;
+            agent.Warp(position);
+            if (safe) Arrive();
+            else Sweep();
+        }
+
         void Arrive()
         {
             Current = State.Safe;

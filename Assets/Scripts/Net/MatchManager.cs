@@ -125,7 +125,23 @@ namespace SayItAgain.Net
         [Rpc(SendTo.Server)]
         void SkipToEndRpc(bool good)
         {
-            if (IsOver) return;
+            if (IsOver || skipping) return;
+            skipping = true;
+            WarpToHillRpc(good);
+            StartCoroutine(EndAfterWarp(good));
+        }
+
+        bool skipping;
+
+        [Rpc(SendTo.Everyone)]
+        void WarpToHillRpc(bool good) => VillageDirector.Instance?.WarpToHill(good);
+
+        /// <summary>A moment on the hill (cheer or screams) before the result screen.</summary>
+        IEnumerator EndAfterWarp(bool good)
+        {
+            yield return new WaitForSeconds(2.5f);
+            skipping = false;
+            if (IsOver) yield break;
             saved.Value = good ? Level.villagerCount : 0;
             lost.Value = good ? 0 : Level.villagerCount;
             EndRound(good);

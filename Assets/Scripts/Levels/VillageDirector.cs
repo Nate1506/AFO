@@ -120,6 +120,28 @@ namespace SayItAgain
             return gp.transform.position;
         }
 
+        /// <summary>
+        /// Demo shortcut: the village player jumps onto the hill. Good ending: the villagers arrive with them;
+        /// bad ending: the water takes the villagers.
+        /// </summary>
+        public void WarpToHill(bool good)
+        {
+            var rig = GameplayBootstrap.LocalRig;
+            if (GameplayBootstrap.LocalRole != PlayerRole.Village || rig == null || SafeZone.Instance == null) return;
+            var hill = SafeZone.Instance.transform.position;
+            UnityEngine.AI.NavMesh.SamplePosition(hill + new Vector3(0f, 0f, -8f), out var spot, 8f, UnityEngine.AI.NavMesh.AllAreas);
+            var cc = rig.GetComponent<CharacterController>();
+            cc.enabled = false;
+            rig.transform.position = spot.position + Vector3.up * 0.1f;
+            cc.enabled = true;
+            for (int i = 0; i < villagers.Count; i++)
+            {
+                var around = spot.position + Quaternion.Euler(0f, i * 360f / Mathf.Max(1, villagers.Count), 0f) * Vector3.forward * 2.5f;
+                if (good) villagers[i].WarpTo(around, true);
+                else if (villagers[i].Current != Villager.State.Safe) villagers[i].WarpTo(villagers[i].transform.position, false);
+            }
+        }
+
         public void CallVillagersNear(Transform player)
         {
             LastCallTime = Time.time;
