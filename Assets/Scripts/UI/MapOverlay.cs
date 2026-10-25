@@ -89,12 +89,13 @@ namespace SayItAgain.UI
         /// <summary>An overhead orthographic camera framing every terrain tile, used only for snapshots.</summary>
         void SetupCamera()
         {
-            var bounds = new Bounds(Terrain.activeTerrains[0].transform.position, Vector3.zero);
-            foreach (var t in Terrain.activeTerrains)
-            {
-                bounds.Encapsulate(t.transform.position);
-                bounds.Encapsulate(t.transform.position + t.terrainData.size);
-            }
+            // Frame the places that matter (roads, gathering points, spawns, hill), not the empty edges.
+            var bounds = new Bounds(SafeZone.Instance != null ? SafeZone.Instance.transform.position : Vector3.zero, Vector3.zero);
+            foreach (var road in FindObjectsByType<RoutePath>(FindObjectsSortMode.None))
+                foreach (var p in road.points) bounds.Encapsulate(p);
+            foreach (var g in FindObjectsByType<GatherPoint>(FindObjectsSortMode.None)) bounds.Encapsulate(g.transform.position);
+            foreach (var sp in FindObjectsByType<RoleSpawnPoint>(FindObjectsSortMode.None)) bounds.Encapsulate(sp.transform.position);
+            bounds.Expand(new Vector3(50f, 0f, 50f));
             var go = new GameObject("MapCamera");
             go.transform.SetParent(transform, false);
             mapCam = go.AddComponent<Camera>();
@@ -131,7 +132,12 @@ namespace SayItAgain.UI
             foreach (var g in FindObjectsByType<GatherPoint>(FindObjectsSortMode.None))
                 Pin(g.transform.position, orders.gatherKeys[g.optionIndex], UiKit.White);
             foreach (var z in HazardZone.All)
-                if (z.rule == HazardZone.Rule.IfAvoidedCrossing) Pin(z.transform.position, orders.avoidKeys[z.optionIndex], new Color(1f, 0.6f, 0.3f));
+                if (z.rule == HazardZone.Rule.IfAvoidedCrossing)
+                {
+                    // Stairs labels sit outside the hill so they do not pile up on the hill's own label.
+                    var away = SafeZone.Instance != null ? (z.transform.position - SafeZone.Instance.transform.position).normalized : Vector3.zero;
+                    Pin(z.transform.position, orders.avoidKeys[z.optionIndex], new Color(1f, 0.6f, 0.3f), new Vector2(away.x, away.z) * 70f);
+                }
             if (SafeZone.Instance != null) Pin(SafeZone.Instance.transform.position, "lm_hill", new Color(0.4f, 1f, 0.5f));
             foreach (var spawn in FindObjectsByType<RoleSpawnPoint>(FindObjectsSortMode.None))
                 if (spawn.role != PlayerRole.Village) Pin(spawn.transform.position, spawn.role.NameKey(), UiKit.Yellow);
@@ -157,19 +163,23 @@ namespace SayItAgain.UI
             img.raycastTarget = false;
         }
 
-        void Pin(Vector3 world, string key, Color color)
+        void Pin(Vector3 world, string key, Color color) => Pin(world, key, color, new Vector2(0f, 26f));
+
+        void Pin(Vector3 world, string key, Color color, Vector2 labelOffset)
         {
             var dot = UiKit.Rect("Pin", mapRect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-9f, -9f), new Vector2(9f, 9f));
             dot.anchoredPosition = ToMap(world);
             dot.localRotation = Quaternion.Euler(0, 0, 45f);
             dot.gameObject.AddComponent<Image>().color = color;
-            Label(world, key, color, 26f);
+            Label(world, key, color, labelOffset);
         }
 
-        void Label(Vector3 world, string key, Color color, float above = 0f)
+        void Label(Vector3 world, string key, Color color) => Label(world, key, color, Vector2.zero);
+
+        void Label(Vector3 world, string key, Color color, Vector2 offset)
         {
             var box = UiKit.Rect("Label", mapRect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-110f, -16f), new Vector2(110f, 16f));
-            box.anchoredPosition = ToMap(world) + new Vector2(0f, above);
+            box.anchoredPosition = ToMap(world) + offset;
             Tag(box, Vector2.zero, key, color);
         }
 
