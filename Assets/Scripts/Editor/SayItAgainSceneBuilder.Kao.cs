@@ -204,7 +204,7 @@ namespace SayItAgain.EditorTools
             {
                 var dir = new Vector2(Mathf.Cos(deg * Mathf.Deg2Rad), Mathf.Sin(deg * Mathf.Deg2Rad));
                 bool nearStairs = false;
-                foreach (var sd in stairDirs) nearStairs |= Vector2.Angle(dir, sd) < 9f;
+                foreach (var sd in stairDirs) nearStairs |= Vector2.Angle(dir, sd) < 12f;
                 if (nearStairs) continue;
                 float plateau = GroundY(top);
                 float r = 4f;
@@ -213,7 +213,7 @@ namespace SayItAgain.EditorTools
                 var rim = Group("RimNoWalk", hill, new Vector3(c.x, plateau, c.y));
                 rim.rotation = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.y));
                 var vol = rim.gameObject.AddComponent<NavMeshModifierVolume>();
-                vol.size = new Vector3(r * 0.1f + 3f, 30f, 6f);
+                vol.size = new Vector3(r * 0.09f + 0.6f, 30f, 6f);
                 vol.area = NavMesh.GetAreaFromName("Not Walkable");
             }
             AddLandmark(hill.gameObject, "lm_hill", hill.position + Vector3.up * 6f);
