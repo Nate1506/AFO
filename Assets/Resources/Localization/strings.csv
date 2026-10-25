@@ -90,6 +90,7 @@ obj_village,"Find the villagers, press E to lead them, reach the high hill.",ห
 obj_none,Waiting...,รอสักครู่...
 hud_keys,V talk / Tab card / Q quick-chat / RMB binoculars,V พูด / Tab การ์ด / Q ข้อความด่วน / คลิกขวา กล้องส่องทางไกล
 hint_water,Deep water! Turn back!,น้ำลึก! ถอยกลับ!
+hint_landslide,Landslide! These stairs are collapsing. Turn back!,ดินถล่ม! บันไดนี้กำลังพัง ถอยกลับ!
 hint_called,"""Follow me!""","""ตามฉันมา!"""
 hint_following,{0} following / {1} safe,ตามมา {0} คน / ปลอดภัย {1} คน
 card_title_hq,HQ ORDER,คำสั่งจาก HQ

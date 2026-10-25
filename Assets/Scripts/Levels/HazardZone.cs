@@ -60,16 +60,30 @@ namespace SayItAgain
         /// <summary>Feet this far under the surface count as deep water.</summary>
         public const float DeepWaterDepth = 0.45f;
 
+        /// <summary>Rule of the zone that last made IsDeadlyAt true (for the right warning text).</summary>
+        public static Rule LastDeadlyRule { get; private set; }
+
         public static bool IsDeadlyAt(Vector3 pos)
         {
             // Deep open water anywhere on the map (bridges and raised paths keep feet above it).
             bool inAlways = pos.y < WaterLevel - DeepWaterDepth;
+            // Where bound zones overlap (two hill stairs side by side), the one whose centre line is
+            // closest decides, so standing on the safe stairs is never judged by the neighbour.
+            HazardZone best = null;
+            float bestSide = float.MaxValue;
             foreach (var z in All)
             {
                 if (!z.Contains(pos)) continue;
                 if (z.rule == Rule.Always) { inAlways = true; continue; }
-                return z.Deadly;
+                float side = Mathf.Abs(z.transform.InverseTransformPoint(pos).x) / Mathf.Max(0.01f, z.size.x * 0.5f);
+                if (side < bestSide) { bestSide = side; best = z; }
             }
+            if (best != null)
+            {
+                if (best.Deadly) LastDeadlyRule = best.rule;
+                return best.Deadly;
+            }
+            if (inAlways) LastDeadlyRule = Rule.Always;
             return inAlways;
         }
 

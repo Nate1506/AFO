@@ -88,7 +88,7 @@ namespace SayItAgain.UI
             string h = string.Empty;
             if (role == PlayerRole.Village && village != null && !match.IsOver)
             {
-                if (village.PlayerInWater) h = Loc.Get("hint_water");
+                if (village.PlayerInWater) h = Loc.Get(HazardZone.LastDeadlyRule == HazardZone.Rule.IfAvoidedCrossing ? "hint_landslide" : "hint_water");
                 else if (Time.time - village.LastCallTime < 2f) h = Loc.Get("hint_called");
                 else if (village.Following > 0) h = Loc.Format("hint_following", village.Following, village.Saved);
             }

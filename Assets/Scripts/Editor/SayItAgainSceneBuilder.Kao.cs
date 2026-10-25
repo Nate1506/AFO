@@ -187,9 +187,11 @@ namespace SayItAgain.EditorTools
             {
                 var (name, p, sign, width) = stairs[i];
                 var outward = (p - top).normalized;
-                var (edge, foot) = StoneStairs(hill, name, top, outward);
+                var (edge, foot, stairTop, stairFoot) = StoneStairs(hill, name, top, outward);
                 // From just below the plateau edge to the foot of the stairs, outside the safe zone.
-                Zone(hill, name, edge + outward * 1.5f, foot + outward * 2f, width, HazardZone.Rule.IfAvoidedCrossing, i, mud, 0.6f);
+                var hazard = Zone(hill, name, edge + outward * 1.5f, foot + outward * 2f, width, HazardZone.Rule.IfAvoidedCrossing, i, mud, 0.6f);
+                Object.DestroyImmediate(hazard.waterVisual);
+                hazard.waterVisual = Landslide(hazard.transform, stairTop, stairFoot, mud).gameObject;
                 Sign(hill, hill.InverseTransformPoint(OnGround(new Vector3(p.x + outward.x * 8f, 0, p.y + outward.y * 8f), 0f)), sign);
             }
             AddLandmark(hill.gameObject, "lm_hill", hill.position + Vector3.up * 6f);
@@ -205,7 +207,7 @@ namespace SayItAgain.EditorTools
         /// Kao's hill top is a plateau with steep sides, so each way up is a stone stair: from the plateau edge
         /// it drops at a walkable 28 degrees until it meets the ground, in solid steps. Returns the top and foot of the stairs.
         /// </summary>
-        static (Vector2 edge, Vector2 foot) StoneStairs(Transform parent, string name, Vector2 center, Vector2 dir)
+        static (Vector2 edge, Vector2 foot, Vector3 top, Vector3 bottom) StoneStairs(Transform parent, string name, Vector2 center, Vector2 dir)
         {
             float plateau = GroundY(center);
             float r = 4f;
@@ -238,11 +240,31 @@ namespace SayItAgain.EditorTools
                 step.position = new Vector3(at.x, (stepTop + bottom) * 0.5f, at.z);
                 step.gameObject.isStatic = true;
             }
-            return (edge, foot2);
+            return (edge, foot2, top, foot);
+        }
+
+        /// <summary>
+        /// Mud and boulders slumped over the stairs, shown only on the stairs HQ said not to use, so the
+        /// village player sees why the villagers fall there. Visual only: walking in is what kills.
+        /// </summary>
+        static Transform Landslide(Transform parent, Vector3 top, Vector3 foot, Material mud)
+        {
+            var root = Group("Landslide", parent, Vector3.Lerp(foot, top, 0.45f));
+            root.rotation = Quaternion.LookRotation(top - foot);
+            float length = Vector3.Distance(top, foot);
+            var slab = Prim(PrimitiveType.Cube, "Mud", root, new Vector3(0, 0.45f, 0), new Vector3(6f, 0.7f, length * 0.7f), mud);
+            Object.DestroyImmediate(slab.GetComponent<Collider>());
+            var rng = new System.Random(top.GetHashCode());
+            for (int k = 0; k < 6; k++)
+            {
+                var rock = Model("NatureKit/rock_largeA.fbx", root, new Vector3((float)rng.NextDouble() * 4f - 2f, 0.6f, ((float)rng.NextDouble() - 0.5f) * length * 0.7f), (float)rng.NextDouble() * 360f, 2.2f + (float)rng.NextDouble() * 1.6f);
+                foreach (var c in rock.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+            }
+            return root;
         }
 
         /// <summary>A hazard box along the segment a-b (ground level), with a slab shown while it is deadly.</summary>
-        static void Zone(Transform parent, string name, Vector2 a, Vector2 b, float width, HazardZone.Rule rule, int option, Material mat, float depth)
+        static HazardZone Zone(Transform parent, string name, Vector2 a, Vector2 b, float width, HazardZone.Rule rule, int option, Material mat, float depth)
         {
             float low = float.PositiveInfinity, high = float.NegativeInfinity;
             for (int s = 0; s <= 8; s++)
@@ -269,6 +291,7 @@ namespace SayItAgain.EditorTools
                 vis.localScale = new Vector3(width, 0.4f, Mathf.Sqrt(len * len + (yb - ya) * (yb - ya)));
             }
             zone.waterVisual = vis.gameObject;
+            return zone;
         }
 
         static void BuildKaoCutscene()
