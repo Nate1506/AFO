@@ -1,6 +1,6 @@
 <b>Credits</b>
 <b>Team</b>
-Say It Again was made for the We R in Trouble Game contest (All for One University).
+Say It Again was made at All for One University.
 <b>Fonts</b>
 Noto Sans Thai - The Noto Project Authors - SIL Open Font License 1.1
 Oswald - Vernon Adams and contributors - SIL Open Font License 1.1

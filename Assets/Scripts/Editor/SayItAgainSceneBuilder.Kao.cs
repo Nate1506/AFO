@@ -63,7 +63,7 @@ namespace SayItAgain.EditorTools
                         Object.DestroyImmediate(go.GetComponent<BoxCollider>());
                         var rise = go.AddComponent<FloodRise>();
                         rise.startY = 0.15f;
-                        rise.endY = 0.5f;
+                        rise.endY = KaoWaterTop - 0.02f;
                         floodMat = go.GetComponent<Renderer>().sharedMaterial;
                         break;
                 }
@@ -79,10 +79,13 @@ namespace SayItAgain.EditorTools
             var shouters = BuildKaoVillage(world);
             BuildKaoRoads(world, floodMat);
             BuildKaoHill(world);
+            BuildKaoWater(world);
 
             var nav = new GameObject("NavMesh").AddComponent<NavMeshSurface>();
             nav.collectObjects = CollectObjects.All;
             nav.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
+            // The water walls only block; the NavMesh stays off the water through their modifier volumes.
+            nav.layerMask = ~(1 << WaterLayer);
             nav.BuildNavMesh();
             const string navPath = SceneDir + "/Gameplay_Kao_NavMesh.asset";
             AssetDatabase.DeleteAsset(navPath);
@@ -175,12 +178,12 @@ namespace SayItAgain.EditorTools
         {
             var hill = Group("TempleHill", world, OnGround(KaoTemple, 0f));
             var mud = Mat("Mud", new Color(0.33f, 0.26f, 0.18f));
-            // Each stairs zone covers its whole side of the hill, so the hill cannot be climbed around them.
+            // Each stairs zone covers just its stairs: the rest of the plateau edge is cliff.
             var stairs = new[]
             {
-                ("WestStairs", new Vector2(33, 206), "sign_bridge", 40f),
-                ("SouthStairs", new Vector2(56, 194), "sign_school_ford", 40f),
-                ("EastStairs", new Vector2(80, 210), "sign_market_ford", 40f),
+                ("WestStairs", new Vector2(33, 206), "sign_bridge", 9f),
+                ("SouthStairs", new Vector2(56, 194), "sign_school_ford", 9f),
+                ("EastStairs", new Vector2(80, 210), "sign_market_ford", 9f),
             };
             var top = new Vector2(KaoTemple.x, KaoTemple.z);
             for (int i = 0; i < stairs.Length; i++)
@@ -241,6 +244,86 @@ namespace SayItAgain.EditorTools
                 step.gameObject.isStatic = true;
             }
             return (edge, foot2, top, foot);
+        }
+
+        /// <summary>Highest the flood gets; ground below it is water nobody can walk into.</summary>
+        const float KaoWaterTop = 0.42f;
+        const int WaterLayer = 4;
+
+        /// <summary>
+        /// Nobody wades through the flood: where a road crosses low ground it gets a plank boardwalk above
+        /// the water, then every patch whose top surface stays under the water gets an invisible wall
+        /// (blocks the player) and a not-walkable volume (keeps villagers off it).
+        /// </summary>
+        static void BuildKaoWater(Transform world)
+        {
+            var root = Group("Water", world, Vector3.zero);
+            var wood = Mat("Wood", new Color(0.45f, 0.32f, 0.2f));
+            const float deck = KaoWaterTop + 0.2f;
+            foreach (var road in KaoRoads)
+                for (int i = 1; i < road.Length; i++)
+                {
+                    var a = road[i - 1];
+                    var b = road[i];
+                    float len = Vector2.Distance(a, b);
+                    var flat = Quaternion.LookRotation(new Vector3(b.x - a.x, 0, b.y - a.y));
+                    for (float d = 0f; d <= len; d += 1f)
+                    {
+                        var p = Vector2.Lerp(a, b, d / len);
+                        // Boardwalk wherever the road is low, plus a metre either side to step on and off.
+                        bool low = false;
+                        for (float e = -1.5f; e <= 1.5f && !low; e += 1.5f)
+                            low = TopSurface(Vector2.Lerp(a, b, Mathf.Clamp01((d + e) / len))) < KaoWaterTop + 0.05f;
+                        if (!low) continue;
+                        var plank = Prim(PrimitiveType.Cube, "Boardwalk", root, new Vector3(p.x, deck - 0.15f, p.y), new Vector3(4f, 0.3f, 1.15f), wood);
+                        plank.rotation = flat;
+                        plank.gameObject.isStatic = true;
+                    }
+                }
+            Physics.SyncTransforms();
+
+            // Merge water cells along each row into long boxes.
+            const float cell = 2f;
+            int walls = 0;
+            for (float z = -120f; z < 300f; z += cell)
+            {
+                float start = float.NaN;
+                for (float x = -120f; x <= 240f + cell; x += cell)
+                {
+                    bool water = x <= 240f && TopSurface(new Vector2(x + cell * 0.5f, z + cell * 0.5f)) < KaoWaterTop;
+                    if (water && float.IsNaN(start)) start = x;
+                    if (!water && !float.IsNaN(start))
+                    {
+                        WaterWall(root, start, x, z, cell);
+                        walls++;
+                        start = float.NaN;
+                    }
+                }
+            }
+            Debug.Log($"[SayItAgain] Kao water: {walls} wall strips");
+        }
+
+        static void WaterWall(Transform parent, float x0, float x1, float z, float cell)
+        {
+            var go = Group("WaterWall", parent, new Vector3((x0 + x1) * 0.5f, KaoWaterTop, z + cell * 0.5f)).gameObject;
+            go.layer = WaterLayer;
+            go.isStatic = true;
+            var box = go.AddComponent<BoxCollider>();
+            box.size = new Vector3(x1 - x0, 4f, cell);
+            box.center = new Vector3(0, 1.5f, 0);
+            var vol = go.AddComponent<NavMeshModifierVolume>();
+            vol.size = new Vector3(x1 - x0, 6f, cell);
+            vol.center = new Vector3(0, 0f, 0);
+            vol.area = NavMesh.GetAreaFromName("Not Walkable");
+        }
+
+        /// <summary>Height of whatever you would stand on here (terrain, bridge, pier, boardwalk).</summary>
+        static float TopSurface(Vector2 p)
+        {
+            float best = GroundY(p);
+            foreach (var hit in Physics.RaycastAll(new Vector3(p.x, 60f, p.y), Vector3.down, 120f, ~(1 << WaterLayer), QueryTriggerInteraction.Ignore))
+                if (hit.point.y > best && hit.point.y < 30f) best = hit.point.y;
+            return best;
         }
 
         /// <summary>
