@@ -197,6 +197,25 @@ namespace SayItAgain.EditorTools
                 hazard.waterVisual = Landslide(hazard.transform, stairTop, stairFoot, mud).gameObject;
                 Sign(hill, hill.InverseTransformPoint(OnGround(new Vector3(p.x + outward.x * 8f, 0, p.y + outward.y * 8f), 0f)), sign);
             }
+            // The only ways up are the stairs: everywhere else the rim of the plateau is closed to villagers
+            // (a gentle stretch of slope would otherwise let them walk round the forbidden stairs).
+            var stairDirs = System.Array.ConvertAll(stairs, st => (st.Item2 - top).normalized);
+            for (int deg = 0; deg < 360; deg += 5)
+            {
+                var dir = new Vector2(Mathf.Cos(deg * Mathf.Deg2Rad), Mathf.Sin(deg * Mathf.Deg2Rad));
+                bool nearStairs = false;
+                foreach (var sd in stairDirs) nearStairs |= Vector2.Angle(dir, sd) < 9f;
+                if (nearStairs) continue;
+                float plateau = GroundY(top);
+                float r = 4f;
+                while (r < 40f && GroundY(top + dir * (r + 0.5f)) > plateau - 0.4f) r += 0.5f;
+                var c = top + dir * (r + 2f);
+                var rim = Group("RimNoWalk", hill, new Vector3(c.x, plateau, c.y));
+                rim.rotation = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.y));
+                var vol = rim.gameObject.AddComponent<NavMeshModifierVolume>();
+                vol.size = new Vector3(r * 0.1f + 3f, 30f, 6f);
+                vol.area = NavMesh.GetAreaFromName("Not Walkable");
+            }
             AddLandmark(hill.gameObject, "lm_hill", hill.position + Vector3.up * 6f);
             var safe = Group("SafeZone", world, hill.position);
             var zone = safe.gameObject.AddComponent<SafeZone>();
