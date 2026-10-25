@@ -290,7 +290,7 @@ namespace SayItAgain.EditorTools
                 float start = float.NaN;
                 for (float x = -120f; x <= 240f + cell; x += cell)
                 {
-                    bool water = x <= 240f && TopSurface(new Vector2(x + cell * 0.5f, z + cell * 0.5f)) < KaoWaterTop;
+                    bool water = x <= 240f && IsWaterCell(x, z, cell);
                     if (water && float.IsNaN(start)) start = x;
                     if (!water && !float.IsNaN(start))
                     {
@@ -301,6 +301,15 @@ namespace SayItAgain.EditorTools
                 }
             }
             Debug.Log($"[SayItAgain] Kao water: {walls} wall strips");
+        }
+
+        /// <summary>Water if the middle is under the flood, or any corner clearly is (no dry gaps along the shore).</summary>
+        static bool IsWaterCell(float x, float z, float cell)
+        {
+            if (TopSurface(new Vector2(x + cell * 0.5f, z + cell * 0.5f)) < KaoWaterTop) return true;
+            foreach (var c in new[] { new Vector2(x, z), new Vector2(x + cell, z), new Vector2(x, z + cell), new Vector2(x + cell, z + cell) })
+                if (TopSurface(c) < KaoWaterTop - 0.15f) return true;
+            return false;
         }
 
         static void WaterWall(Transform parent, float x0, float x1, float z, float cell)
