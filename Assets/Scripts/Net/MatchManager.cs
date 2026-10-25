@@ -108,12 +108,28 @@ namespace SayItAgain.Net
         {
             if (!IsSpawned) return;
             if (Level != null) StormState.Intensity = Level.weather.IntensityAt(Progress);
+            // Demo shortcut: 1 jumps to the good ending, 2 to the bad one (any player can press it).
+            var keys = UnityEngine.InputSystem.Keyboard.current;
+            if (keys != null && !IsOver && !UI.PauseMenu.IsOpen)
+            {
+                if (keys.digit1Key.wasPressedThisFrame) SkipToEndRpc(true);
+                else if (keys.digit2Key.wasPressedThisFrame) SkipToEndRpc(false);
+            }
             if (!IsServer) return;
             if (phase.Value == MatchPhase.Briefing && Now >= playStart.Value) phase.Value = MatchPhase.Playing;
             if (phase.Value == MatchPhase.Playing && Now >= stormEnd.Value) EndRound(false);
         }
 
         // ---------- Client -> server ----------
+
+        [Rpc(SendTo.Server)]
+        void SkipToEndRpc(bool good)
+        {
+            if (IsOver) return;
+            saved.Value = good ? Level.villagerCount : 0;
+            lost.Value = good ? 0 : Level.villagerCount;
+            EndRound(good);
+        }
 
         /// <summary>Every edit of a relay card is mirrored so the Chain Reveal shows what each player believed.</summary>
         [Rpc(SendTo.Server)]
