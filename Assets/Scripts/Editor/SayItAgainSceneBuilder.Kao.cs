@@ -311,7 +311,10 @@ namespace SayItAgain.EditorTools
             var box = go.AddComponent<BoxCollider>();
             box.size = new Vector3(x1 - x0, 4f, cell);
             box.center = new Vector3(0, 1.5f, 0);
-            var vol = go.AddComponent<NavMeshModifierVolume>();
+            // The surface skips the water layer, volumes included, so the volume lives on its own child.
+            var marker = new GameObject("NoWalk");
+            marker.transform.SetParent(go.transform, false);
+            var vol = marker.AddComponent<NavMeshModifierVolume>();
             vol.size = new Vector3(x1 - x0, 6f, cell);
             vol.center = new Vector3(0, 0f, 0);
             vol.area = NavMesh.GetAreaFromName("Not Walkable");
